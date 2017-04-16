@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ca/mem_arena.h"
+#include "ca/types.h"
 
 namespace ca
 {
@@ -19,6 +20,12 @@ namespace ca
 		}
 
 		void * arena_alloc(heaparena_t * arena, size_t size, size_t alignment);
+		template <typename T>
+		void * arena_alloc(heaparena_t * arena, u32 count, size_t alignment)
+		{
+			return arena_alloc(arena, count * sizeof(T), alignment);
+		}
+
 		void arena_free(heaparena_t * arena, void * block);
 	}
 }

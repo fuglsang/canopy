@@ -2,7 +2,7 @@
 
 #if _WIN32
 #define CA_PLATFORM_WINDOWS 1
-#define CA_PLATFORM_OPENGL 1
+#define CA_PLATFORM_VULKAN 1
 #else
 #error unsupported platform
 #endif

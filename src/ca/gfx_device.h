@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ca/mem_arena.h"
+#include "ca/mem_heaparena.h"
 
 namespace ca
 {
@@ -9,10 +9,10 @@ namespace ca
 		struct device_t
 		{
 			void * handle;
-			mem::arena_t * arena;
+			mem::heaparena_t * arena;
 		};
 
-		void create_device(mem::arena_t * arena, device_t * device);
-		void destroy_device(mem::arena_t * arena, device_t * device);
+		void create_device(device_t * device, mem::heaparena_t * arena);
+		void destroy_device(device_t * device);
 	}
 }

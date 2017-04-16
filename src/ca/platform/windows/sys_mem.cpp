@@ -8,14 +8,14 @@ namespace ca
 	{
 		void * process_alloc(size_t size)
 		{
-			HANDLE heapHandle = GetProcessHeap();
-			return HeapAlloc(heapHandle, 0, size);
+			HANDLE h = GetProcessHeap();
+			return HeapAlloc(h, 0, size);
 		}
 
 		void process_free(void * block)
 		{
-			HANDLE heapHandle = GetProcessHeap();
-			HeapFree(heapHandle, 0, block);
+			HANDLE h = GetProcessHeap();
+			HeapFree(h, 0, block);
 		}
 	}
 }

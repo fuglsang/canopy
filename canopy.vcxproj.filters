@@ -120,9 +120,6 @@
     <ClInclude Include="src\ca\platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\platform\vulkan\gfx_device.cpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ca\sys_trap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -172,13 +169,16 @@
     <ClCompile Include="src\ca\platform\windows\sys_clock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ca\platform\opengl\gfx_device.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ca\platform\windows\sys_trap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="apps\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\platform\opengl\gfx_device_opengl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\platform\vulkan\gfx_device_vulkan.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
