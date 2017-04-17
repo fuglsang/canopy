@@ -1,8 +1,9 @@
-#include "ca/sys_thread.h"
-#include "ca/core_assert.h"
 #include "ca/platform.h"
 
-#if CA_PLATFORM_WINDOWS
+#if CA_PLATFORM_WIN32
+#include "ca/sys_thread.h"
+#include "ca/core_assert.h"
+
 namespace ca
 {
 	namespace sys

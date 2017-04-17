@@ -185,6 +185,8 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\data_image.h" />
     <ClInclude Include="src\ca\data_buffer.h" />
     <ClInclude Include="src\ca\gfx.h" />
+    <ClInclude Include="src\ca\gfx\opengl.h" />
+    <ClInclude Include="src\ca\gfx\vulkan.h" />
     <ClInclude Include="src\ca\math.h" />
     <ClInclude Include="src\ca\math_bezier.h" />
     <ClInclude Include="src\ca\mem.h" />

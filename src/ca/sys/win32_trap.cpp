@@ -1,7 +1,8 @@
 #include "ca/platform.h"
+
+#if CA_PLATFORM_WIN32
 #include "ca/sys_trap.h"
 
-#if CA_PLATFORM_WINDOWS
 namespace ca
 {
 	namespace sys

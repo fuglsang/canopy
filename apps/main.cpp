@@ -8,6 +8,7 @@
 #include "ca/sys_clock.h"
 #include "ca/sys_trap.h"
 #include "ca/sys_heap.h"
+#include "ca/sys_thread.h"
 
 using namespace ca;
 using namespace ca::core;
@@ -41,6 +42,7 @@ void main(int argc, char** argv)
 	auto g = make_delegate<decltype(&blah_t::test3), &blah_t::test3>(bla);
 
 	f();
+	g();
 
 	mat4_t A, B;
 	mat4_t M = A + B;
@@ -54,6 +56,7 @@ void main(int argc, char** argv)
 	while (x++ < 10)
 	{
 		CA_LOG("clock is %f", (f32)sys::clock_micro());
+		sys::thread_sleep(60);
 	}
 
 	size_t heap_size = 128 * 1024 * 1024;

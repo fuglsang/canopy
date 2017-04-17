@@ -1,61 +1,136 @@
-#include "ca/gfx_device.h"
 #include "ca/platform.h"
+
+#if CA_PLATFORM_VULKAN
 #include "ca/types.h"
 #include "ca/core_assert.h"
 #include "ca/core_log.h"
+#include "ca/gfx_device.h"
+#include "ca/gfx/vulkan.h"
 
-#include <vulkan/vulkan.h>
-
-#if CA_PLATFORM_VULKAN
 namespace ca
 {
 	namespace gfx
 	{
-		template <typename A>
-		struct vulkan_allocation_callbacks
+		struct queue_indices_t
 		{
-			static void * VKAPI_PTR alloc(void * pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
-			{
-				A * arena = reinterpret_cast<A *>(pUserData);
-				return arena_alloc(arena, size, alignment);
-			}
-
-			static void * VKAPI_PTR realloc(void * pUserData, void * pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
-			{
-				//TODO
-				CA_LOG("realloc missing impl");
-				return nullptr;
-			}
-
-			static void VKAPI_PTR free(void * pUserData, void * memory)
-			{
-				A * arena = reinterpret_cast<A *>(pUserData);
-				arena_free(arena, memory);
-			}
+			u32 graphic;
+			u32 compute;
 		};
 
-		struct vulkan_device_data
+		queue_indices_t select_queue_indices(VkPhysicalDevice device, mem::heaparena_t * arena)
 		{
-			VkDevice device;
-			VkInstance instance;
-			VkAllocationCallbacks allocator;
-		};
+			queue_indices_t queue_indices;
+			queue_indices.graphic = -1;
+			queue_indices.compute = -1;
+
+			u32 queue_properties_count;
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_properties_count, nullptr);
+
+			VkQueueFamilyProperties * queue_properties = mem::arena_alloc<VkQueueFamilyProperties>(arena, queue_properties_count);
+			{
+				for (u32 i = 0; i != queue_properties_count; i++)
+				{
+					if (queue_properties[i].queueCount < 1)
+						continue;
+					if (queue_indices.graphic == -1 && queue_properties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+						queue_indices.graphic = i;
+					if (queue_indices.compute == -1 && queue_properties[i].queueFlags & VK_QUEUE_COMPUTE_BIT)
+						queue_indices.compute = i;
+					if (queue_indices.graphic != -1 && queue_indices.compute != -1)
+						break;
+				}
+			}
+			mem::arena_free(arena, queue_properties);
+
+			return queue_indices;
+		}
+
+		VkPhysicalDevice select_physical_device(VkInstance instance, mem::heaparena_t * arena)
+		{
+			VkResult ret;
+
+			CA_LOG("vulkan_device: select physical device ...");
+			VkPhysicalDevice device = VK_NULL_HANDLE;
+			u32 device_count = 0;
+			i32 device_score = -1;
+			i32 device_index = -1;
+
+			ret = vkEnumeratePhysicalDevices(instance, &device_count, nullptr);
+			CA_ASSERT(ret == VK_SUCCESS);
+			CA_LOG("vulkan_device: %d physical devices", device_count);
+
+			VkPhysicalDevice * devices = mem::arena_alloc<VkPhysicalDevice>(arena, device_count);
+			{
+				ret = vkEnumeratePhysicalDevices(instance, &device_count, devices);
+				CA_ASSERT(ret == VK_SUCCESS);
+
+				VkPhysicalDeviceFeatures device_features;
+				VkPhysicalDeviceProperties device_properties;
+
+				for (u32 i = 0; i != device_count; i++)
+				{
+					vkGetPhysicalDeviceFeatures(devices[i], &device_features);
+					vkGetPhysicalDeviceProperties(devices[i], &device_properties);
+
+					i32 score = -1;
+					if (device_features.geometryShader)
+					{
+						switch (device_properties.deviceType)
+						{
+						case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+							score = 8; break;
+						case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+							score = 4; break;
+						case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+							score = 2; break;
+						case VK_PHYSICAL_DEVICE_TYPE_CPU:
+							score = 1; break;
+						}
+					}
+
+					CA_LOG("vulkan_device: index %d: %s (score %d)", i, device_properties.deviceName, score);
+					if (score > device_score)
+					{
+						queue_indices_t queue_indices = select_queue_indices(devices[i], arena);
+						CA_LOG("vulkan_device: index %d: graphics queue %d, compute queue %d", i, queue_indices.graphic, queue_indices.compute);
+
+						if (queue_indices.graphic != -1 && queue_indices.compute != -1)
+						{
+							device_score = score;
+							device_index = i;
+						}
+					}
+				}
+
+				if (device_index != -1)
+				{
+					CA_LOG("vulkan_device: selected index %d", device_index);
+					device = devices[device_index];
+				}
+				else
+				{
+					CA_LOG("vulkan_device: no suitable physical devices");
+				}
+			}
+			mem::arena_free(arena, devices);
+
+			return device;
+		}
 
 		void create_device(device_t * device, mem::heaparena_t * arena)
 		{
 			VkResult ret;
 
-			vulkan_device_data data;
-			data.instance = VK_NULL_HANDLE;
-			data.device = VK_NULL_HANDLE;
-			data.allocator.pUserData = arena;
-			data.allocator.pfnAllocation = &vulkan_allocation_callbacks<mem::heaparena_t>::alloc;
-			data.allocator.pfnReallocation = &vulkan_allocation_callbacks<mem::heaparena_t>::realloc;
-			data.allocator.pfnFree = &vulkan_allocation_callbacks<mem::heaparena_t>::free;
-			data.allocator.pfnInternalAllocation = nullptr;
-			data.allocator.pfnInternalFree = nullptr;
+			vulkan_device_t vulkan_device;
+			vulkan_device.instance = VK_NULL_HANDLE;
+			vulkan_device.device = VK_NULL_HANDLE;
+			vulkan_device.allocator.pUserData = arena;
+			vulkan_device.allocator.pfnAllocation = &vulkan_allocation_callbacks<mem::heaparena_t>::alloc;
+			vulkan_device.allocator.pfnReallocation = &vulkan_allocation_callbacks<mem::heaparena_t>::realloc;
+			vulkan_device.allocator.pfnFree = &vulkan_allocation_callbacks<mem::heaparena_t>::free;
+			vulkan_device.allocator.pfnInternalAllocation = nullptr;
+			vulkan_device.allocator.pfnInternalFree = nullptr;
 
-			// INSTANCE PARAMS
 			VkApplicationInfo application_info;
 			application_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 			application_info.pNext = nullptr;
@@ -75,72 +150,48 @@ namespace ca
 			create_instance_info.enabledExtensionCount = 0;
 			create_instance_info.ppEnabledExtensionNames = nullptr;
 
-			// GET INSTANCE
+			// CREATE INSTANCE
 			CA_LOG("vulkan_device: create instance ...");
-			ret = vkCreateInstance(&create_instance_info, &data.allocator, &data.instance);
+			ret = vkCreateInstance(&create_instance_info, &vulkan_device.allocator, &vulkan_device.instance);
 			CA_ASSERT(ret == VK_SUCCESS);
 
-			// GET PHYSICAL DEVICE
-			CA_LOG("vulkan_device: scanning physical devices ...");
-			i32 physical_device_index = -1;
-			u32 physical_device_count = 0;
-			ret = vkEnumeratePhysicalDevices(data.instance, &physical_device_count, nullptr);
-			CA_ASSERT(ret == VK_SUCCESS);
-			CA_LOG("vulkan_device: found %d physical devices", physical_device_count);
+			// SELECT PHYSICAL DEVICE
+			VkPhysicalDevice physical_device = select_physical_device(vulkan_device.instance, arena);
+			CA_ASSERT(physical_device != VK_NULL_HANDLE);
 
-			VkPhysicalDevice * physical_devices = (VkPhysicalDevice *)mem::arena_alloc(arena, physical_device_count * sizeof(VkPhysicalDevice), alignof(VkPhysicalDevice));
-			{
-				ret = vkEnumeratePhysicalDevices(data.instance, &physical_device_count, physical_devices);
-				CA_ASSERT(ret == VK_SUCCESS);
-
-				for (u32 i = 0; i != physical_device_count; i++)
-				{
-					physical_device_index = i;
-					break;
-				}
-
-				if (physical_device_index != -1)
-				{
-					VkPhysicalDevice physical_device = physical_devices[physical_device_index];
-					VkPhysicalDeviceProperties physical_device_properties;
-					vkGetPhysicalDeviceProperties(physical_device, &physical_device_properties);
-					CA_LOG("vulkan_device: selected %s", physical_device_properties.deviceName);
-
-					VkDeviceCreateInfo device_create_info;
-					device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-					device_create_info.pNext = nullptr;
-					device_create_info.flags = 0;
-					device_create_info.queueCreateInfoCount = 0;//TODO
-					device_create_info.pQueueCreateInfos = nullptr;//TODO
-					device_create_info.enabledLayerCount = 0;
-					device_create_info.ppEnabledLayerNames = nullptr;
-					device_create_info.enabledExtensionCount = 0;
-					device_create_info.ppEnabledExtensionNames = nullptr;
-					device_create_info.pEnabledFeatures = 0;//TODO
+			// CREATE LOGICAL DEVICE
+			VkDeviceCreateInfo device_create_info;
+			device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+			device_create_info.pNext = nullptr;
+			device_create_info.flags = 0;
+			device_create_info.queueCreateInfoCount = 0;//TODO
+			device_create_info.pQueueCreateInfos = nullptr;//TODO
+			device_create_info.enabledLayerCount = 0;
+			device_create_info.ppEnabledLayerNames = nullptr;
+			device_create_info.enabledExtensionCount = 0;
+			device_create_info.ppEnabledExtensionNames = nullptr;
+			device_create_info.pEnabledFeatures = 0;//TODO
 					
-					CA_LOG("vulkan_device: create logical device ...");
-					ret = vkCreateDevice(physical_devices[physical_device_index], &device_create_info, &data.allocator, &data.device);
-					CA_ASSERT(ret == VK_SUCCESS);
+			CA_LOG("vulkan_device: create logical device ...");
+			ret = vkCreateDevice(physical_device, &device_create_info, &vulkan_device.allocator, &vulkan_device.device);
+			CA_ASSERT(ret == VK_SUCCESS);
 
-					CA_LOG("vulkan_device: allocate descriptor ...");
-					device->handle = mem::arena_alloc<vulkan_device_data>(arena, 1, 1);
-					device->arena = arena;
-					memcpy(device->handle, &data, sizeof(vulkan_device_data));
+			CA_LOG("vulkan_device: allocate descriptor ...");
+			device->handle = mem::arena_alloc<vulkan_device_t>(arena, 1);
+			device->arena = arena;
+			memcpy(device->handle, &vulkan_device, sizeof(vulkan_device_t));
 
-					CA_LOG("vulkan_device: READY");
-				}
-			}
-			mem::arena_free(arena, physical_devices);
+			CA_LOG("vulkan_device: READY");
 		}
 
 		void destroy_device(device_t * device)
 		{
-			vulkan_device_data * data = reinterpret_cast<vulkan_device_data *>(device->handle);
+			vulkan_device_t * vulkan_device = resolve_device(device->handle);
 
 			CA_LOG("vulkan_device: destroy logical device ... ");
-			vkDestroyDevice(data->device, &data->allocator);
+			vkDestroyDevice(vulkan_device->device, &vulkan_device->allocator);
 			CA_LOG("vulkan_device: destroy instance ... ");
-			vkDestroyInstance(data->instance, &data->allocator);
+			vkDestroyInstance(vulkan_device->instance, &vulkan_device->allocator);
 
 			CA_LOG("vulkan_device: free descriptor ...");
 			mem::arena_free(device->arena, device->handle);

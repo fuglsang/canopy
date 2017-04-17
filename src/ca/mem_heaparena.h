@@ -21,9 +21,9 @@ namespace ca
 
 		void * arena_alloc(heaparena_t * arena, size_t size, size_t alignment);
 		template <typename T>
-		void * arena_alloc(heaparena_t * arena, u32 count, size_t alignment)
+		T * arena_alloc(heaparena_t * arena, u32 count)
 		{
-			return arena_alloc(arena, count * sizeof(T), alignment);
+			return reinterpret_cast<T *>(arena_alloc(arena, count * sizeof(T), alignof(T)));
 		}
 
 		void arena_free(heaparena_t * arena, void * block);

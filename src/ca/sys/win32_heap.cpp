@@ -1,7 +1,8 @@
-#include "ca/sys_heap.h"
 #include "ca/platform.h"
 
-#if CA_PLATFORM_WINDOWS
+#if CA_PLATFORM_WIN32
+#include "ca/sys_heap.h"
+
 namespace ca
 {
 	namespace sys
