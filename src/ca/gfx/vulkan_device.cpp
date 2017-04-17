@@ -124,6 +124,7 @@ namespace ca
 
 					CA_LOG("vulkan_device: allocate descriptor ...");
 					device->handle = mem::arena_alloc<vulkan_device_data>(arena, 1, 1);
+					device->arena = arena;
 					memcpy(device->handle, &data, sizeof(vulkan_device_data));
 
 					CA_LOG("vulkan_device: READY");

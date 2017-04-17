@@ -6,7 +6,8 @@ namespace ca
 {
 	namespace mem
 	{
-		void create_arena(chunkarena_t * arena, void * base, size_t size)
+		template <u32 CHUNK_SIZE, u32 CHUNK_ALIGNMENT>
+		void create_arena(chunkarena_t<CHUNK_SIZE, CHUNK_ALIGNMENT> * arena, void * base, size_t size)
 		{
 			arena->base = base;
 			arena->size = size;
@@ -14,12 +15,14 @@ namespace ca
 			arena->free = size;
 		}
 
-		void * arena_alloc(chunkarena_t * arena, size_t size, size_t alignment)
+		template <u32 CHUNK_SIZE, u32 CHUNK_ALIGNMENT>
+		void * arena_alloc(chunkarena_t<CHUNK_SIZE, CHUNK_ALIGNMENT> * arena, size_t size, size_t alignment)
 		{
 			return nullptr;//TODO
 		}
 
-		void arena_free(chunkarena_t * arena, void * block)
+		template <u32 CHUNK_SIZE, u32 CHUNK_ALIGNMENT>
+		void arena_free(chunkarena_t<CHUNK_SIZE, CHUNK_ALIGNMENT> * arena, void * block)
 		{
 			CA_ASSERT_MSG(false, "not supported");
 		}

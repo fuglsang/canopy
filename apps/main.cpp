@@ -7,7 +7,7 @@
 #include "ca/core_log.h"
 #include "ca/sys_clock.h"
 #include "ca/sys_trap.h"
-#include "ca/sys_mem.h"
+#include "ca/sys_heap.h"
 
 using namespace ca;
 using namespace ca::core;
@@ -53,11 +53,11 @@ void main(int argc, char** argv)
 	int x = 0;
 	while (x++ < 10)
 	{
-		CA_LOG("clock is %f\n", (f32)sys::clock_micro());
+		CA_LOG("clock is %f", (f32)sys::clock_micro());
 	}
 
 	size_t heap_size = 128 * 1024 * 1024;
-	void * heap_base = sys::process_alloc(heap_size);
+	void * heap_base = sys::heap_alloc(heap_size);
 	{
 		ca::mem::heaparena_t heap;
 		ca::mem::create_arena(&heap, heap_base, heap_size);
@@ -67,7 +67,7 @@ void main(int argc, char** argv)
 
 		ca::gfx::destroy_device(&device);
 	}
-	sys::process_free(heap_base);
+	sys::heap_free(heap_base);
 
 	getchar();
 

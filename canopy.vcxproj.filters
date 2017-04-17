@@ -99,9 +99,6 @@
     <ClInclude Include="src\ca\sys_clock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\sys_mem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ca\sys_mutex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -124,6 +121,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ca\core_action.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\sys_heap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -157,28 +157,28 @@
     <ClCompile Include="ext\tlsf\tlsf.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ca\platform\windows\sys_thread.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ca\platform\windows\sys_mutex.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ca\platform\windows\sys_mem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ca\platform\windows\sys_clock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ca\platform\windows\sys_trap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="apps\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ca\platform\opengl\gfx_device_opengl.cpp">
+    <ClCompile Include="src\ca\sys\win32_clock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ca\platform\vulkan\gfx_device_vulkan.cpp">
+    <ClCompile Include="src\ca\sys\win32_heap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\sys\win32_mutex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\sys\win32_thread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\sys\win32_trap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\gfx\opengl_device.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\gfx\vulkan_device.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

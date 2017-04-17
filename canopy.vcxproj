@@ -199,9 +199,9 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\math_util.h" />
     <ClInclude Include="src\ca\math_vec.h" />
     <ClInclude Include="src\ca\core_delegate.h" />
+    <ClInclude Include="src\ca\sys_heap.h" />
     <ClInclude Include="src\ca\sys_trap.h" />
     <ClInclude Include="src\ca\types.h" />
-    <ClInclude Include="src\ca\sys_mem.h" />
     <ClInclude Include="src\ca\sys_mutex.h" />
     <ClInclude Include="src\ca\sys_thread.h" />
     <ClInclude Include="src\ca\gfx_cmdbuf.h" />
@@ -221,17 +221,17 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="apps\main.cpp" />
     <ClCompile Include="ext\tlsf\tlsf.c" />
     <ClCompile Include="src\ca\core_jobsystem.cpp" />
+    <ClCompile Include="src\ca\gfx\opengl_device.cpp" />
+    <ClCompile Include="src\ca\gfx\vulkan_device.cpp" />
     <ClCompile Include="src\ca\mem_chunkarena.cpp" />
     <ClCompile Include="src\ca\mem_heaparena.cpp" />
     <ClCompile Include="src\ca\mem_lineararena.cpp" />
     <ClCompile Include="src\ca\mem_stackarena.cpp" />
-    <ClCompile Include="src\ca\platform\opengl\gfx_device_opengl.cpp" />
-    <ClCompile Include="src\ca\platform\vulkan\gfx_device_vulkan.cpp" />
-    <ClCompile Include="src\ca\platform\windows\sys_trap.cpp" />
-    <ClCompile Include="src\ca\platform\windows\sys_clock.cpp" />
-    <ClCompile Include="src\ca\platform\windows\sys_mem.cpp" />
-    <ClCompile Include="src\ca\platform\windows\sys_mutex.cpp" />
-    <ClCompile Include="src\ca\platform\windows\sys_thread.cpp" />
+    <ClCompile Include="src\ca\sys\win32_clock.cpp" />
+    <ClCompile Include="src\ca\sys\win32_heap.cpp" />
+    <ClCompile Include="src\ca\sys\win32_mutex.cpp" />
+    <ClCompile Include="src\ca\sys\win32_thread.cpp" />
+    <ClCompile Include="src\ca\sys\win32_trap.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
