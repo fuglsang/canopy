@@ -8,7 +8,7 @@ namespace ca
 {
 	namespace sys
 	{
-		DWORD WINAPI thread_start(LPVOID lpParam)
+		DWORD WINAPI win32_delegate(LPVOID lpParam)
 		{
 			thread_t * thread = static_cast<thread_t *>(lpParam);
 			thread->state = THREADSTATE_RUNNING;
@@ -23,7 +23,7 @@ namespace ca
 			thread->handle = CreateThread(
 				NULL,			// default security attribs
 				0,				// default stack size
-				thread_start,	// start address
+				win32_delegate,	// start address
 				thread,			// start parameters
 				0,				// run immediately
 				NULL);			// no identifier

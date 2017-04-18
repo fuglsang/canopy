@@ -1,5 +1,11 @@
 #pragma once
 
+#if CA_PLATFORM_WIN32
+#define VK_USE_PLATFORM_WIN32_KHR
+#else
+#error unknown platform
+#endif
+
 #include <vulkan/vulkan.h>
 
 namespace ca
@@ -17,8 +23,7 @@ namespace ca
 
 			static void * VKAPI_PTR realloc(void * pUserData, void * pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
 			{
-				//TODO
-				CA_LOG("realloc missing impl");
+				CA_ASSERT_MSG(false, "not implemented: realloc");
 				return nullptr;
 			}
 
@@ -34,11 +39,12 @@ namespace ca
 			VkAllocationCallbacks allocator;
 			VkInstance instance;
 			VkDevice device;
+			VkQueue queue;
 		};
 
-		inline vulkan_device_t * resolve_device(void * device)
+		inline vulkan_device_t * resolve_device(void * handle)
 		{
-			return reinterpret_cast<vulkan_device_t *>(device);
+			return reinterpret_cast<vulkan_device_t *>(handle);
 		}
 	}
 }

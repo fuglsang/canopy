@@ -10,6 +10,13 @@
 	}																										\
 	while (false)
 
+#define CA_LOG_CONT(...)																					\
+	do																										\
+	{																										\
+		fprintf(stdout, __VA_ARGS__);																		\
+	}																										\
+	while (false)
+
 #define CA_ERROR(...)																						\
 	do																										\
 	{																										\

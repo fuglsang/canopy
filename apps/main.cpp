@@ -62,13 +62,13 @@ void main(int argc, char** argv)
 	size_t heap_size = 128 * 1024 * 1024;
 	void * heap_base = sys::heap_alloc(heap_size);
 	{
-		ca::mem::heaparena_t heap;
-		ca::mem::create_arena(&heap, heap_base, heap_size);
+		mem::heaparena_t heap;
+		mem::create_arena(&heap, heap_base, heap_size);
 
-		ca::gfx::device_t device;
-		ca::gfx::create_device(&device, &heap);
+		gfx::device_t device;
+		gfx::create_device(&device, &heap);
 
-		ca::gfx::destroy_device(&device);
+		gfx::destroy_device(&device);
 	}
 	sys::heap_free(heap_base);
 
