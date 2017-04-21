@@ -132,6 +132,9 @@
     <ClInclude Include="src\ca\gfx\opengl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ca\sys_window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ca\math_bezier.inl">
@@ -185,6 +188,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ca\gfx\vulkan_device.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\sys\win32_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

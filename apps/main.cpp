@@ -9,6 +9,7 @@
 #include "ca/sys_trap.h"
 #include "ca/sys_heap.h"
 #include "ca/sys_thread.h"
+#include "ca/sys_window.h"
 
 using namespace ca;
 using namespace ca::core;
@@ -58,6 +59,19 @@ void main(int argc, char** argv)
 		CA_LOG("clock is %f", (f32)sys::clock_micro());
 		sys::thread_sleep(60);
 	}
+
+	sys::window_t window;
+	sys::create_window(&window, "hello win32", { 50, 50, 320, 200 });
+	sys::window_show(&window);
+	sys::window_move(&window, { 300,50,400,400 });
+
+	while (sys::window_poll_blocking(&window))
+	{
+		CA_LOG("pos %d, %d, dim %d, %d", window.coords.x, window.coords.y, window.coords.dx, window.coords.dy);
+	}
+
+	sys::destroy_window(&window);
+	CA_LOG("destroyed window");
 
 	size_t heap_size = 128 * 1024 * 1024;
 	void * heap_base = sys::heap_alloc(heap_size);

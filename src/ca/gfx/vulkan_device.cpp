@@ -11,7 +11,7 @@ namespace ca
 {
 	namespace gfx
 	{
-		void create_instance(VkInstance * instance, VkAllocationCallbacks * allocator)
+		static void create_instance(VkInstance * instance, VkAllocationCallbacks * allocator)
 		{
 			VkApplicationInfo application_info;
 			application_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -36,7 +36,7 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
-		void create_surface(VkSurfaceKHR * surface, VkInstance instance, VkAllocationCallbacks * allocator)
+		static void create_surface(VkSurfaceKHR * surface, VkInstance instance, VkAllocationCallbacks * allocator)
 		{
 		#if VK_KHR_win32_surface			
 			VkWin32SurfaceCreateInfoKHR create_info;
@@ -53,7 +53,7 @@ namespace ca
 		#endif
 		}
 
-		i32 select_queue_family(VkPhysicalDevice device, mem::heaparena_t * arena)
+		static i32 select_queue_family(VkPhysicalDevice device, mem::heaparena_t * arena)
 		{
 			i32 queue_family = -1;
 			u32 queue_properties_count;
@@ -76,7 +76,7 @@ namespace ca
 			return queue_family;
 		}
 
-		void select_physical_device(VkPhysicalDevice * selected_device, u32 * selected_queue_family, VkInstance instance, mem::heaparena_t * arena)
+		static void select_physical_device(VkPhysicalDevice * selected_device, u32 * selected_queue_family, VkInstance instance, mem::heaparena_t * arena)
 		{
 			u32 device_count = 0;
 			i32 device_score = -1;
@@ -142,7 +142,7 @@ namespace ca
 			mem::arena_free(arena, devices);
 		}
 
-		void create_logical_device(VkDevice * logical_device, VkQueue * logical_device_queue, VkPhysicalDevice physical_device, u32 physical_device_queue_family, VkAllocationCallbacks * allocator)
+		static void create_logical_device(VkDevice * logical_device, VkQueue * logical_device_queue, VkPhysicalDevice physical_device, u32 physical_device_queue_family, VkAllocationCallbacks * allocator)
 		{
 			float device_queue_priority = 1.0f;
 			VkPhysicalDeviceFeatures device_features = {};

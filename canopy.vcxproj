@@ -203,6 +203,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\core_delegate.h" />
     <ClInclude Include="src\ca\sys_heap.h" />
     <ClInclude Include="src\ca\sys_trap.h" />
+    <ClInclude Include="src\ca\sys_window.h" />
     <ClInclude Include="src\ca\types.h" />
     <ClInclude Include="src\ca\sys_mutex.h" />
     <ClInclude Include="src\ca\sys_thread.h" />
@@ -234,6 +235,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="src\ca\sys\win32_mutex.cpp" />
     <ClCompile Include="src\ca\sys\win32_thread.cpp" />
     <ClCompile Include="src\ca\sys\win32_trap.cpp" />
+    <ClCompile Include="src\ca\sys\win32_window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
