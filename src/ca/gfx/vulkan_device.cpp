@@ -4,7 +4,6 @@
 #include "ca/types.h"
 #include "ca/core_assert.h"
 #include "ca/core_log.h"
-#include "ca/gfx_device.h"
 #include "ca/gfx/vulkan.h"
 
 namespace ca
@@ -13,6 +12,16 @@ namespace ca
 	{
 		static void create_instance(VkInstance * instance, VkAllocationCallbacks * allocator)
 		{
+			u8 const num_instance_extensions = 2;
+			char const * instance_extensions[num_instance_extensions] = {
+				VK_KHR_SURFACE_EXTENSION_NAME,
+			#if CA_PLATFORM_WIN32
+				VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+			#else
+				#error unknown platform
+			#endif
+			};
+
 			VkApplicationInfo application_info;
 			application_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 			application_info.pNext = nullptr;
@@ -22,56 +31,48 @@ namespace ca
 			application_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 			application_info.apiVersion = VK_API_VERSION_1_0;
 
-			VkInstanceCreateInfo create_instance_info;
-			create_instance_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-			create_instance_info.pNext = nullptr;
-			create_instance_info.flags = 0;
-			create_instance_info.pApplicationInfo = &application_info;
-			create_instance_info.enabledLayerCount = 0;
-			create_instance_info.ppEnabledLayerNames = nullptr;
-			create_instance_info.enabledExtensionCount = 0;
-			create_instance_info.ppEnabledExtensionNames = nullptr;
+			VkInstanceCreateInfo instance_create_info;
+			instance_create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+			instance_create_info.pNext = nullptr;
+			instance_create_info.flags = 0;
+			instance_create_info.pApplicationInfo = &application_info;
+			instance_create_info.enabledLayerCount = 0;
+			instance_create_info.ppEnabledLayerNames = nullptr;
+			instance_create_info.enabledExtensionCount = num_instance_extensions;
+			instance_create_info.ppEnabledExtensionNames = instance_extensions;
 
-			VkResult ret = vkCreateInstance(&create_instance_info, allocator, instance);
+			VkResult ret = vkCreateInstance(&instance_create_info, allocator, instance);
 			CA_ASSERT(ret == VK_SUCCESS);
-		}
-
-		static void create_surface(VkSurfaceKHR * surface, VkInstance instance, VkAllocationCallbacks * allocator)
-		{
-		#if VK_KHR_win32_surface			
-			VkWin32SurfaceCreateInfoKHR create_info;
-			create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-			create_info.pNext = nullptr;
-			create_info.flags = 0;
-			create_info.hinstance = GetModuleHandle(nullptr);
-			create_info.hwnd = 0;// TODO get window handle
-
-			VkResult ret = vkCreateWin32SurfaceKHR(instance, &create_info, allocator, surface);
-			CA_ASSERT(ret == VK_SUCCESS);
-		#else
-			#error unknown platform
-		#endif
 		}
 
 		static i32 select_queue_family(VkPhysicalDevice device, mem::heaparena_t * arena)
 		{
 			i32 queue_family = -1;
-			u32 queue_properties_count;
-			vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_properties_count, nullptr);
+			u32 queue_family_count;
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
 
-			VkQueueFlags const queue_family_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT;
-			VkQueueFamilyProperties * queue_properties = mem::arena_alloc<VkQueueFamilyProperties>(arena, queue_properties_count);
+			VkQueueFlags const required_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT;
+			VkQueueFamilyProperties * queue_family_properties = mem::arena_alloc<VkQueueFamilyProperties>(arena, queue_family_count);
 			{
-				for (u32 i = 0; i != queue_properties_count; i++)
+				for (u32 i = 0; i != queue_family_count; i++)
 				{
-					if (queue_family_flags == (queue_family_flags & queue_properties[i].queueFlags) && queue_properties[i].queueCount > 0)
+					if (queue_family_properties[i].queueCount < 1)
+						continue;
+
+					//TODO check presentation support
+					// vkGetPhysicalDeviceWin32PresentationSupportKHR(device, i)
+					// vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, ...);
+
+					VkQueueFlags flags = queue_family_properties[i].queueFlags;
+					CA_LOG("queue %d flags = %x (graphics? %d, compute? %d)", i, flags, flags & VK_QUEUE_GRAPHICS_BIT, flags & VK_QUEUE_COMPUTE_BIT);
+					if ((flags & required_flags) == required_flags)
 					{
 						queue_family = i;
 						break;
 					}
 				}
 			}
-			mem::arena_free(arena, queue_properties);
+			mem::arena_free(arena, queue_family_properties);
 
 			return queue_family;
 		}
@@ -144,6 +145,11 @@ namespace ca
 
 		static void create_logical_device(VkDevice * logical_device, VkQueue * logical_device_queue, VkPhysicalDevice physical_device, u32 physical_device_queue_family, VkAllocationCallbacks * allocator)
 		{
+			u8 const num_device_extensions = 1;
+			char const * device_extensions[num_device_extensions] = {
+				VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+			};
+
 			float device_queue_priority = 1.0f;
 			VkPhysicalDeviceFeatures device_features = {};
 
@@ -163,8 +169,9 @@ namespace ca
 			device_create_info.pQueueCreateInfos = &device_queue_create_info;
 			device_create_info.enabledLayerCount = 0;
 			device_create_info.ppEnabledLayerNames = nullptr;
-			device_create_info.enabledExtensionCount = 0;
-			device_create_info.ppEnabledExtensionNames = nullptr;
+
+			device_create_info.enabledExtensionCount = num_device_extensions;
+			device_create_info.ppEnabledExtensionNames = device_extensions;
 			device_create_info.pEnabledFeatures = &device_features;
 
 			VkResult ret = vkCreateDevice(physical_device, &device_create_info, allocator, logical_device);
@@ -175,43 +182,45 @@ namespace ca
 
 		void create_device(device_t * device, mem::heaparena_t * arena)
 		{
-			vulkan_device_t * device_handles = mem::arena_alloc<vulkan_device_t>(arena, 1);
+			vk_device_t * vk_device = mem::arena_alloc<vk_device_t>(arena, 1);
 			
-			device_handles->allocator.pUserData = arena;
-			device_handles->allocator.pfnAllocation = &vulkan_allocation_callbacks<mem::heaparena_t>::alloc;
-			device_handles->allocator.pfnReallocation = &vulkan_allocation_callbacks<mem::heaparena_t>::realloc;
-			device_handles->allocator.pfnFree = &vulkan_allocation_callbacks<mem::heaparena_t>::free;
-			device_handles->allocator.pfnInternalAllocation = nullptr;
-			device_handles->allocator.pfnInternalFree = nullptr;
+			vk_device->allocator.pUserData = arena;
+			vk_device->allocator.pfnAllocation = &vk_allocation_callbacks<mem::heaparena_t>::alloc;
+			vk_device->allocator.pfnReallocation = &vk_allocation_callbacks<mem::heaparena_t>::realloc;
+			vk_device->allocator.pfnFree = &vk_allocation_callbacks<mem::heaparena_t>::free;
+			vk_device->allocator.pfnInternalAllocation = nullptr;
+			vk_device->allocator.pfnInternalFree = nullptr;
 
-			device_handles->instance = VK_NULL_HANDLE;
-			device_handles->device = VK_NULL_HANDLE;
-			device_handles->queue = VK_NULL_HANDLE;
+			vk_device->instance = VK_NULL_HANDLE;
+			vk_device->physical_device = VK_NULL_HANDLE;
+			vk_device->device = VK_NULL_HANDLE;
+			vk_device->queue = VK_NULL_HANDLE;
 
 			VkPhysicalDevice physical_device;
 			u32 physical_device_queue_family;
 
-			CA_LOG("vulkan_device: create instance ...");
-			create_instance(&device_handles->instance, &device_handles->allocator);
-			CA_ASSERT(device_handles->instance != VK_NULL_HANDLE);
+			CA_LOG("vulkan_device: create instance ... ");
+			create_instance(&vk_device->instance, &vk_device->allocator);
+			CA_ASSERT(vk_device->instance != VK_NULL_HANDLE);
 
-			CA_LOG("vulkan_device: select physical device ...");
-			select_physical_device(&physical_device, &physical_device_queue_family, device_handles->instance, arena);
+			CA_LOG("vulkan_device: select physical device ... ");
+			select_physical_device(&physical_device, &physical_device_queue_family, vk_device->instance, arena);
+			vk_device->physical_device = physical_device;
 			CA_ASSERT(physical_device != VK_NULL_HANDLE);
 
-			CA_LOG("vulkan_device: create logical device ...");
-			create_logical_device(&device_handles->device, &device_handles->queue, physical_device, physical_device_queue_family, &device_handles->allocator);
-			CA_ASSERT(device_handles->device != VK_NULL_HANDLE);
-			CA_ASSERT(device_handles->queue != VK_NULL_HANDLE);
+			CA_LOG("vulkan_device: create logical device ... ");
+			create_logical_device(&vk_device->device, &vk_device->queue, physical_device, physical_device_queue_family, &vk_device->allocator);
+			CA_ASSERT(vk_device->device != VK_NULL_HANDLE);
+			CA_ASSERT(vk_device->queue != VK_NULL_HANDLE);
 
-			device->handle = device_handles;
+			device->handle = vk_device;
 			device->arena = arena;			
 			CA_LOG("vulkan_device: READY");
 		}
 
 		void destroy_device(device_t * device)
 		{
-			vulkan_device_t * vulkan_device = resolve_device(device->handle);
+			vk_device_t * vulkan_device = resolve_device(device);
 
 			CA_LOG("vulkan_device: destroy logical device ... ");
 			vkDestroyDevice(vulkan_device->device, &vulkan_device->allocator);

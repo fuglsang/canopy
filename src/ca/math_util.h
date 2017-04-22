@@ -18,18 +18,6 @@ namespace ca
 			return ::cos(d);
 		}
 
-		template <typename T, typename S>
-		inline T lerp(T const & a, T const & b, S s)
-		{
-			return (S(1) - s) * a + s * b;
-		}
-
-		template <typename T>
-		inline T rcp(T const & a)
-		{
-			return (T(1) / a);
-		}
-
 		inline f32 sin(f32 s)
 		{
 			return ::sinf(s);
@@ -48,6 +36,47 @@ namespace ca
 		inline f64 sqrt(f64 d)
 		{
 			return ::sqrt(d);
+		}
+
+		template <typename T>
+		inline T max(T const & a, T const & b)
+		{
+			if (a > b)
+				return a;
+			else
+				return b;
+		}
+
+		template <typename T>
+		inline T min(T const & a, T const & b)
+		{
+			if (a < b)
+				return a;
+			else
+				return b;
+		}
+
+		template <typename T>
+		inline T clamp(T const & a, T const & a0, T const & a1)
+		{
+			if (a < a0)
+				return a0;
+			else if (a > a1)
+				return a1;
+			else
+				return a;
+		}
+
+		template <typename T, typename S>
+		inline T lerp(T const & a, T const & b, S s)
+		{
+			return (S(1) - s) * a + s * b;
+		}
+
+		template <typename T>
+		inline T rcp(T const & a)
+		{
+			return (T(1) / a);
 		}
 
 		template <typename T>

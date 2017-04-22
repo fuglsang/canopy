@@ -6,6 +6,9 @@
 #error unknown platform
 #endif
 
+#include "ca/gfx_device.h"
+#include "ca/gfx_swapchain.h"
+
 #include <vulkan/vulkan.h>
 
 namespace ca
@@ -13,7 +16,7 @@ namespace ca
 	namespace gfx
 	{
 		template <typename A>
-		struct vulkan_allocation_callbacks
+		struct vk_allocation_callbacks
 		{
 			static void * VKAPI_PTR alloc(void * pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
 			{
@@ -34,17 +37,29 @@ namespace ca
 			}
 		};
 
-		struct vulkan_device_t
+		struct vk_device_t
 		{
 			VkAllocationCallbacks allocator;
 			VkInstance instance;
+			VkPhysicalDevice physical_device;
 			VkDevice device;
 			VkQueue queue;
 		};
 
-		inline vulkan_device_t * resolve_device(void * handle)
+		struct vk_swapchain_t
 		{
-			return reinterpret_cast<vulkan_device_t *>(handle);
+			VkSurfaceKHR surface;
+			VkSwapchainKHR swapchain;
+		};
+
+		inline vk_device_t * resolve_device(device_t * device)
+		{
+			return reinterpret_cast<vk_device_t *>(device->handle);
+		}
+
+		inline vk_swapchain_t * resolve_swapchain(swapchain_t * swapchain)
+		{
+			return reinterpret_cast<vk_swapchain_t *>(swapchain->handle);
 		}
 	}
 }

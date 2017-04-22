@@ -1,4 +1,3 @@
-#include "ca/gfx_device.h"
 #include "ca/math_vec.h"
 #include "ca/math_mat.h"
 #include "ca/math_util.h"
@@ -10,6 +9,8 @@
 #include "ca/sys_heap.h"
 #include "ca/sys_thread.h"
 #include "ca/sys_window.h"
+#include "ca/gfx_device.h"
+#include "ca/gfx_swapchain.h"
 
 using namespace ca;
 using namespace ca::core;
@@ -61,32 +62,37 @@ void main(int argc, char** argv)
 	}
 
 	sys::window_t window;
-	sys::create_window(&window, "hello win32", { 50, 50, 320, 200 });
+	sys::create_window(&window, "hello win32", { 1000, 50, 320, 200 });
 	sys::window_show(&window);
-	sys::window_move(&window, { 300,50,400,400 });
-
-	while (sys::window_poll_blocking(&window))
 	{
-		CA_LOG("pos %d, %d, dim %d, %d", window.coords.x, window.coords.y, window.coords.dx, window.coords.dy);
-	}
+		size_t heap_size = 128 * 1024 * 1024;
+		void * heap_base = sys::heap_alloc(heap_size);
+		{
+			mem::heaparena_t heap;
+			mem::create_arena(&heap, heap_base, heap_size);
 
+			gfx::device_t device;
+			gfx::create_device(&device, &heap);
+
+			gfx::swapchain_t swapchain;
+			gfx::create_swapchain(&swapchain, &device, &window, gfx::SWAPMODE_VSYNC);
+
+			while (sys::window_poll_blocking(&window))
+			{
+				CA_LOG("pos %d, %d, dim %d, %d", window.coords.x, window.coords.y, window.coords.dx, window.coords.dy);
+			}
+
+			gfx::destroy_swapchain(&swapchain);
+			gfx::destroy_device(&device);
+		}
+	}
 	sys::destroy_window(&window);
-	CA_LOG("destroyed window");
 
-	size_t heap_size = 128 * 1024 * 1024;
-	void * heap_base = sys::heap_alloc(heap_size);
+	int w = 3;
+	while (w > 0)
 	{
-		mem::heaparena_t heap;
-		mem::create_arena(&heap, heap_base, heap_size);
-
-		gfx::device_t device;
-		gfx::create_device(&device, &heap);
-
-		gfx::destroy_device(&device);
+		CA_LOG("%d", w--);
+		sys::thread_sleep(1000);
 	}
-	sys::heap_free(heap_base);
-
-	getchar();
-
-	//ca::core::delegate_t<void()> d = ca::core::delegate_bind<decltype(test2), test2>();
+	CA_LOG("%d END", w);
 }

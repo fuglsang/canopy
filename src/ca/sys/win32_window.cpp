@@ -8,8 +8,8 @@ namespace ca
 {
 	namespace sys
 	{
-		char const * WINDOW_CLASS = "ca_window_class";
-		char const * WINDOW_USERDATA = "ca_window_userdata";
+		char const * WINDOW_NAME = "ca_window";
+		char const * WINDOW_DATA = "ca_window_data";
 
 		static HWND resolve_handle(window_t * window)
 		{
@@ -18,7 +18,7 @@ namespace ca
 
 		static window_t * resolve_window(HWND hWnd)
 		{
-			return reinterpret_cast<window_t *>(GetProp(hWnd, WINDOW_USERDATA));
+			return reinterpret_cast<window_t *>(GetProp(hWnd, WINDOW_DATA));
 		}
 
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -28,29 +28,33 @@ namespace ca
 			switch (message)
 			{
 			case WM_CLOSE:
-				CA_LOG("WM_CLOSE");
 				PostQuitMessage(0);
 				break;
 			
 			case WM_CREATE:
-				CA_LOG("WM_CREATE");
 				{
 					CREATESTRUCT * info = reinterpret_cast<CREATESTRUCT *>(lParam);
 					window = reinterpret_cast<window_t *>(info->lpCreateParams);
 					window->handle = hWnd;
-					SetProp(hWnd, WINDOW_USERDATA, window);
+					SetProp(hWnd, WINDOW_DATA, window);
+				}
+				goto default_proc;
+
+			case WM_KEYDOWN:
+				if (wParam == VK_ESCAPE)
+				{
+					PostQuitMessage(0);
+					break;
 				}
 				goto default_proc;
 
 			case WM_MOVE:
-				CA_LOG("WM_MOVE");
 				window = resolve_window(hWnd);
 				window->coords.x = LOWORD(lParam);
 				window->coords.y = HIWORD(lParam);
 				goto default_proc;
 
 			case WM_SIZE:
-				CA_LOG("WM_SIZE");
 				window = resolve_window(hWnd);
 				window->coords.dx = LOWORD(lParam);
 				window->coords.dy = HIWORD(lParam);
@@ -69,13 +73,13 @@ namespace ca
 			wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 			wc.lpfnWndProc = WndProc;
 			wc.hInstance = GetModuleHandle(nullptr);
-			wc.lpszClassName = WINDOW_CLASS;
+			wc.lpszClassName = WINDOW_NAME;
 
 			ATOM ret = RegisterClass(&wc);
 			CA_ASSERT_MSG(ret != 0, "RegisterClass (%s) FAILED", title);
 
 			HWND hWnd = CreateWindow(
-				WINDOW_CLASS,						// window class
+				WINDOW_NAME,						// window class
 				title,								// window title
 				WS_OVERLAPPEDWINDOW | WS_VISIBLE,	// style
 				coords.x,							// pos x
