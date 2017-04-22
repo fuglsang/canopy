@@ -54,6 +54,8 @@ namespace ca
 			VkQueueFlags const required_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT;
 			VkQueueFamilyProperties * queue_family_properties = mem::arena_alloc<VkQueueFamilyProperties>(arena, queue_family_count);
 			{
+				vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_family_properties);
+
 				for (u32 i = 0; i != queue_family_count; i++)
 				{
 					if (queue_family_properties[i].queueCount < 1)
