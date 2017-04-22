@@ -27,7 +27,6 @@ namespace ca
 		void destroy_thread(thread_t * thread);
 
 		void thread_sleep(u64 duration_milli);
-		
 		void thread_suspend(thread_t * thread);
 		void thread_resume(thread_t * thread);
 		void thread_join(thread_t * thread);

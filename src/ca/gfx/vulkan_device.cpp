@@ -169,7 +169,6 @@ namespace ca
 			device_create_info.pQueueCreateInfos = &device_queue_create_info;
 			device_create_info.enabledLayerCount = 0;
 			device_create_info.ppEnabledLayerNames = nullptr;
-
 			device_create_info.enabledExtensionCount = num_device_extensions;
 			device_create_info.ppEnabledExtensionNames = device_extensions;
 			device_create_info.pEnabledFeatures = &device_features;

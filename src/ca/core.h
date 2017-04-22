@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core_assert.h"
-#include "core_delegate.h"
-#include "core_jobsystem.h"
-#include "core_log.h"
+#include "ca/core_assert.h"
+#include "ca/core_delegate.h"
+#include "ca/core_jobsystem.h"
+#include "ca/core_log.h"

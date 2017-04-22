@@ -181,7 +181,7 @@ namespace ca
 			swapchain_create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 			swapchain_create_info.presentMode = surface_present_mode;
 			swapchain_create_info.clipped = VK_TRUE;
-			swapchain_create_info.oldSwapchain = VK_NULL_HANDLE;
+			swapchain_create_info.oldSwapchain = VK_NULL_HANDLE;//TODO figure out how to deal with window resize
 
 			CA_LOG("vulkan_swapchain: create swapchain ... ");
 			ret = vkCreateSwapchainKHR(vk_device->device, &swapchain_create_info, &vk_device->allocator, &vk_swapchain->swapchain);

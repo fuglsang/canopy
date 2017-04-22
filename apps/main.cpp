@@ -11,6 +11,7 @@
 #include "ca/sys_window.h"
 #include "ca/gfx_device.h"
 #include "ca/gfx_swapchain.h"
+#include "ca/mem.h"
 
 using namespace ca;
 using namespace ca::core;
@@ -85,6 +86,7 @@ void main(int argc, char** argv)
 			gfx::destroy_swapchain(&swapchain);
 			gfx::destroy_device(&device);
 		}
+		sys::heap_free(heap_base);
 	}
 	sys::destroy_window(&window);
 

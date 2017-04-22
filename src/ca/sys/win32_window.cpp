@@ -58,6 +58,7 @@ namespace ca
 				window = resolve_window(hWnd);
 				window->coords.dx = LOWORD(lParam);
 				window->coords.dy = HIWORD(lParam);
+				CA_LOG("WM_SIZE -> %d, %d", window->coords.dx, window->coords.dy);
 				goto default_proc;
 
 			default: default_proc:
@@ -67,10 +68,27 @@ namespace ca
 			return 0;
 		}
 
+		static void adjust_coords_accomodate_style(windowcoords_t * coords, DWORD style)
+		{
+			RECT rect;
+			rect.left = coords->x;
+			rect.top = coords->y;
+			rect.right = coords->x + coords->dx;
+			rect.bottom = coords->y + coords->dy;
+
+			BOOL ret = AdjustWindowRect(&rect, style, FALSE);
+			CA_ASSERT(ret == TRUE);
+
+			coords->x = rect.left;
+			coords->y = rect.top;
+			coords->dx = rect.right - rect.left;
+			coords->dy = rect.bottom - rect.top;
+		}
+
 		void create_window(window_t * window, char const * title, windowcoords_t coords)
 		{
 			WNDCLASS wc = {};
-			wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+			wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 			wc.lpfnWndProc = WndProc;
 			wc.hInstance = GetModuleHandle(nullptr);
 			wc.lpszClassName = WINDOW_NAME;
@@ -78,18 +96,21 @@ namespace ca
 			ATOM ret = RegisterClass(&wc);
 			CA_ASSERT_MSG(ret != 0, "RegisterClass (%s) FAILED", title);
 
+			DWORD const style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
+			adjust_coords_accomodate_style(&coords, style);
+
 			HWND hWnd = CreateWindow(
-				WINDOW_NAME,						// window class
-				title,								// window title
-				WS_OVERLAPPEDWINDOW | WS_VISIBLE,	// style
-				coords.x,							// pos x
-				coords.y,							// pos y
-				coords.dx,							// dim x
-				coords.dy,							// dim y
-				NULL,								// hwnd parent
-				NULL,								// hmenu
-				GetModuleHandle(nullptr),			// hinstance process
-				window								// userdata for WM_CREATE
+				WINDOW_NAME,				// window class
+				title,						// window title
+				style,						// style
+				coords.x,					// pos x
+				coords.y,					// pos y
+				coords.dx,					// dim x
+				coords.dy,					// dim y
+				NULL,						// hwnd parent
+				NULL,						// hmenu
+				GetModuleHandle(nullptr),	// hinstance process
+				window						// userdata for WM_CREATE
 			);
 			CA_ASSERT_MSG(hWnd != NULL, "CreateWindow (%s) FAILED", title);
 		}

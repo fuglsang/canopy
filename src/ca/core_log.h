@@ -17,6 +17,15 @@
 	}																										\
 	while (false)
 
+#define CA_WARN(...)																						\
+	do																										\
+	{																										\
+		fprintf(stdout, "WARNING: ");																		\
+		fprintf(stdout, __VA_ARGS__);																		\
+		fprintf(stdout, "\n");																				\
+	}																										\
+	while (false)
+
 #define CA_ERROR(...)																						\
 	do																										\
 	{																										\
