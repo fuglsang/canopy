@@ -8,6 +8,7 @@
 
 #include "ca/gfx_device.h"
 #include "ca/gfx_swapchain.h"
+#include "ca/gfx_cmdbuffer.h"
 
 #include <vulkan/vulkan.h>
 
@@ -26,7 +27,8 @@ namespace ca
 
 			static void * VKAPI_PTR realloc(void * pUserData, void * pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
 			{
-				CA_ASSERT_MSG(false, "not implemented: realloc");
+				CA_ERROR("realloc not implemented");
+				sys::trap();
 				return nullptr;
 			}
 
@@ -41,15 +43,35 @@ namespace ca
 		{
 			VkAllocationCallbacks allocator;
 			VkInstance instance;
+
 			VkPhysicalDevice physical_device;
 			VkDevice device;
 			VkQueue queue;
+
+			//TODO split queues?
+			//VkQueue queue_graphics;
+			//VkQueue queue_transfer;
+			//VkQueue queue_present;
+			//VkQueue queue_compute;
+
+			VkCommandPool cmdpool[NUM_CMDBUFFERTYPES];
 		};
 
 		struct vk_swapchain_t
 		{
 			VkSurfaceKHR surface;
 			VkSwapchainKHR swapchain;
+
+			u32 image_count;
+			VkImage * image;
+
+			VkSemaphore image_available;
+			VkSemaphore image_presentable;
+		};
+
+		struct vk_cmdbuffer_t
+		{
+			VkCommandBuffer cmdbuffer;
 		};
 
 		inline vk_device_t * resolve_device(device_t * device)
@@ -60,6 +82,11 @@ namespace ca
 		inline vk_swapchain_t * resolve_swapchain(swapchain_t * swapchain)
 		{
 			return reinterpret_cast<vk_swapchain_t *>(swapchain->handle);
+		}
+
+		inline vk_cmdbuffer_t * resolve_cmdbuffer(cmdbuffer_t * cmdbuffer)
+		{
+			return reinterpret_cast<vk_cmdbuffer_t *>(cmdbuffer->handle);
 		}
 	}
 }

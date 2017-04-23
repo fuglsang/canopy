@@ -181,6 +181,18 @@ namespace ca
 			vkGetDeviceQueue(*logical_device, physical_device_queue_family, 0, logical_device_queue);
 		}
 
+		static void create_command_pool(VkCommandPool * cmdpool, VkDevice device, VkAllocationCallbacks * allocator, u32 queue_family_index)
+		{
+			VkCommandPoolCreateInfo cmdpool_create_info;
+			cmdpool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+			cmdpool_create_info.pNext = nullptr;
+			cmdpool_create_info.flags = 0;
+			cmdpool_create_info.queueFamilyIndex = queue_family_index;
+			
+			VkResult ret = vkCreateCommandPool(device, &cmdpool_create_info, allocator, cmdpool);
+			CA_ASSERT(ret == VK_SUCCESS);
+		}
+
 		void create_device(device_t * device, mem::heaparena_t * arena)
 		{
 			vk_device_t * vk_device = mem::arena_alloc<vk_device_t>(arena, 1);
@@ -214,6 +226,14 @@ namespace ca
 			CA_ASSERT(vk_device->device != VK_NULL_HANDLE);
 			CA_ASSERT(vk_device->queue != VK_NULL_HANDLE);
 
+			CA_LOG("vulkan_device: create command pools ... ");
+			create_command_pool(&vk_device->cmdpool[CMDBUFFERTYPE_GRAPHICS], vk_device->device, &vk_device->allocator, physical_device_queue_family);
+			CA_ASSERT(vk_device->cmdpool[CMDBUFFERTYPE_GRAPHICS] != VK_NULL_HANDLE);
+			create_command_pool(&vk_device->cmdpool[CMDBUFFERTYPE_TRANSFER], vk_device->device, &vk_device->allocator, physical_device_queue_family);
+			CA_ASSERT(vk_device->cmdpool[CMDBUFFERTYPE_TRANSFER] != VK_NULL_HANDLE);
+			create_command_pool(&vk_device->cmdpool[CMDBUFFERTYPE_COMPUTE], vk_device->device, &vk_device->allocator, physical_device_queue_family);
+			CA_ASSERT(vk_device->cmdpool[CMDBUFFERTYPE_COMPUTE] != VK_NULL_HANDLE);
+
 			device->handle = vk_device;
 			device->arena = arena;			
 			CA_LOG("vulkan_device: READY");
@@ -221,13 +241,18 @@ namespace ca
 
 		void destroy_device(device_t * device)
 		{
-			vk_device_t * vulkan_device = resolve_device(device);
+			vk_device_t * vk_device = resolve_device(device);
+
+			CA_LOG("vulkan_device: destroy command pools ... ");
+			vkDestroyCommandPool(vk_device->device, vk_device->cmdpool[CMDBUFFERTYPE_GRAPHICS], &vk_device->allocator);
+			vkDestroyCommandPool(vk_device->device, vk_device->cmdpool[CMDBUFFERTYPE_TRANSFER], &vk_device->allocator);
+			vkDestroyCommandPool(vk_device->device, vk_device->cmdpool[CMDBUFFERTYPE_COMPUTE], &vk_device->allocator);
 
 			CA_LOG("vulkan_device: destroy logical device ... ");
-			vkDestroyDevice(vulkan_device->device, &vulkan_device->allocator);
+			vkDestroyDevice(vk_device->device, &vk_device->allocator);
 
 			CA_LOG("vulkan_device: destroy instance ... ");
-			vkDestroyInstance(vulkan_device->instance, &vulkan_device->allocator);
+			vkDestroyInstance(vk_device->instance, &vk_device->allocator);
 
 			mem::arena_free(device->arena, device->handle);
 			CA_LOG("vulkan_device: CLEAN");

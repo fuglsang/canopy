@@ -31,30 +31,30 @@ namespace ca
 		static void select_surface_format(VkSurfaceFormatKHR * selected_format, vk_device_t * vk_device, VkSurfaceKHR surface, mem::heaparena_t * arena)
 		{
 			u32 format_count;
-			VkSurfaceFormatKHR * formats;
 
 			VkResult ret = vkGetPhysicalDeviceSurfaceFormatsKHR(vk_device->physical_device, surface, &format_count, nullptr);
 			CA_ASSERT(ret == VK_SUCCESS);
 			CA_ASSERT(format_count > 0);
 
-			formats = mem::arena_alloc<VkSurfaceFormatKHR>(arena, format_count);
+			VkSurfaceFormatKHR * formats = mem::arena_alloc<VkSurfaceFormatKHR>(arena, format_count);
 			{
 				ret = vkGetPhysicalDeviceSurfaceFormatsKHR(vk_device->physical_device, surface, &format_count, formats);
 				CA_ASSERT(ret == VK_SUCCESS);
 
-				*selected_format = formats[0];
-
 				if (format_count == 1 && formats[0].format == VK_FORMAT_UNDEFINED)
 				{
 					selected_format->format = VK_FORMAT_B8G8R8A8_UNORM;
+					selected_format->colorSpace = formats[0].colorSpace;
 				}
 				else
 				{
+					*selected_format = formats[0];
+					
 					for (u32 i = 0; i != format_count; i++)
 					{
 						if (formats[i].format == VK_FORMAT_B8G8R8A8_UNORM)
 						{
-							*selected_format = formats[i];
+							selected_format->format = VK_FORMAT_B8G8R8A8_UNORM;
 							break;
 						}
 					}
@@ -66,13 +66,12 @@ namespace ca
 		static void select_present_mode(VkPresentModeKHR * selected_mode, vk_device_t * vk_device, VkSurfaceKHR surface, mem::heaparena_t * arena, swapmode mode)
 		{
 			u32 mode_count;
-			VkPresentModeKHR * modes;
 
 			VkResult ret = vkGetPhysicalDeviceSurfacePresentModesKHR(vk_device->physical_device, surface, &mode_count, nullptr);
 			CA_ASSERT(ret == VK_SUCCESS);
 			CA_ASSERT(mode_count > 0);
 
-			modes = mem::arena_alloc<VkPresentModeKHR>(arena, mode_count);
+			VkPresentModeKHR * modes = mem::arena_alloc<VkPresentModeKHR>(arena, mode_count);
 			{
 				ret = vkGetPhysicalDeviceSurfacePresentModesKHR(vk_device->physical_device, surface, &mode_count, modes);
 				CA_ASSERT(ret == VK_SUCCESS);
@@ -187,6 +186,17 @@ namespace ca
 			ret = vkCreateSwapchainKHR(vk_device->device, &swapchain_create_info, &vk_device->allocator, &vk_swapchain->swapchain);
 			CA_ASSERT(ret == VK_SUCCESS);
 
+			VkSemaphoreCreateInfo semaphore_create_info;
+			semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+			semaphore_create_info.pNext = nullptr;
+			semaphore_create_info.flags = 0;
+
+			CA_LOG("vulkan_swapchain: create semaphores ... ");
+			ret = vkCreateSemaphore(vk_device->device, &semaphore_create_info, &vk_device->allocator, &vk_swapchain->image_available);
+			CA_ASSERT(ret == VK_SUCCESS);
+			ret = vkCreateSemaphore(vk_device->device, &semaphore_create_info, &vk_device->allocator, &vk_swapchain->image_presentable);
+			CA_ASSERT(ret == VK_SUCCESS);
+
 			swapchain->handle = vk_swapchain;
 			swapchain->device = device;
 			CA_LOG("vulkan_swapchain: READY");
@@ -197,6 +207,10 @@ namespace ca
 			vk_device_t * vk_device = resolve_device(swapchain->device);
 			vk_swapchain_t * vk_swapchain = resolve_swapchain(swapchain);
 
+			CA_LOG("vulkan_swapchain: destroy semaphores ... ");
+			vkDestroySemaphore(vk_device->device, vk_swapchain->image_presentable, &vk_device->allocator);
+			vkDestroySemaphore(vk_device->device, vk_swapchain->image_available, &vk_device->allocator);
+
 			CA_LOG("vulkan_swapchain: destroy swapchain ... ");
 			vkDestroySwapchainKHR(vk_device->device, vk_swapchain->swapchain, &vk_device->allocator);
 
@@ -205,6 +219,44 @@ namespace ca
 
 			mem::arena_free(swapchain->device->arena, swapchain->handle);
 			CA_LOG("vulkan_swapchain: CLEAN");
+		}
+
+		void swapchain_present(swapchain_t * swapchain)
+		{
+			vk_device_t * vk_device = resolve_device(swapchain->device);
+			vk_swapchain_t * vk_swapchain = resolve_swapchain(swapchain);
+
+			u32 image_index;
+			VkResult ret = vkAcquireNextImageKHR(vk_device->device, vk_swapchain->swapchain, UINT64_MAX, vk_swapchain->image_available, VK_NULL_HANDLE, &image_index);
+			CA_ASSERT(ret == VK_SUCCESS);
+
+			VkPipelineStageFlags wait_dst_stage_mask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+			VkSubmitInfo submit_info;
+			submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submit_info.pNext = nullptr;
+			submit_info.waitSemaphoreCount = 1;
+			submit_info.pWaitSemaphores = &vk_swapchain->image_available;
+			submit_info.pWaitDstStageMask = &wait_dst_stage_mask;
+			submit_info.commandBufferCount = 1;
+			submit_info.pCommandBuffers = nullptr;//TODO
+			submit_info.signalSemaphoreCount = 1;
+			submit_info.pSignalSemaphores = &vk_swapchain->image_presentable;
+
+			ret = vkQueueSubmit(vk_device->queue, 1, &submit_info, VK_NULL_HANDLE);
+			CA_ASSERT(ret == VK_SUCCESS);
+
+			VkPresentInfoKHR present_info;
+			present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+			present_info.pNext = nullptr;
+			present_info.waitSemaphoreCount = 1;
+			present_info.pWaitSemaphores = &vk_swapchain->image_presentable;
+			present_info.swapchainCount = 1;
+			present_info.pSwapchains = &vk_swapchain->swapchain;
+			present_info.pImageIndices = &image_index;
+			present_info.pResults = nullptr;
+
+			ret = vkQueuePresentKHR(vk_device->queue, &present_info);
+			CA_ASSERT(ret == VK_SUCCESS);
 		}
 	}
 }

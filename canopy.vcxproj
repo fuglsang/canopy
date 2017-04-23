@@ -187,6 +187,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\gfx.h" />
     <ClInclude Include="src\ca\gfx\opengl.h" />
     <ClInclude Include="src\ca\gfx\vulkan.h" />
+    <ClInclude Include="src\ca\gfx_cmdbuffer.h" />
     <ClInclude Include="src\ca\gfx_swapchain.h" />
     <ClInclude Include="src\ca\math.h" />
     <ClInclude Include="src\ca\math_bezier.h" />
@@ -208,7 +209,6 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\types.h" />
     <ClInclude Include="src\ca\sys_mutex.h" />
     <ClInclude Include="src\ca\sys_thread.h" />
-    <ClInclude Include="src\ca\gfx_cmdbuf.h" />
     <ClInclude Include="src\ca\gfx_device.h" />
     <ClInclude Include="src\ca\gfx_pipeline.h" />
     <ClInclude Include="src\ca\gfx_shader.h" />
@@ -226,6 +226,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="ext\tlsf\tlsf.c" />
     <ClCompile Include="src\ca\core_jobsystem.cpp" />
     <ClCompile Include="src\ca\gfx\opengl_device.cpp" />
+    <ClCompile Include="src\ca\gfx\vulkan_cmdbuffer.cpp" />
     <ClCompile Include="src\ca\gfx\vulkan_device.cpp" />
     <ClCompile Include="src\ca\gfx\vulkan_swapchain.cpp" />
     <ClCompile Include="src\ca\mem_chunkarena.cpp" />

@@ -11,6 +11,7 @@
 #include "ca/sys_window.h"
 #include "ca/gfx_device.h"
 #include "ca/gfx_swapchain.h"
+#include "ca/gfx_cmdbuffer.h"
 #include "ca/mem.h"
 
 using namespace ca;
