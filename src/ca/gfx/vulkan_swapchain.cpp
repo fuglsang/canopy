@@ -131,6 +131,11 @@ namespace ca
 			create_surface(&vk_swapchain->surface, vk_device, window);
 			CA_ASSERT(vk_swapchain->surface != VK_NULL_HANDLE);
 
+			CA_LOG("vulkan_swapchain: verify surface supports present ... ");
+			VkBool32 surface_supports_present;
+			vkGetPhysicalDeviceSurfaceSupportKHR(vk_device->physical_device, vk_device->physical_device_queue_family, vk_swapchain->surface, &surface_supports_present);
+			CA_ASSERT(surface_supports_present);
+
 			CA_LOG("vulkan_swapchain: select surface format ... ");
 			VkSurfaceFormatKHR surface_format;
 			select_surface_format(&surface_format, vk_device, vk_swapchain->surface, device->arena);

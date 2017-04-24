@@ -209,29 +209,25 @@ namespace ca
 			vk_device->device = VK_NULL_HANDLE;
 			vk_device->queue = VK_NULL_HANDLE;
 
-			VkPhysicalDevice physical_device;
-			u32 physical_device_queue_family;
-
 			CA_LOG("vulkan_device: create instance ... ");
 			create_instance(&vk_device->instance, &vk_device->allocator);
 			CA_ASSERT(vk_device->instance != VK_NULL_HANDLE);
 
 			CA_LOG("vulkan_device: select physical device ... ");
-			select_physical_device(&physical_device, &physical_device_queue_family, vk_device->instance, arena);
-			vk_device->physical_device = physical_device;
-			CA_ASSERT(physical_device != VK_NULL_HANDLE);
+			select_physical_device(&vk_device->physical_device, &vk_device->physical_device_queue_family, vk_device->instance, arena);
+			CA_ASSERT(vk_device->physical_device != VK_NULL_HANDLE);
 
 			CA_LOG("vulkan_device: create logical device ... ");
-			create_logical_device(&vk_device->device, &vk_device->queue, physical_device, physical_device_queue_family, &vk_device->allocator);
+			create_logical_device(&vk_device->device, &vk_device->queue, vk_device->physical_device, vk_device->physical_device_queue_family, &vk_device->allocator);
 			CA_ASSERT(vk_device->device != VK_NULL_HANDLE);
 			CA_ASSERT(vk_device->queue != VK_NULL_HANDLE);
 
 			CA_LOG("vulkan_device: create command pools ... ");
-			create_command_pool(&vk_device->cmdpool[CMDBUFFERTYPE_GRAPHICS], vk_device->device, &vk_device->allocator, physical_device_queue_family);
+			create_command_pool(&vk_device->cmdpool[CMDBUFFERTYPE_GRAPHICS], vk_device->device, &vk_device->allocator, vk_device->physical_device_queue_family);
 			CA_ASSERT(vk_device->cmdpool[CMDBUFFERTYPE_GRAPHICS] != VK_NULL_HANDLE);
-			create_command_pool(&vk_device->cmdpool[CMDBUFFERTYPE_TRANSFER], vk_device->device, &vk_device->allocator, physical_device_queue_family);
+			create_command_pool(&vk_device->cmdpool[CMDBUFFERTYPE_TRANSFER], vk_device->device, &vk_device->allocator, vk_device->physical_device_queue_family);
 			CA_ASSERT(vk_device->cmdpool[CMDBUFFERTYPE_TRANSFER] != VK_NULL_HANDLE);
-			create_command_pool(&vk_device->cmdpool[CMDBUFFERTYPE_COMPUTE], vk_device->device, &vk_device->allocator, physical_device_queue_family);
+			create_command_pool(&vk_device->cmdpool[CMDBUFFERTYPE_COMPUTE], vk_device->device, &vk_device->allocator, vk_device->physical_device_queue_family);
 			CA_ASSERT(vk_device->cmdpool[CMDBUFFERTYPE_COMPUTE] != VK_NULL_HANDLE);
 
 			device->handle = vk_device;

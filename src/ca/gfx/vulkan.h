@@ -45,13 +45,14 @@ namespace ca
 			VkInstance instance;
 
 			VkPhysicalDevice physical_device;
+			u32 physical_device_queue_family;
+
 			VkDevice device;
 			VkQueue queue;
 
 			//TODO split queues?
 			//VkQueue queue_graphics;
 			//VkQueue queue_transfer;
-			//VkQueue queue_present;
 			//VkQueue queue_compute;
 
 			VkCommandPool cmdpool[NUM_CMDBUFFERTYPES];
