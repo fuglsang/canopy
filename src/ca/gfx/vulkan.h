@@ -9,6 +9,7 @@
 #include "ca/gfx_device.h"
 #include "ca/gfx_swapchain.h"
 #include "ca/gfx_cmdbuffer.h"
+#include "ca/gfx_fence.h"
 
 #include <vulkan/vulkan.h>
 
@@ -75,6 +76,11 @@ namespace ca
 			VkCommandBuffer cmdbuffer;
 		};
 
+		struct vk_fence_t
+		{
+			VkFence fence;
+		};
+
 		inline vk_device_t * resolve_device(device_t * device)
 		{
 			return reinterpret_cast<vk_device_t *>(device->handle);
@@ -88,6 +94,11 @@ namespace ca
 		inline vk_cmdbuffer_t * resolve_cmdbuffer(cmdbuffer_t * cmdbuffer)
 		{
 			return reinterpret_cast<vk_cmdbuffer_t *>(cmdbuffer->handle);
+		}
+
+		inline vk_fence_t * resolve_fence(fence_t * fence)
+		{
+			return reinterpret_cast<vk_fence_t *>(fence->handle);
 		}
 	}
 }

@@ -69,13 +69,6 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
-		void cmdbuffer_exec(cmdbuffer_t * cmdbuffer, cmdbuffer_t * cmdbuffer_exec)
-		{
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
-			vk_cmdbuffer_t * vk_cmdbuffer_exec = resolve_cmdbuffer(cmdbuffer_exec);
-			vkCmdExecuteCommands(vk_cmdbuffer->cmdbuffer, 1, &vk_cmdbuffer_exec->cmdbuffer);
-		}
-
 		void cmdbuffer_draw(cmdbuffer_t * cmdbuffer, u32 vertex_start, u32 vertex_count)
 		{
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
