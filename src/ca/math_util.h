@@ -68,9 +68,9 @@ namespace ca
 		}
 
 		template <typename T, typename S>
-		inline T lerp(T const & a, T const & b, S s)
+		inline T lerp(T const & a0, T const & a1, S t)
 		{
-			return (S(1) - s) * a + s * b;
+			return (S(1) - t) * a0 + t * a1;
 		}
 
 		template <typename T>

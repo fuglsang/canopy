@@ -7,8 +7,10 @@
 #endif
 
 #include "ca/gfx_device.h"
+#include "ca/gfx_semaphore.h"
 #include "ca/gfx_swapchain.h"
 #include "ca/gfx_cmdbuffer.h"
+#include "ca/gfx_texture.h"
 #include "ca/gfx_fence.h"
 
 #include <vulkan/vulkan.h>
@@ -29,7 +31,7 @@ namespace ca
 			static void * VKAPI_PTR realloc(void * pUserData, void * pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
 			{
 				CA_ERROR("realloc not implemented");
-				sys::trap();
+				sys::breakpoint();
 				return nullptr;
 			}
 
@@ -46,9 +48,9 @@ namespace ca
 			VkInstance instance;
 
 			VkPhysicalDevice physical_device;
-			u32 physical_device_queue_family;
-
 			VkDevice device;
+
+			u32 queue_family;
 			VkQueue queue;
 
 			//TODO split queues?
@@ -59,16 +61,33 @@ namespace ca
 			VkCommandPool cmdpool[NUM_CMDBUFFERTYPES];
 		};
 
+		struct vk_fence_t
+		{
+			VkFence fence;
+		};
+
+		struct vk_semaphore_t
+		{
+			VkSemaphore semaphore;
+		};
+
+		struct vk_texture_t
+		{
+			VkImage image;
+			VkImageLayout image_layout;
+		};
+
 		struct vk_swapchain_t
 		{
 			VkSurfaceKHR surface;
 			VkSwapchainKHR swapchain;
 
 			u32 image_count;
-			VkImage * image;
+			u32 image_index;
+			VkImage * image_array;
 
-			VkSemaphore image_available;
-			VkSemaphore image_presentable;
+			u32 fence_index;
+			VkFence * fence_array;
 		};
 
 		struct vk_cmdbuffer_t
@@ -76,14 +95,14 @@ namespace ca
 			VkCommandBuffer cmdbuffer;
 		};
 
-		struct vk_fence_t
-		{
-			VkFence fence;
-		};
-
 		inline vk_device_t * resolve_device(device_t * device)
 		{
 			return reinterpret_cast<vk_device_t *>(device->handle);
+		}
+
+		inline vk_semaphore_t * resolve_semaphore(semaphore_t * semaphore)
+		{
+			return reinterpret_cast<vk_semaphore_t *>(semaphore->handle);
 		}
 
 		inline vk_swapchain_t * resolve_swapchain(swapchain_t * swapchain)
@@ -94,6 +113,11 @@ namespace ca
 		inline vk_cmdbuffer_t * resolve_cmdbuffer(cmdbuffer_t * cmdbuffer)
 		{
 			return reinterpret_cast<vk_cmdbuffer_t *>(cmdbuffer->handle);
+		}
+
+		inline vk_texture_t * resolve_texture(texture_t * cmdbuffer)
+		{
+			return reinterpret_cast<vk_texture_t *>(cmdbuffer->handle);
 		}
 
 		inline vk_fence_t * resolve_fence(fence_t * fence)

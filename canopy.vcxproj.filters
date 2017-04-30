@@ -114,16 +114,10 @@
     <ClInclude Include="src\ca\platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\sys_trap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ca\core_action.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ca\sys_heap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ca\gfx\vulkan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ca\gfx\opengl.h">
@@ -136,6 +130,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ca\gfx_cmdbuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\gfx_fence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\gfx\vk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\gfx_semaphore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\sys_breakpoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -184,22 +190,31 @@
     <ClCompile Include="src\ca\sys\win32_thread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ca\sys\win32_trap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ca\gfx\opengl_device.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ca\gfx\vulkan_device.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ca\sys\win32_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ca\gfx\vulkan_swapchain.cpp">
+    <ClCompile Include="src\ca\gfx\vk_texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ca\gfx\vulkan_cmdbuffer.cpp">
+    <ClCompile Include="src\ca\gfx\vk_cmdbuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\gfx\vk_device.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\gfx\vk_fence.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\gfx\vk_swapchain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\gfx\vk_semaphore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\sys\win32_breakpoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

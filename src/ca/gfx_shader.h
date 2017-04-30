@@ -17,10 +17,11 @@ namespace ca
 		struct shader_t
 		{
 			void * handle;
+			device_t * device;
 			shadertype type;
 		};
 
-		void createshader(device_t * device, shader_t * shader);
-		void destroyshader(device_t * device, shader_t * shader);
+		void create_shader(shader_t * shader, device_t * device);
+		void destroy_shader(shader_t * shader);
 	}
 }

@@ -43,6 +43,7 @@ namespace ca
 			case WM_KEYDOWN:
 				if (wParam == VK_ESCAPE)
 				{
+					CA_LOG("ESCAPE");
 					PostQuitMessage(0);
 					break;
 				}

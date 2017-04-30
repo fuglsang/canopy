@@ -10,13 +10,14 @@ namespace ca
 		struct pipeline_t
 		{
 			void * handle;
-			shader_t stages[NUM_SHADERTYPES];
+			device_t * device;
+			shader_t * stages[NUM_SHADERTYPES];
 		};
 
-		void createpipeline(device_t * device, pipeline_t * pipeline);
-		void destroypipeline(device_t * device, pipeline_t * pipeline);
+		void create_pipeline(pipeline_t * pipeline, device_t * device);
+		void destroy_pipeline(pipeline_t * pipeline);
 
-		void bindpipelinestage(device_t * device, pipeline_t * pipeline, shadertype stage, shader_t * shader);
-		void unbindpipelinestage(device_t * device, pipeline_t * pipeline, shadertype stage);
+		void pipeline_bind_stage(pipeline_t * pipeline, shadertype stage, shader_t * shader);
+		void pipeline_unbind_stage(pipeline_t * pipeline, shadertype stage);
 	}
 }

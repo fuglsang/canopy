@@ -72,18 +72,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)lib\$(Platform)\$(Configuration)\</OutDir>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)lib\$(Platform)\$(Configuration)\</OutDir>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)lib\$(Platform)\$(Configuration)\</OutDir>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)lib\$(Platform)\$(Configuration)\</OutDir>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -186,8 +190,10 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\data_buffer.h" />
     <ClInclude Include="src\ca\gfx.h" />
     <ClInclude Include="src\ca\gfx\opengl.h" />
-    <ClInclude Include="src\ca\gfx\vulkan.h" />
+    <ClInclude Include="src\ca\gfx\vk.h" />
     <ClInclude Include="src\ca\gfx_cmdbuffer.h" />
+    <ClInclude Include="src\ca\gfx_fence.h" />
+    <ClInclude Include="src\ca\gfx_semaphore.h" />
     <ClInclude Include="src\ca\gfx_swapchain.h" />
     <ClInclude Include="src\ca\math.h" />
     <ClInclude Include="src\ca\math_bezier.h" />
@@ -203,8 +209,8 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\math_util.h" />
     <ClInclude Include="src\ca\math_vec.h" />
     <ClInclude Include="src\ca\core_delegate.h" />
+    <ClInclude Include="src\ca\sys_breakpoint.h" />
     <ClInclude Include="src\ca\sys_heap.h" />
-    <ClInclude Include="src\ca\sys_trap.h" />
     <ClInclude Include="src\ca\sys_window.h" />
     <ClInclude Include="src\ca\types.h" />
     <ClInclude Include="src\ca\sys_mutex.h" />
@@ -226,18 +232,21 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="ext\tlsf\tlsf.c" />
     <ClCompile Include="src\ca\core_jobsystem.cpp" />
     <ClCompile Include="src\ca\gfx\opengl_device.cpp" />
-    <ClCompile Include="src\ca\gfx\vulkan_cmdbuffer.cpp" />
-    <ClCompile Include="src\ca\gfx\vulkan_device.cpp" />
-    <ClCompile Include="src\ca\gfx\vulkan_swapchain.cpp" />
+    <ClCompile Include="src\ca\gfx\vk_cmdbuffer.cpp" />
+    <ClCompile Include="src\ca\gfx\vk_device.cpp" />
+    <ClCompile Include="src\ca\gfx\vk_fence.cpp" />
+    <ClCompile Include="src\ca\gfx\vk_semaphore.cpp" />
+    <ClCompile Include="src\ca\gfx\vk_swapchain.cpp" />
+    <ClCompile Include="src\ca\gfx\vk_texture.cpp" />
     <ClCompile Include="src\ca\mem_chunkarena.cpp" />
     <ClCompile Include="src\ca\mem_heaparena.cpp" />
     <ClCompile Include="src\ca\mem_lineararena.cpp" />
     <ClCompile Include="src\ca\mem_stackarena.cpp" />
+    <ClCompile Include="src\ca\sys\win32_breakpoint.cpp" />
     <ClCompile Include="src\ca\sys\win32_clock.cpp" />
     <ClCompile Include="src\ca\sys\win32_heap.cpp" />
     <ClCompile Include="src\ca\sys\win32_mutex.cpp" />
     <ClCompile Include="src\ca\sys\win32_thread.cpp" />
-    <ClCompile Include="src\ca\sys\win32_trap.cpp" />
     <ClCompile Include="src\ca\sys\win32_window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

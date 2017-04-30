@@ -4,7 +4,7 @@
 #include "ca/types.h"
 #include "ca/core_assert.h"
 #include "ca/core_log.h"
-#include "ca/gfx/vulkan.h"
+#include "ca/gfx/vk.h"
 
 namespace ca
 {
@@ -22,6 +22,9 @@ namespace ca
 
 			VkResult ret = vkCreateFence(vk_device->device, &fence_create_info, &vk_device->allocator, &vk_fence->fence);
 			CA_ASSERT(ret == VK_SUCCESS);
+
+			fence->handle = vk_fence;
+			fence->device = device;
 		}
 
 		void destroy_fence(fence_t * fence)
@@ -30,6 +33,11 @@ namespace ca
 			vk_fence_t * vk_fence = resolve_fence(fence);
 
 			vkDestroyFence(vk_device->device, vk_fence->fence, &vk_device->allocator);
+
+			mem::arena_free(fence->device->arena, fence->handle);
+
+			fence->handle = nullptr;
+			fence->device = nullptr;
 		}
 
 		void fence_peek_signaled(fence_t * fence, bool * signaled)

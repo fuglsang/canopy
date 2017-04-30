@@ -4,6 +4,6 @@ namespace ca
 {
 	namespace sys
 	{
-		void trap();
+		void breakpoint();
 	}
 }

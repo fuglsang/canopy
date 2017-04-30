@@ -5,7 +5,7 @@
 #include "ca/core_delegate.h"
 #include "ca/core_log.h"
 #include "ca/sys_clock.h"
-#include "ca/sys_trap.h"
+#include "ca/sys_breakpoint.h"
 #include "ca/sys_heap.h"
 #include "ca/sys_thread.h"
 #include "ca/sys_window.h"
@@ -82,6 +82,9 @@ void main(int argc, char** argv)
 			while (sys::window_poll_blocking(&window))
 			{
 				CA_LOG("pos %d, %d, dim %d, %d", window.coords.x, window.coords.y, window.coords.dx, window.coords.dy);
+
+				gfx::swapchain_acquire_blocking(&swapchain);
+				gfx::swapchain_present(&swapchain);
 			}
 
 			gfx::destroy_swapchain(&swapchain);

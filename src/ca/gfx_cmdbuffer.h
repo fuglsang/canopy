@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ca/gfx_device.h"
+#include "ca/math_vec.h"
 
 namespace ca
 {
@@ -21,7 +22,7 @@ namespace ca
 			cmdbuffertype type;
 		};
 
-		void create_cmdbuffer(cmdbuffer_t * cmdbuffer, device_t * device);
+		void create_cmdbuffer(cmdbuffer_t * cmdbuffer, device_t * device, cmdbuffertype type);
 		void destroy_cmdbuffer(cmdbuffer_t * cmdbuffer);
 
 		void cmdbuffer_begin(cmdbuffer_t * cmdbuffer);
