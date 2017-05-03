@@ -12,7 +12,7 @@ namespace ca
 	{
 		void create_texture(texture_t * texture, device_t * device)
 		{
-			vk_device_t * vk_device = resolve_device(device);
+			vk_device_t * vk_device = resolve_type(device);
 			vk_texture_t * vk_texture = mem::arena_alloc<vk_texture_t>(device->arena, 1);
 
 			VkImageCreateInfo image_create_info = {};//TODO
@@ -26,8 +26,8 @@ namespace ca
 
 		void destroy_texture(texture_t * texture)
 		{
-			vk_device_t * vk_device = resolve_device(texture->device);
-			vk_texture_t * vk_texture = resolve_texture(texture);
+			vk_device_t * vk_device = resolve_type(texture->device);
+			vk_texture_t * vk_texture = resolve_type(texture);
 
 			vkDestroyImage(vk_device->device, vk_texture->texture, &vk_device->allocator);
 

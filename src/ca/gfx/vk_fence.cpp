@@ -12,7 +12,7 @@ namespace ca
 	{
 		void create_fence(fence_t * fence, device_t * device, bool signaled)
 		{
-			vk_device_t * vk_device = resolve_device(device);
+			vk_device_t * vk_device = resolve_type(device);
 			vk_fence_t * vk_fence = mem::arena_alloc<vk_fence_t>(device->arena, 1);
 
 			VkFenceCreateInfo fence_create_info;
@@ -29,8 +29,8 @@ namespace ca
 
 		void destroy_fence(fence_t * fence)
 		{
-			vk_device_t * vk_device = resolve_device(fence->device);
-			vk_fence_t * vk_fence = resolve_fence(fence);
+			vk_device_t * vk_device = resolve_type(fence->device);
+			vk_fence_t * vk_fence = resolve_type(fence);
 
 			vkDestroyFence(vk_device->device, vk_fence->fence, &vk_device->allocator);
 
@@ -42,8 +42,8 @@ namespace ca
 
 		void fence_peek_signaled(fence_t * fence, bool * signaled)
 		{
-			vk_device_t * vk_device = resolve_device(fence->device);
-			vk_fence_t * vk_fence = resolve_fence(fence);
+			vk_device_t * vk_device = resolve_type(fence->device);
+			vk_fence_t * vk_fence = resolve_type(fence);
 
 			VkResult ret = vkGetFenceStatus(vk_device->device, vk_fence->fence);
 			CA_ASSERT(ret == VK_SUCCESS || ret == VK_NOT_READY);
@@ -56,8 +56,8 @@ namespace ca
 
 		void fence_wait_signaled(fence_t * fence)
 		{
-			vk_device_t * vk_device = resolve_device(fence->device);
-			vk_fence_t * vk_fence = resolve_fence(fence);
+			vk_device_t * vk_device = resolve_type(fence->device);
+			vk_fence_t * vk_fence = resolve_type(fence);
 
 			VkResult ret = vkWaitForFences(vk_device->device, 1, &vk_fence->fence, VK_TRUE, UINT64_MAX);
 			CA_ASSERT(ret == VK_SUCCESS);
@@ -65,8 +65,8 @@ namespace ca
 
 		void fence_reset_signaled(fence_t * fence)
 		{
-			vk_device_t * vk_device = resolve_device(fence->device);
-			vk_fence_t * vk_fence = resolve_fence(fence);
+			vk_device_t * vk_device = resolve_type(fence->device);
+			vk_fence_t * vk_fence = resolve_type(fence);
 
 			VkResult ret = vkResetFences(vk_device->device, 1, &vk_fence->fence);
 			CA_ASSERT(ret == VK_SUCCESS);

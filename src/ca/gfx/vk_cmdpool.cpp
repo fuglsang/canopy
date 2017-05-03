@@ -12,7 +12,7 @@ namespace ca
 	{
 		void create_cmdpool(cmdpool_t * cmdpool, device_t * device)
 		{
-			vk_device_t * vk_device = resolve_device(device);
+			vk_device_t * vk_device = resolve_type(device);
 			vk_cmdpool_t * vk_cmdpool = mem::arena_alloc<vk_cmdpool_t>(device->arena, 1);
 
 			VkCommandPoolCreateFlags cmdpool_create_flags = 0;
@@ -30,16 +30,16 @@ namespace ca
 
 		void destroy_cmdpool(cmdpool_t * cmdpool)
 		{
-			vk_device_t * vk_device = resolve_device(cmdpool->device);
-			vk_cmdpool_t * vk_cmdpool = resolve_cmdpool(cmdpool);
+			vk_device_t * vk_device = resolve_type(cmdpool->device);
+			vk_cmdpool_t * vk_cmdpool = resolve_type(cmdpool);
 
 			vkDestroyCommandPool(vk_device->device, vk_cmdpool->cmdpool, &vk_device->allocator);
 		}
 
 		void cmdpool_reset(cmdpool_t * cmdpool)
 		{
-			vk_device_t * vk_device = resolve_device(cmdpool->device);
-			vk_cmdpool_t * vk_cmdpool = resolve_cmdpool(cmdpool);
+			vk_device_t * vk_device = resolve_type(cmdpool->device);
+			vk_cmdpool_t * vk_cmdpool = resolve_type(cmdpool);
 
 			VkCommandPoolResetFlags cmdpool_reset_flags = 0;
 			//TODO

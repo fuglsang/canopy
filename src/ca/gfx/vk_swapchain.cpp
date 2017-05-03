@@ -121,7 +121,7 @@ namespace ca
 
 		void create_swapchain(swapchain_t * swapchain, device_t * device, sys::window_t * window, swapmode mode)
 		{
-			vk_device_t * vk_device = resolve_device(device);			
+			vk_device_t * vk_device = resolve_type(device);			
 			vk_swapchain_t * vk_swapchain = mem::arena_alloc<vk_swapchain_t>(device->arena, 1);
 
 			vk_swapchain->surface = VK_NULL_HANDLE;
@@ -219,8 +219,8 @@ namespace ca
 
 		void destroy_swapchain(swapchain_t * swapchain)
 		{
-			vk_device_t * vk_device = resolve_device(swapchain->device);
-			vk_swapchain_t * vk_swapchain = resolve_swapchain(swapchain);
+			vk_device_t * vk_device = resolve_type(swapchain->device);
+			vk_swapchain_t * vk_swapchain = resolve_type(swapchain);
 
 			CA_LOG("vulkan_swapchain: destroy fences ... ");
 			for (int i = 0; i != vk_swapchain->image_count; i++)
@@ -247,8 +247,8 @@ namespace ca
 
 		void swapchain_acquire_blocking(swapchain_t * swapchain)
 		{
-			vk_device_t * vk_device = resolve_device(swapchain->device);
-			vk_swapchain_t * vk_swapchain = resolve_swapchain(swapchain);
+			vk_device_t * vk_device = resolve_type(swapchain->device);
+			vk_swapchain_t * vk_swapchain = resolve_type(swapchain);
 
 			vk_swapchain->fence_index++;
 			vk_swapchain->fence_index %= vk_swapchain->image_count;
@@ -263,8 +263,8 @@ namespace ca
 
 		void swapchain_acquire(swapchain_t * swapchain, semaphore_t * signal_semaphore)
 		{
-			vk_device_t * vk_device = resolve_device(swapchain->device);
-			vk_swapchain_t * vk_swapchain = resolve_swapchain(swapchain);
+			vk_device_t * vk_device = resolve_type(swapchain->device);
+			vk_swapchain_t * vk_swapchain = resolve_type(swapchain);
 
 			VkResult ret = vkAcquireNextImageKHR(vk_device->device, vk_swapchain->swapchain, UINT64_MAX, resolve_handle(signal_semaphore), VK_NULL_HANDLE, &vk_swapchain->image_index);
 			CA_ASSERT(ret == VK_SUCCESS);
@@ -272,8 +272,8 @@ namespace ca
 
 		void swapchain_present(swapchain_t * swapchain, semaphore_t * wait_semaphore)
 		{
-			vk_device_t * vk_device = resolve_device(swapchain->device);
-			vk_swapchain_t * vk_swapchain = resolve_swapchain(swapchain);
+			vk_device_t * vk_device = resolve_type(swapchain->device);
+			vk_swapchain_t * vk_swapchain = resolve_type(swapchain);
 
 			VkSemaphore wait = resolve_handle(wait_semaphore);
 			u32 wait_count = (wait != VK_NULL_HANDLE) ? 1 : 0;

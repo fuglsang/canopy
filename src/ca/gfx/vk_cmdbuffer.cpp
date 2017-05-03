@@ -12,8 +12,8 @@ namespace ca
 	{
 		void create_cmdbuffer(cmdbuffer_t * cmdbuffer, cmdpool_t * cmdpool)
 		{
-			vk_device_t * vk_device = resolve_device(cmdpool->device);
-			vk_cmdpool_t * vk_cmdpool = resolve_cmdpool(cmdpool);
+			vk_device_t * vk_device = resolve_type(cmdpool->device);
+			vk_cmdpool_t * vk_cmdpool = resolve_type(cmdpool);
 			vk_cmdbuffer_t * vk_cmdbuffer = mem::arena_alloc<vk_cmdbuffer_t>(cmdpool->device->arena, 1);
 
 			VkCommandBufferAllocateInfo allocate_info;
@@ -32,9 +32,9 @@ namespace ca
 
 		void destroy_cmdbuffer(cmdbuffer_t * cmdbuffer)
 		{
-			vk_device_t * vk_device = resolve_device(cmdbuffer->cmdpool->device);
-			vk_cmdpool_t * vk_cmdpool = resolve_cmdpool(cmdbuffer->cmdpool);
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
+			vk_device_t * vk_device = resolve_type(cmdbuffer->cmdpool->device);
+			vk_cmdpool_t * vk_cmdpool = resolve_type(cmdbuffer->cmdpool);
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
 
 			vkFreeCommandBuffers(vk_device->device, vk_cmdpool->cmdpool, 1, &vk_cmdbuffer->cmdbuffer);
 
@@ -46,7 +46,7 @@ namespace ca
 
 		void cmdbuffer_reset(cmdbuffer_t * cmdbuffer)
 		{
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
 
 			VkCommandBufferResetFlags cmdbuffer_reset_flags = 0;
 
@@ -56,7 +56,7 @@ namespace ca
 
 		void cmdbuffer_begin(cmdbuffer_t * cmdbuffer)
 		{
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
 
 			VkCommandBufferUsageFlags cmdbuffer_usage_flags = 0;
 			cmdbuffer_usage_flags = 0;//TODO
@@ -84,8 +84,8 @@ namespace ca
 
 		void cmdbuffer_clear_image(cmdbuffer_t * cmdbuffer, texture_t * texture, math::vec4_t const & color)
 		{
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
-			vk_texture_t * vk_texture = resolve_texture(texture);
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
+			vk_texture_t * vk_texture = resolve_type(texture);
 
 			VkClearColorValue ccv;
 			memcpy(ccv.float32, color.e, sizeof(ccv.float32));
@@ -102,19 +102,19 @@ namespace ca
 
 		void cmdbuffer_draw(cmdbuffer_t * cmdbuffer, u32 vertex_start, u32 vertex_count)
 		{
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
 			vkCmdDraw(vk_cmdbuffer->cmdbuffer, vertex_count, 1, vertex_start, 0);
 		}
 
 		void cmdbuffer_draw_indexed(cmdbuffer_t * cmdbuffer, u32 vertex_start, u32 index_start, u32 index_count)
 		{
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
 			vkCmdDrawIndexed(vk_cmdbuffer->cmdbuffer, index_count, 1, index_start, vertex_start, 0);
 		}
 
 		void cmdbuffer_end(cmdbuffer_t * cmdbuffer)
 		{
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
 
 			VkResult ret = vkEndCommandBuffer(vk_cmdbuffer->cmdbuffer);
 			CA_ASSERT(ret == VK_SUCCESS);

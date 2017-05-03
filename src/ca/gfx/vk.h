@@ -20,6 +20,8 @@ namespace ca
 {
 	namespace gfx
 	{
+		// vk callbacks
+
 		template <typename A>
 		struct vk_allocation_callbacks
 		{
@@ -96,52 +98,15 @@ namespace ca
 			VkImageLayout texture_layout;
 		};
 
-		// resolve_vk_type
+		// resolve_type(), resolve_handle()
 
-		inline vk_cmdbuffer_t * resolve_cmdbuffer(cmdbuffer_t * cmdbuffer)
-		{
-			return reinterpret_cast<vk_cmdbuffer_t *>(cmdbuffer->handle);
-		}
-
-		inline vk_cmdpool_t * resolve_cmdpool(cmdpool_t * cmdpool)
-		{
-			return reinterpret_cast<vk_cmdpool_t *>(cmdpool->handle);
-		}
-
-		inline vk_device_t * resolve_device(device_t * device)
-		{
-			return reinterpret_cast<vk_device_t *>(device->handle);
-		}
-
-		inline vk_fence_t * resolve_fence(fence_t * fence)
-		{
-			return reinterpret_cast<vk_fence_t *>(fence->handle);
-		}
-
-		inline vk_semaphore_t * resolve_semaphore(semaphore_t * semaphore)
-		{
-			return reinterpret_cast<vk_semaphore_t *>(semaphore->handle);
-		}
-
-		inline vk_swapchain_t * resolve_swapchain(swapchain_t * swapchain)
-		{
-			return reinterpret_cast<vk_swapchain_t *>(swapchain->handle);
-		}
-
-		inline vk_texture_t * resolve_texture(texture_t * cmdbuffer)
-		{
-			return reinterpret_cast<vk_texture_t *>(cmdbuffer->handle);
-		}
-
-		// resolve_vk_handle
-
-#define CA_DEFINE_RESOLVE_VK_TYPE(ID)									\
+		#define CA_DEFINE_RESOLVE_VK_TYPE(ID)							\
 		inline vk_##ID##_t * resolve_type(ID##_t * ID)					\
 		{																\
 			return reinterpret_cast<vk_##ID##_t *>(ID->handle);			\
 		}
 
-#define CA_DEFINE_RESOLVE_VK_HANDLE(ID)									\
+		#define CA_DEFINE_RESOLVE_VK_HANDLE(ID)							\
 		inline decltype(vk_##ID##_t::##ID) resolve_handle(ID##_t * ID)	\
 		{																\
 			if (ID != nullptr)											\
@@ -150,9 +115,7 @@ namespace ca
 				return VK_NULL_HANDLE;									\
 		}
 
-#define CA_DEFINE_RESOLVE_VK(ID)										\
-		CA_DEFINE_RESOLVE_VK_TYPE(ID)									\
-		CA_DEFINE_RESOLVE_VK_HANDLE(ID)
+		#define CA_DEFINE_RESOLVE_VK(ID) CA_DEFINE_RESOLVE_VK_TYPE(ID); CA_DEFINE_RESOLVE_VK_HANDLE(ID)
 
 		CA_DEFINE_RESOLVE_VK(cmdbuffer);
 		CA_DEFINE_RESOLVE_VK(cmdpool);
@@ -162,8 +125,9 @@ namespace ca
 		CA_DEFINE_RESOLVE_VK(semaphore);
 		CA_DEFINE_RESOLVE_VK(swapchain);
 
-#undef CA_DEFINE_RESOLVE_VK_HANDLE
-#undef CA_DEFINE_RESOLVE_VK_STRUCT
-#undef CA_DEFINE_RESOLVE_VK
+		#undef CA_DEFINE_RESOLVE_VK
+		#undef CA_DEFINE_RESOLVE_VK_HANDLE
+		#undef CA_DEFINE_RESOLVE_VK_TYPE
 	}
 }
+

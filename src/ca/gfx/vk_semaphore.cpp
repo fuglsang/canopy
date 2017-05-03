@@ -12,7 +12,7 @@ namespace ca
 	{
 		void create_semaphore(semaphore_t * semaphore, device_t * device)
 		{
-			vk_device_t * vk_device = resolve_device(device);
+			vk_device_t * vk_device = resolve_type(device);
 			vk_semaphore_t * vk_semaphore = mem::arena_alloc<vk_semaphore_t>(device->arena, 1);
 
 			VkSemaphoreCreateFlags semaphore_create_flags;
@@ -32,8 +32,8 @@ namespace ca
 
 		void destroy_fence(semaphore_t * semaphore)
 		{
-			vk_device_t * vk_device = resolve_device(semaphore->device);
-			vk_semaphore_t * vk_semaphore = resolve_semaphore(semaphore);
+			vk_device_t * vk_device = resolve_type(semaphore->device);
+			vk_semaphore_t * vk_semaphore = resolve_type(semaphore);
 
 			vkDestroySemaphore(vk_device->device, vk_semaphore->semaphore, &vk_device->allocator);
 

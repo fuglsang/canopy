@@ -217,7 +217,7 @@ namespace ca
 
 		void destroy_device(device_t * device)
 		{
-			vk_device_t * vk_device = resolve_device(device);
+			vk_device_t * vk_device = resolve_type(device);
 
 			CA_LOG("vulkan_device: destroy logical device ... ");
 			vkDestroyDevice(vk_device->device, &vk_device->allocator);
@@ -234,8 +234,8 @@ namespace ca
 
 		void device_submit(device_t * device, cmdbuffer_t * cmdbuffer, semaphore_t * wait_semaphore, semaphore_t * signal_semaphore, fence_t * signal_fence)
 		{
-			vk_device_t * vk_device = resolve_device(device);
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
+			vk_device_t * vk_device = resolve_type(device);
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
 
 			VkSemaphore wait = resolve_handle(wait_semaphore);
 			u32 wait_count = (wait != VK_NULL_HANDLE) ? 1 : 0;
