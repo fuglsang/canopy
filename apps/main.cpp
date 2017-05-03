@@ -84,7 +84,7 @@ void main(int argc, char** argv)
 				CA_LOG("pos %d, %d, dim %d, %d", window.coords.x, window.coords.y, window.coords.dx, window.coords.dy);
 
 				gfx::swapchain_acquire_blocking(&swapchain);
-				gfx::swapchain_present(&swapchain);
+				gfx::swapchain_present(&swapchain, nullptr);
 			}
 
 			gfx::destroy_swapchain(&swapchain);

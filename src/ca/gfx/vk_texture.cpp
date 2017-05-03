@@ -17,7 +17,7 @@ namespace ca
 
 			VkImageCreateInfo image_create_info = {};//TODO
 
-			VkResult ret = vkCreateImage(vk_device->device, &image_create_info, &vk_device->allocator, &vk_texture->image);
+			VkResult ret = vkCreateImage(vk_device->device, &image_create_info, &vk_device->allocator, &vk_texture->texture);
 			CA_ASSERT(ret == VK_SUCCESS);
 
 			texture->handle = vk_texture;
@@ -29,7 +29,7 @@ namespace ca
 			vk_device_t * vk_device = resolve_device(texture->device);
 			vk_texture_t * vk_texture = resolve_texture(texture);
 
-			vkDestroyImage(vk_device->device, vk_texture->image, &vk_device->allocator);
+			vkDestroyImage(vk_device->device, vk_texture->texture, &vk_device->allocator);
 
 			mem::arena_free(texture->device->arena, texture->handle);
 

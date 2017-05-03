@@ -1,7 +1,7 @@
 //--------------------------
 // operator overloads below
 
-#define DEFINE_VECTOR_OP_VECTOR(OP)												\
+#define CA_DEFINE_VECTOR_OP_VECTOR(OP)											\
 template <typename T, u32 N>													\
 inline vec_t<T, N> operator OP (vec_t<T, N> const & a, vec_t<T, N> const & b)	\
 {																				\
@@ -19,7 +19,7 @@ inline vec_t<T, N> & operator OP##= (vec_t<T, N> & a, vec_t<T, N> const & b)	\
 	return (a = (a OP b));														\
 }
 
-#define DEFINE_VECTOR_OP_SCALAR(OP)												\
+#define CA_DEFINE_VECTOR_OP_SCALAR(OP)											\
 template <typename T, u32 N>													\
 inline vec_t<T, N> operator OP (vec_t<T, N> const & a, T const b)				\
 {																				\
@@ -37,7 +37,7 @@ inline vec_t<T, N> & operator OP##= (vec_t<T, N> & a, T const b)				\
 	return (a = (a OP b));														\
 }
 
-#define DEFINE_SCALAR_OP_VECTOR(OP)												\
+#define CA_DEFINE_SCALAR_OP_VECTOR(OP)											\
 template <typename T, u32 N>													\
 inline vec_t<T, N> operator OP (T const a, vec_t<T, N> const & b)				\
 {																				\
@@ -49,20 +49,20 @@ inline vec_t<T, N> operator OP (T const a, vec_t<T, N> const & b)				\
 	return v;																	\
 }
 
-DEFINE_VECTOR_OP_VECTOR(+)
-DEFINE_VECTOR_OP_VECTOR(-)
-DEFINE_VECTOR_OP_VECTOR(*)
-DEFINE_VECTOR_OP_VECTOR(/)
+CA_DEFINE_VECTOR_OP_VECTOR(+)
+CA_DEFINE_VECTOR_OP_VECTOR(-)
+CA_DEFINE_VECTOR_OP_VECTOR(*)
+CA_DEFINE_VECTOR_OP_VECTOR(/)
 
-DEFINE_VECTOR_OP_SCALAR(*)
-DEFINE_VECTOR_OP_SCALAR(/)
+CA_DEFINE_VECTOR_OP_SCALAR(*)
+CA_DEFINE_VECTOR_OP_SCALAR(/)
 
-DEFINE_SCALAR_OP_VECTOR(*)
-DEFINE_SCALAR_OP_VECTOR(/)
+CA_DEFINE_SCALAR_OP_VECTOR(*)
+CA_DEFINE_SCALAR_OP_VECTOR(/)
 
-#undef DEFINE_VECTOR_OP_VECTOR
-#undef DEFINE_VECTOR_OP_SCALAR
-#undef DEFINE_SCALAR_OP_VECTOR
+#undef CA_DEFINE_VECTOR_OP_VECTOR
+#undef CA_DEFINE_VECTOR_OP_SCALAR
+#undef CA_DEFINE_SCALAR_OP_VECTOR
 
 //-------------------------
 // utility functions below

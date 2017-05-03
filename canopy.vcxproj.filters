@@ -144,6 +144,9 @@
     <ClInclude Include="src\ca\sys_breakpoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ca\gfx_cmdpool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ca\math_bezier.inl">
@@ -215,6 +218,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ca\sys\win32_breakpoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\gfx\vk_cmdpool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

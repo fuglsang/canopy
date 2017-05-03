@@ -192,6 +192,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\gfx\opengl.h" />
     <ClInclude Include="src\ca\gfx\vk.h" />
     <ClInclude Include="src\ca\gfx_cmdbuffer.h" />
+    <ClInclude Include="src\ca\gfx_cmdpool.h" />
     <ClInclude Include="src\ca\gfx_fence.h" />
     <ClInclude Include="src\ca\gfx_semaphore.h" />
     <ClInclude Include="src\ca\gfx_swapchain.h" />
@@ -233,6 +234,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="src\ca\core_jobsystem.cpp" />
     <ClCompile Include="src\ca\gfx\opengl_device.cpp" />
     <ClCompile Include="src\ca\gfx\vk_cmdbuffer.cpp" />
+    <ClCompile Include="src\ca\gfx\vk_cmdpool.cpp" />
     <ClCompile Include="src\ca\gfx\vk_device.cpp" />
     <ClCompile Include="src\ca\gfx\vk_fence.cpp" />
     <ClCompile Include="src\ca\gfx\vk_semaphore.cpp" />

@@ -183,10 +183,13 @@ namespace ca
 
 		static void create_command_pool(VkCommandPool * cmdpool, VkDevice device, VkAllocationCallbacks * allocator, u32 queue_family_index)
 		{
+			VkCommandPoolCreateFlags cmdpool_create_flags = 0;
+			cmdpool_create_flags |= VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
 			VkCommandPoolCreateInfo cmdpool_create_info;
 			cmdpool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 			cmdpool_create_info.pNext = nullptr;
-			cmdpool_create_info.flags = 0;
+			cmdpool_create_info.flags = cmdpool_create_flags;
 			cmdpool_create_info.queueFamilyIndex = queue_family_index;
 			
 			VkResult ret = vkCreateCommandPool(device, &cmdpool_create_info, allocator, cmdpool);
@@ -222,14 +225,6 @@ namespace ca
 			CA_ASSERT(vk_device->device != VK_NULL_HANDLE);
 			CA_ASSERT(vk_device->queue != VK_NULL_HANDLE);
 
-			CA_LOG("vulkan_device: create command pools ... ");
-			create_command_pool(&vk_device->cmdpool[CMDBUFFERTYPE_GRAPHICS], vk_device->device, &vk_device->allocator, vk_device->queue_family);
-			CA_ASSERT(vk_device->cmdpool[CMDBUFFERTYPE_GRAPHICS] != VK_NULL_HANDLE);
-			create_command_pool(&vk_device->cmdpool[CMDBUFFERTYPE_TRANSFER], vk_device->device, &vk_device->allocator, vk_device->queue_family);
-			CA_ASSERT(vk_device->cmdpool[CMDBUFFERTYPE_TRANSFER] != VK_NULL_HANDLE);
-			create_command_pool(&vk_device->cmdpool[CMDBUFFERTYPE_COMPUTE], vk_device->device, &vk_device->allocator, vk_device->queue_family);
-			CA_ASSERT(vk_device->cmdpool[CMDBUFFERTYPE_COMPUTE] != VK_NULL_HANDLE);
-
 			device->handle = vk_device;
 			device->arena = arena;			
 			CA_LOG("vulkan_device: READY");
@@ -238,11 +233,6 @@ namespace ca
 		void destroy_device(device_t * device)
 		{
 			vk_device_t * vk_device = resolve_device(device);
-
-			CA_LOG("vulkan_device: destroy command pools ... ");
-			vkDestroyCommandPool(vk_device->device, vk_device->cmdpool[CMDBUFFERTYPE_GRAPHICS], &vk_device->allocator);
-			vkDestroyCommandPool(vk_device->device, vk_device->cmdpool[CMDBUFFERTYPE_TRANSFER], &vk_device->allocator);
-			vkDestroyCommandPool(vk_device->device, vk_device->cmdpool[CMDBUFFERTYPE_COMPUTE], &vk_device->allocator);
 
 			CA_LOG("vulkan_device: destroy logical device ... ");
 			vkDestroyDevice(vk_device->device, &vk_device->allocator);
@@ -257,23 +247,32 @@ namespace ca
 			device->arena = nullptr;
 		}
 
-		void device_submit(device_t * device, cmdbuffer_t * cmdbuffer, fence_t * fence)
+		void device_submit(device_t * device, cmdbuffer_t * cmdbuffer, semaphore_t * wait_semaphore, semaphore_t * signal_semaphore, fence_t * signal_fence)
 		{
 			vk_device_t * vk_device = resolve_device(device);
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
 
+			VkSemaphore wait = resolve_handle(wait_semaphore);
+			u32 wait_count = (wait != VK_NULL_HANDLE) ? 1 : 0;
+
+			VkPipelineStageFlags wait_stage_mask = 0;
+			wait_stage_mask |= VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+			VkSemaphore signal = resolve_handle(signal_semaphore);
+			u32 signal_count = (signal != VK_NULL_HANDLE) ? 1 : 0;
+
 			VkSubmitInfo submit_info;
 			submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 			submit_info.pNext = nullptr;
-			submit_info.waitSemaphoreCount = 0;
-			submit_info.pWaitSemaphores = nullptr;
-			submit_info.pWaitDstStageMask = 0;
+			submit_info.waitSemaphoreCount = wait_count;
+			submit_info.pWaitSemaphores = &wait;
+			submit_info.pWaitDstStageMask = &wait_stage_mask;
 			submit_info.commandBufferCount = 1;
 			submit_info.pCommandBuffers = &vk_cmdbuffer->cmdbuffer;
-			submit_info.signalSemaphoreCount = 0;
-			submit_info.pSignalSemaphores = nullptr;
+			submit_info.signalSemaphoreCount = signal_count;
+			submit_info.pSignalSemaphores = &signal;
 
-			VkResult ret = vkQueueSubmit(vk_device->queue, 1, &submit_info, (fence != nullptr) ? resolve_fence(fence)->fence : VK_NULL_HANDLE);
+			VkResult ret = vkQueueSubmit(vk_device->queue, 1, &submit_info, resolve_handle(signal_fence));
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 	}

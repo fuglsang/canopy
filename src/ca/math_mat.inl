@@ -1,7 +1,7 @@
 //--------------------------
 // operator overloads below
 
-#define DEFINE_MATRIX_OP_MATRIX(OP)												\
+#define CA_DEFINE_MATRIX_OP_MATRIX(OP)											\
 template <typename T, u32 N>													\
 inline mat_t<T, N> operator OP (mat_t<T, N> const & A, mat_t<T, N> const & B)	\
 {																				\
@@ -19,7 +19,7 @@ inline mat_t<T, N> & operator OP##= (mat_t<T, N> & A, mat_t<T, N> const & B)	\
 	return (A = (A OP B));														\
 }
 
-#define DEFINE_MATRIX_OP_SCALAR(OP)												\
+#define CA_DEFINE_MATRIX_OP_SCALAR(OP)											\
 template <typename T, u32 N>													\
 inline mat_t<T, N> operator OP (mat_t<T, N> const & A, T const b)				\
 {																				\
@@ -37,7 +37,7 @@ inline mat_t<T, N> & operator OP##= (mat_t<T, N> & A, T const b)				\
 	return (A = (A OP b));														\
 }
 
-#define DEFINE_SCALAR_OP_MATRIX(OP)												\
+#define CA_DEFINE_SCALAR_OP_MATRIX(OP)											\
 template <typename T, u32 N>													\
 inline mat_t<T, N> operator OP (T const a, mat_t<T, N> const & B)				\
 {																				\
@@ -49,8 +49,8 @@ inline mat_t<T, N> operator OP (T const a, mat_t<T, N> const & B)				\
 	return M;																	\
 }
 
-DEFINE_MATRIX_OP_MATRIX(+)
-DEFINE_MATRIX_OP_MATRIX(-)
+CA_DEFINE_MATRIX_OP_MATRIX(+)
+CA_DEFINE_MATRIX_OP_MATRIX(-)
 
 template <typename T, u32 N>
 inline mat_t<T, N> operator* (mat_t<T, N> const & A, mat_t<T, N> const & B)
@@ -81,15 +81,15 @@ inline vec_t<T, N> operator* (mat_t<T, N> const & A, vec_t<T, N> const & b)
 	return v;
 }
 
-DEFINE_MATRIX_OP_SCALAR(*)
-DEFINE_MATRIX_OP_SCALAR(/)
+CA_DEFINE_MATRIX_OP_SCALAR(*)
+CA_DEFINE_MATRIX_OP_SCALAR(/)
 
-DEFINE_SCALAR_OP_MATRIX(*)
-DEFINE_SCALAR_OP_MATRIX(/)
+CA_DEFINE_SCALAR_OP_MATRIX(*)
+CA_DEFINE_SCALAR_OP_MATRIX(/)
 
-#undef DEFINE_MATRIX_OP_MATRIX
-#undef DEFINE_MATRIX_OP_SCALAR
-#undef DEFINE_SCALAR_OP_MATRIX
+#undef CA_DEFINE_MATRIX_OP_MATRIX
+#undef CA_DEFINE_MATRIX_OP_SCALAR
+#undef CA_DEFINE_SCALAR_OP_MATRIX
 
 //-------------------------
 // utility functions below

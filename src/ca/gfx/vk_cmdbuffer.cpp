@@ -10,15 +10,16 @@ namespace ca
 {
 	namespace gfx
 	{
-		void create_cmdbuffer(cmdbuffer_t * cmdbuffer, device_t * device, cmdbuffertype type)
+		void create_cmdbuffer(cmdbuffer_t * cmdbuffer, cmdpool_t * cmdpool)
 		{
-			vk_device_t * vk_device = resolve_device(device);
-			vk_cmdbuffer_t * vk_cmdbuffer = mem::arena_alloc<vk_cmdbuffer_t>(device->arena, 1);
+			vk_device_t * vk_device = resolve_device(cmdpool->device);
+			vk_cmdpool_t * vk_cmdpool = resolve_cmdpool(cmdpool);
+			vk_cmdbuffer_t * vk_cmdbuffer = mem::arena_alloc<vk_cmdbuffer_t>(cmdpool->device->arena, 1);
 
 			VkCommandBufferAllocateInfo allocate_info;
 			allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 			allocate_info.pNext = nullptr;
-			allocate_info.commandPool = vk_device->cmdpool[type];
+			allocate_info.commandPool = vk_cmdpool->cmdpool;
 			allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 			allocate_info.commandBufferCount = 1;
 
@@ -26,29 +27,38 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 
 			cmdbuffer->handle = vk_cmdbuffer;
-			cmdbuffer->device = device;
-			cmdbuffer->type = type;
+			cmdbuffer->cmdpool = cmdpool;
 		}
 
 		void destroy_cmdbuffer(cmdbuffer_t * cmdbuffer)
 		{
-			vk_device_t * vk_device = resolve_device(cmdbuffer->device);
+			vk_device_t * vk_device = resolve_device(cmdbuffer->cmdpool->device);
+			vk_cmdpool_t * vk_cmdpool = resolve_cmdpool(cmdbuffer->cmdpool);
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
 
-			vkFreeCommandBuffers(vk_device->device, vk_device->cmdpool[cmdbuffer->type], 1, &vk_cmdbuffer->cmdbuffer);
+			vkFreeCommandBuffers(vk_device->device, vk_cmdpool->cmdpool, 1, &vk_cmdbuffer->cmdbuffer);
 
-			mem::arena_free(cmdbuffer->device->arena, cmdbuffer->handle);
+			mem::arena_free(cmdbuffer->cmdpool->device->arena, cmdbuffer->handle);
 
 			cmdbuffer->handle = nullptr;
-			cmdbuffer->device = nullptr;
-			cmdbuffer->type = NUM_CMDBUFFERTYPES;
+			cmdbuffer->cmdpool = nullptr;
+		}
+
+		void cmdbuffer_reset(cmdbuffer_t * cmdbuffer)
+		{
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
+
+			VkCommandBufferResetFlags cmdbuffer_reset_flags = 0;
+
+			VkResult ret = vkResetCommandBuffer(vk_cmdbuffer->cmdbuffer, cmdbuffer_reset_flags);
+			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
 		void cmdbuffer_begin(cmdbuffer_t * cmdbuffer)
 		{
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
 
-			VkCommandBufferUsageFlags cmdbuffer_usage_flags;
+			VkCommandBufferUsageFlags cmdbuffer_usage_flags = 0;
 			cmdbuffer_usage_flags = 0;//TODO
 
 			VkCommandBufferInheritanceInfo cmdbuffer_inheritance_info = {};
@@ -72,7 +82,7 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
-		void cmdbuffer_clear(cmdbuffer_t * cmdbuffer, texture_t * texture, math::vec4_t const & color)
+		void cmdbuffer_clear_image(cmdbuffer_t * cmdbuffer, texture_t * texture, math::vec4_t const & color)
 		{
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_cmdbuffer(cmdbuffer);
 			vk_texture_t * vk_texture = resolve_texture(texture);
@@ -87,7 +97,7 @@ namespace ca
 			image_subresource_range.baseArrayLayer = 0;
 			image_subresource_range.layerCount = 1;
 
-			vkCmdClearColorImage(vk_cmdbuffer->cmdbuffer, vk_texture->image, vk_texture->image_layout, &ccv, 1, &image_subresource_range);
+			vkCmdClearColorImage(vk_cmdbuffer->cmdbuffer, vk_texture->texture, vk_texture->texture_layout, &ccv, 1, &image_subresource_range);
 		}
 
 		void cmdbuffer_draw(cmdbuffer_t * cmdbuffer, u32 vertex_start, u32 vertex_count)

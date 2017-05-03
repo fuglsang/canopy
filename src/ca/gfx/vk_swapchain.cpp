@@ -256,24 +256,17 @@ namespace ca
 
 			VkResult ret = vkAcquireNextImageKHR(vk_device->device, vk_swapchain->swapchain, UINT64_MAX, VK_NULL_HANDLE, acquired_fence, &vk_swapchain->image_index);
 			CA_ASSERT(ret == VK_SUCCESS);
+
+			ret = vkWaitForFences(vk_device->device, 1, &acquired_fence, VK_FALSE, UINT64_MAX);
+			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
-		void swapchain_present(swapchain_t * swapchain)
+		void swapchain_acquire(swapchain_t * swapchain, semaphore_t * signal_semaphore)
 		{
 			vk_device_t * vk_device = resolve_device(swapchain->device);
 			vk_swapchain_t * vk_swapchain = resolve_swapchain(swapchain);
 
-			VkPresentInfoKHR present_info;
-			present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-			present_info.pNext = nullptr;
-			present_info.waitSemaphoreCount = 0;
-			present_info.pWaitSemaphores = nullptr;
-			present_info.swapchainCount = 1;
-			present_info.pSwapchains = &vk_swapchain->swapchain;
-			present_info.pImageIndices = &vk_swapchain->image_index;
-			present_info.pResults = nullptr;
-
-			VkResult ret = vkQueuePresentKHR(vk_device->queue, &present_info);
+			VkResult ret = vkAcquireNextImageKHR(vk_device->device, vk_swapchain->swapchain, UINT64_MAX, resolve_handle(signal_semaphore), VK_NULL_HANDLE, &vk_swapchain->image_index);
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
@@ -282,11 +275,14 @@ namespace ca
 			vk_device_t * vk_device = resolve_device(swapchain->device);
 			vk_swapchain_t * vk_swapchain = resolve_swapchain(swapchain);
 
+			VkSemaphore wait = resolve_handle(wait_semaphore);
+			u32 wait_count = (wait != VK_NULL_HANDLE) ? 1 : 0;
+
 			VkPresentInfoKHR present_info;
 			present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 			present_info.pNext = nullptr;
-			present_info.waitSemaphoreCount = 1;
-			present_info.pWaitSemaphores = &resolve_semaphore(wait_semaphore)->semaphore;
+			present_info.waitSemaphoreCount = wait_count;
+			present_info.pWaitSemaphores = &wait;
 			present_info.swapchainCount = 1;
 			present_info.pSwapchains = &vk_swapchain->swapchain;
 			present_info.pImageIndices = &vk_swapchain->image_index;
