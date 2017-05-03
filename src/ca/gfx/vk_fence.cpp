@@ -15,10 +15,13 @@ namespace ca
 			vk_device_t * vk_device = resolve_type(device);
 			vk_fence_t * vk_fence = mem::arena_alloc<vk_fence_t>(device->arena, 1);
 
+			VkFenceCreateFlags fence_create_flags = 0;
+			fence_create_flags |= (signaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0);
+
 			VkFenceCreateInfo fence_create_info;
 			fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 			fence_create_info.pNext = nullptr;
-			fence_create_info.flags = signaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
+			fence_create_info.flags = fence_create_flags;
 
 			VkResult ret = vkCreateFence(vk_device->device, &fence_create_info, &vk_device->allocator, &vk_fence->fence);
 			CA_ASSERT(ret == VK_SUCCESS);

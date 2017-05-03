@@ -15,13 +15,10 @@ namespace ca
 			vk_device_t * vk_device = resolve_type(device);
 			vk_semaphore_t * vk_semaphore = mem::arena_alloc<vk_semaphore_t>(device->arena, 1);
 
-			VkSemaphoreCreateFlags semaphore_create_flags;
-			semaphore_create_flags = 0;
-
 			VkSemaphoreCreateInfo semaphore_create_info;
 			semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 			semaphore_create_info.pNext = nullptr;
-			semaphore_create_info.flags = semaphore_create_flags;
+			semaphore_create_info.flags = 0;
 
 			VkResult ret = vkCreateSemaphore(vk_device->device, &semaphore_create_info, &vk_device->allocator, &vk_semaphore->semaphore);
 			CA_ASSERT(ret == VK_SUCCESS);

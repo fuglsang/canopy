@@ -59,7 +59,7 @@ namespace ca
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
 
 			VkCommandBufferUsageFlags cmdbuffer_usage_flags = 0;
-			cmdbuffer_usage_flags = 0;//TODO
+			cmdbuffer_usage_flags |= VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
 			VkCommandBufferInheritanceInfo cmdbuffer_inheritance_info = {};
 			cmdbuffer_inheritance_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;

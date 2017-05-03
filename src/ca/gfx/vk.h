@@ -59,7 +59,7 @@ namespace ca
 
 		struct vk_device_t
 		{
-			VkAllocationCallbacks allocator;
+			VkAllocationCallbacks allocator;//TODO allocator per-type? research granularity..
 			VkInstance instance;
 
 			VkPhysicalDevice physical_device;
@@ -84,12 +84,11 @@ namespace ca
 			VkSurfaceKHR surface;
 			VkSwapchainKHR swapchain;
 
-			u32 image_count;
 			u32 image_index;
-			VkImage * image_array;
+			VkImage * images;
 
 			u32 fence_index;
-			VkFence * fence_array;
+			VkFence * fences;
 		};
 
 		struct vk_texture_t
