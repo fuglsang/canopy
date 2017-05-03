@@ -181,21 +181,6 @@ namespace ca
 			vkGetDeviceQueue(*logical_device, physical_device_queue_family, 0, logical_device_queue);
 		}
 
-		static void create_command_pool(VkCommandPool * cmdpool, VkDevice device, VkAllocationCallbacks * allocator, u32 queue_family_index)
-		{
-			VkCommandPoolCreateFlags cmdpool_create_flags = 0;
-			cmdpool_create_flags |= VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-
-			VkCommandPoolCreateInfo cmdpool_create_info;
-			cmdpool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-			cmdpool_create_info.pNext = nullptr;
-			cmdpool_create_info.flags = cmdpool_create_flags;
-			cmdpool_create_info.queueFamilyIndex = queue_family_index;
-			
-			VkResult ret = vkCreateCommandPool(device, &cmdpool_create_info, allocator, cmdpool);
-			CA_ASSERT(ret == VK_SUCCESS);
-		}
-
 		void create_device(device_t * device, mem::heaparena_t * arena)
 		{
 			vk_device_t * vk_device = mem::arena_alloc<vk_device_t>(arena, 1);

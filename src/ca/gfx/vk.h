@@ -65,8 +65,6 @@ namespace ca
 
 			u32 queue_family;
 			VkQueue queue;
-
-			VkCommandPool queue_family_cmdpool;
 		};
 
 		struct vk_fence_t
