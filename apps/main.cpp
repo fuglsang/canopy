@@ -1,18 +1,8 @@
-#include "ca/math_vec.h"
-#include "ca/math_mat.h"
-#include "ca/math_util.h"
-#include "ca/math_bezier.h"
-#include "ca/core_delegate.h"
-#include "ca/core_log.h"
-#include "ca/sys_clock.h"
-#include "ca/sys_breakpoint.h"
-#include "ca/sys_heap.h"
-#include "ca/sys_thread.h"
-#include "ca/sys_window.h"
-#include "ca/gfx_device.h"
-#include "ca/gfx_swapchain.h"
-#include "ca/gfx_cmdbuffer.h"
+#include "ca/core.h"
+#include "ca/math.h"
 #include "ca/mem.h"
+#include "ca/gfx.h"
+#include "ca/sys.h"
 
 using namespace ca;
 using namespace ca::core;
@@ -79,14 +69,35 @@ void main(int argc, char** argv)
 			gfx::swapchain_t swapchain;
 			gfx::create_swapchain(&swapchain, &device, &window, gfx::SWAPMODE_VSYNC);
 
-			while (sys::window_poll_blocking(&window))
-			{
-				CA_LOG("pos %d, %d, dim %d, %d", window.coords.x, window.coords.y, window.coords.dx, window.coords.dy);
+			gfx::cmdpool_t cmdpool;
+			gfx::create_cmdpool(&cmdpool, &device);
 
-				gfx::texture_t backbuffer;
+			gfx::cmdbuffer_t cmdbuffer;
+			gfx::create_cmdbuffer(&cmdbuffer, &cmdpool);
+
+			gfx::texture_t backbuffer;
+			gfx::semaphore_t backbuffer_ready;
+			gfx::create_semaphore(&backbuffer_ready, &device);
+
+			while (true)
+			{
+				sys::window_poll(&window);
+
+				//CA_LOG("pos %d, %d, dim %d, %d", window.coords.x, window.coords.y, window.coords.dx, window.coords.dy);
 
 				gfx::swapchain_acquire_blocking(&swapchain, &backbuffer);
-				gfx::swapchain_present(&swapchain, nullptr);
+
+				f32 s = 0.01f * sys::clock_milli();
+				f32 k = math::sin(s) * 0.5f + 0.5f;
+
+				gfx::cmdbuffer_reset(&cmdbuffer);
+				gfx::cmdbuffer_begin(&cmdbuffer);
+				gfx::cmdbuffer_clear_color(&cmdbuffer, &backbuffer, { k, 0.0f, 0.5f * k, 0.0f });
+				gfx::cmdbuffer_end(&cmdbuffer);
+
+				gfx::device_submit(&device, &cmdbuffer, nullptr, &backbuffer_ready, nullptr);
+
+				gfx::swapchain_present(&swapchain, &backbuffer_ready);
 			}
 
 			gfx::destroy_swapchain(&swapchain);

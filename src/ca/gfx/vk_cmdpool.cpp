@@ -26,6 +26,9 @@ namespace ca
 
 			VkResult ret = vkCreateCommandPool(vk_device->device, &cmdpool_create_info, &vk_device->allocator, &vk_cmdpool->cmdpool);
 			CA_ASSERT(ret == VK_SUCCESS);
+
+			cmdpool->handle = vk_cmdpool;
+			cmdpool->device = device;
 		}
 
 		void destroy_cmdpool(cmdpool_t * cmdpool)
@@ -34,6 +37,9 @@ namespace ca
 			vk_cmdpool_t * vk_cmdpool = resolve_type(cmdpool);
 
 			vkDestroyCommandPool(vk_device->device, vk_cmdpool->cmdpool, &vk_device->allocator);
+
+			cmdpool->handle = nullptr;
+			cmdpool->device = nullptr;
 		}
 
 		void cmdpool_reset(cmdpool_t * cmdpool)
@@ -41,10 +47,7 @@ namespace ca
 			vk_device_t * vk_device = resolve_type(cmdpool->device);
 			vk_cmdpool_t * vk_cmdpool = resolve_type(cmdpool);
 
-			VkCommandPoolResetFlags cmdpool_reset_flags = 0;
-			//TODO
-
-			VkResult ret = vkResetCommandPool(vk_device->device, vk_cmdpool->cmdpool, cmdpool_reset_flags);
+			VkResult ret = vkResetCommandPool(vk_device->device, vk_cmdpool->cmdpool, 0);
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 	}

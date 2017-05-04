@@ -27,7 +27,7 @@ namespace ca
 			semaphore->device = device;
 		}
 
-		void destroy_fence(semaphore_t * semaphore)
+		void destroy_semaphore(semaphore_t * semaphore)
 		{
 			vk_device_t * vk_device = resolve_type(semaphore->device);
 			vk_semaphore_t * vk_semaphore = resolve_type(semaphore);

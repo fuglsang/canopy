@@ -47,6 +47,14 @@ namespace ca
 
 		// vk_... types
 
+		struct vk_cmdbuffer_t;
+		struct vk_cmdpool_t;
+		struct vk_device_t;
+		struct vk_fence_t;
+		struct vk_semaphore_t;
+		struct vk_swapchain_t;
+		struct vk_texture_t;
+
 		struct vk_cmdbuffer_t
 		{
 			VkCommandBuffer cmdbuffer;
@@ -86,15 +94,15 @@ namespace ca
 
 			u32 image_index;
 			VkImage * images;
-
 			u32 fence_index;
 			VkFence * fences;
+
+			vk_texture_t * textures;
 		};
 
 		struct vk_texture_t
 		{
 			VkImage texture;
-			VkImageLayout texture_layout;
 		};
 
 		// resolve_type(), resolve_handle()

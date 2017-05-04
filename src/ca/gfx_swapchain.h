@@ -29,7 +29,7 @@ namespace ca
 		void destroy_swapchain(swapchain_t * swapchain);
 
 		void swapchain_acquire_blocking(swapchain_t * swapchain, texture_t * texture);
-		void swapchain_acquire(swapchain_t * swapchain, semaphore_t * signal_semaphore, texture_t * texture);
+		void swapchain_acquire(swapchain_t * swapchain, semaphore_t * signal_semaphore, fence_t * signal_fence, texture_t * texture);
 		void swapchain_present(swapchain_t * swapchain, semaphore_t * wait_semaphore);
 	}
 }

@@ -48,9 +48,7 @@ namespace ca
 		{
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
 
-			VkCommandBufferResetFlags cmdbuffer_reset_flags = 0;
-
-			VkResult ret = vkResetCommandBuffer(vk_cmdbuffer->cmdbuffer, cmdbuffer_reset_flags);
+			VkResult ret = vkResetCommandBuffer(vk_cmdbuffer->cmdbuffer, 0);
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
@@ -61,9 +59,8 @@ namespace ca
 			VkCommandBufferUsageFlags cmdbuffer_usage_flags = 0;
 			cmdbuffer_usage_flags |= VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
-			VkCommandBufferInheritanceInfo cmdbuffer_inheritance_info = {};
+			VkCommandBufferInheritanceInfo cmdbuffer_inheritance_info = {};//TODO
 			cmdbuffer_inheritance_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-			//TODO
 			//cmdbuffer_inheritance_info.pNext = nullptr;
 			//cmdbuffer_inheritance_info.renderPass;
 			//cmdbuffer_inheritance_info.subpass;
@@ -82,7 +79,7 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
-		void cmdbuffer_clear_image(cmdbuffer_t * cmdbuffer, texture_t * texture, math::vec4_t const & color)
+		void cmdbuffer_clear_color(cmdbuffer_t * cmdbuffer, texture_t * texture, math::vec4_t const & color)
 		{
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
 			vk_texture_t * vk_texture = resolve_type(texture);
@@ -97,7 +94,7 @@ namespace ca
 			image_subresource_range.baseArrayLayer = 0;
 			image_subresource_range.layerCount = 1;
 
-			vkCmdClearColorImage(vk_cmdbuffer->cmdbuffer, vk_texture->texture, vk_texture->texture_layout, &ccv, 1, &image_subresource_range);
+			vkCmdClearColorImage(vk_cmdbuffer->cmdbuffer, vk_texture->texture, VK_IMAGE_LAYOUT_GENERAL, &ccv, 1, &image_subresource_range);
 		}
 
 		void cmdbuffer_draw(cmdbuffer_t * cmdbuffer, u32 vertex_start, u32 vertex_count)
