@@ -28,6 +28,8 @@ namespace ca
 			switch (message)
 			{
 			case WM_CLOSE:
+				window = resolve_window(hWnd);
+				window->system_requested_close = true;
 				PostQuitMessage(0);
 				break;
 			
@@ -44,7 +46,7 @@ namespace ca
 				if (wParam == VK_ESCAPE)
 				{
 					CA_LOG("ESCAPE");
-					PostQuitMessage(0);
+					PostMessage(hWnd, WM_CLOSE, 0, 0);
 					break;
 				}
 				goto default_proc;
@@ -100,6 +102,10 @@ namespace ca
 			DWORD const style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
 			adjust_coords_accomodate_style(&coords, style);
 
+			window->handle = nullptr;
+			window->coords = coords;
+			window->system_requested_close = false;
+
 			HWND hWnd = CreateWindow(
 				WINDOW_NAME,				// window class
 				title,						// window title
@@ -120,6 +126,10 @@ namespace ca
 		{
 			HWND hWnd = resolve_handle(window);
 			DestroyWindow(hWnd);
+
+			window->handle = nullptr;
+			window->coords = { 0, 0, 0, 0 };
+			window->system_requested_close = false;
 		}
 
 		bool window_poll(window_t * window)
@@ -127,29 +137,16 @@ namespace ca
 			HWND hWnd = resolve_handle(window);
 			MSG msg = {};
 
-			if (PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE))
+			while (PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE))
 			{
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
-				return true;
 			}
 
-			return false;
-		}
-
-		bool window_poll_blocking(window_t * window)
-		{
-			HWND hWnd = resolve_handle(window);
-			MSG msg = {};
-
-			if (GetMessage(&msg, hWnd, 0, 0))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
+			if (window->system_requested_close)
+				return false;
+			else
 				return true;
-			}
-
-			return false;
 		}
 
 		void window_hide(window_t * window)

@@ -79,15 +79,13 @@ void main(int argc, char** argv)
 			gfx::semaphore_t backbuffer_ready;
 			gfx::create_semaphore(&backbuffer_ready, &device);
 
-			while (true)
+			while (sys::window_poll(&window))
 			{
-				sys::window_poll(&window);
-
 				//CA_LOG("pos %d, %d, dim %d, %d", window.coords.x, window.coords.y, window.coords.dx, window.coords.dy);
 
 				gfx::swapchain_acquire_blocking(&swapchain, &backbuffer);
 
-				f32 s = 0.01f * sys::clock_milli();
+				f32 s = 0.01f * (f32)sys::clock_milli();
 				f32 k = math::sin(s) * 0.5f + 0.5f;
 
 				gfx::cmdbuffer_reset(&cmdbuffer);
