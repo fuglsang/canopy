@@ -223,5 +223,8 @@
     <ClCompile Include="src\ca\gfx\vk_cmdpool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ca\gfx\vk_shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

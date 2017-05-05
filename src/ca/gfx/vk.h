@@ -11,6 +11,7 @@
 #include "ca/gfx_device.h"
 #include "ca/gfx_fence.h"
 #include "ca/gfx_semaphore.h"
+#include "ca/gfx_shader.h"
 #include "ca/gfx_swapchain.h"
 #include "ca/gfx_texture.h"
 
@@ -45,6 +46,23 @@ namespace ca
 			}
 		};
 
+		struct vk_debug_callbacks
+		{
+			static VkBool32 VKAPI_PTR report(
+				VkDebugReportFlagsEXT                       flags,
+				VkDebugReportObjectTypeEXT                  objectType,
+				uint64_t                                    object,
+				size_t                                      location,
+				int32_t                                     messageCode,
+				const char*                                 pLayerPrefix,
+				const char*                                 pMessage,
+				void*                                       pUserData
+			)
+			{
+				CA_LOG("%s", pMessage);
+			}
+		};
+
 		// vk_... types
 
 		struct vk_cmdbuffer_t;
@@ -52,6 +70,7 @@ namespace ca
 		struct vk_device_t;
 		struct vk_fence_t;
 		struct vk_semaphore_t;
+		struct vk_shader_t;
 		struct vk_swapchain_t;
 		struct vk_texture_t;
 
@@ -70,6 +89,8 @@ namespace ca
 			VkAllocationCallbacks allocator;//TODO allocator per-type? research granularity..
 			VkInstance instance;
 
+			VkDebugReportCallbackEXT debug_callback;
+
 			VkPhysicalDevice physical_device;
 			VkDevice device;
 
@@ -85,6 +106,11 @@ namespace ca
 		struct vk_semaphore_t
 		{
 			VkSemaphore semaphore;
+		};
+
+		struct vk_shader_t
+		{
+			VkShaderModule shader;
 		};
 
 		struct vk_swapchain_t
@@ -130,6 +156,7 @@ namespace ca
 		CA_DEFINE_RESOLVE_VK(fence);
 		CA_DEFINE_RESOLVE_VK(texture);
 		CA_DEFINE_RESOLVE_VK(semaphore);
+		CA_DEFINE_RESOLVE_VK(shader);
 		CA_DEFINE_RESOLVE_VK(swapchain);
 
 		#undef CA_DEFINE_RESOLVE_VK

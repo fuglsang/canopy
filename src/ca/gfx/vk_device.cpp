@@ -12,8 +12,9 @@ namespace ca
 	{
 		static void create_instance(VkInstance * instance, VkAllocationCallbacks * allocator)
 		{
-			u8 const num_instance_extensions = 2;
+			u8 const num_instance_extensions = 3;
 			char const * instance_extensions[num_instance_extensions] = {
+				VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
 				VK_KHR_SURFACE_EXTENSION_NAME,
 			#if CA_PLATFORM_WIN32
 				VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
@@ -42,6 +43,24 @@ namespace ca
 			instance_create_info.ppEnabledExtensionNames = instance_extensions;
 
 			VkResult ret = vkCreateInstance(&instance_create_info, allocator, instance);
+			CA_ASSERT(ret == VK_SUCCESS);
+		}
+
+		static void create_debug_callback(VkDebugReportCallbackEXT * debug_callback, VkInstance instance, VkAllocationCallbacks * allocator)
+		{
+			VkDebugReportFlagsEXT debug_report_flags = 0;
+			debug_report_flags |= VK_DEBUG_REPORT_ERROR_BIT_EXT;
+			debug_report_flags |= VK_DEBUG_REPORT_WARNING_BIT_EXT;
+			debug_report_flags |= VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+
+			VkDebugReportCallbackCreateInfoEXT debug_report_create_info;
+			debug_report_create_info.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+			debug_report_create_info.pNext = nullptr;
+			debug_report_create_info.flags = debug_report_flags;
+			debug_report_create_info.pfnCallback = &vk_debug_callbacks::report;
+			debug_report_create_info.pUserData = nullptr;
+
+			VkResult ret = vkCreateDebugReportCallbackEXT(instance, &debug_report_create_info, allocator, debug_callback);
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
@@ -201,6 +220,10 @@ namespace ca
 			create_instance(&vk_device->instance, &vk_device->allocator);
 			CA_ASSERT(vk_device->instance != VK_NULL_HANDLE);
 
+			//CA_LOG("vulkan_device: create debug callback ... ");
+			//create_debug_callback(&vk_device->debug_callback, vk_device->instance, &vk_device->allocator);
+			//CA_ASSERT(vk_device->debug_callback != VK_NULL_HANDLE);
+
 			CA_LOG("vulkan_device: select physical device ... ");
 			select_physical_device(&vk_device->physical_device, &vk_device->queue_family, vk_device->instance, arena);
 			CA_ASSERT(vk_device->physical_device != VK_NULL_HANDLE);
@@ -221,6 +244,9 @@ namespace ca
 
 			CA_LOG("vulkan_device: destroy logical device ... ");
 			vkDestroyDevice(vk_device->device, &vk_device->allocator);
+
+			//CA_LOG("vulkan_device: destroy debug callback ... ");
+			//vkDestroyDebugReportCallbackEXT(vk_device->instance, vk_device->debug_callback, &vk_device->allocator);
 
 			CA_LOG("vulkan_device: destroy instance ... ");
 			vkDestroyInstance(vk_device->instance, &vk_device->allocator);
