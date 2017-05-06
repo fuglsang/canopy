@@ -22,11 +22,14 @@ namespace ca
 		{
 			void * handle;
 			device_t * device;
-			u32 max_images_in_flight;
+			sys::window_t * window;
+			u32 max_buffers_in_flight;
+			swapmode preferred_mode;
 		};
 
-		void create_swapchain(swapchain_t * swapchain, device_t * device, sys::window_t * window, swapmode mode);
+		void create_swapchain(swapchain_t * swapchain, device_t * device, sys::window_t * window, swapmode preferred_mode);
 		void destroy_swapchain(swapchain_t * swapchain);
+		void recreate_swapchain(swapchain_t * swapchain);//TODO maybe not expose this?
 
 		void swapchain_acquire_blocking(swapchain_t * swapchain, texture_t * texture);
 		void swapchain_acquire(swapchain_t * swapchain, semaphore_t * signal_semaphore, fence_t * signal_fence, texture_t * texture);

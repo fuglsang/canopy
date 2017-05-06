@@ -59,9 +59,9 @@ namespace ca
 
 			case WM_SIZE:
 				window = resolve_window(hWnd);
-				window->coords.dx = LOWORD(lParam);
-				window->coords.dy = HIWORD(lParam);
-				CA_LOG("WM_SIZE -> %d, %d", window->coords.dx, window->coords.dy);
+				window->coords.dim_x = LOWORD(lParam);
+				window->coords.dim_y = HIWORD(lParam);
+				CA_LOG("WM_SIZE -> %d, %d", window->coords.dim_x, window->coords.dim_y);
 				goto default_proc;
 
 			default: default_proc:
@@ -76,16 +76,16 @@ namespace ca
 			RECT rect;
 			rect.left = coords->x;
 			rect.top = coords->y;
-			rect.right = coords->x + coords->dx;
-			rect.bottom = coords->y + coords->dy;
+			rect.right = coords->x + coords->dim_x;
+			rect.bottom = coords->y + coords->dim_y;
 
 			BOOL ret = AdjustWindowRect(&rect, style, FALSE);
 			CA_ASSERT(ret == TRUE);
 
 			coords->x = rect.left;
 			coords->y = rect.top;
-			coords->dx = rect.right - rect.left;
-			coords->dy = rect.bottom - rect.top;
+			coords->dim_x = rect.right - rect.left;
+			coords->dim_y = rect.bottom - rect.top;
 		}
 
 		void create_window(window_t * window, char const * title, windowcoords_t coords)
@@ -112,8 +112,8 @@ namespace ca
 				style,						// style
 				coords.x,					// pos x
 				coords.y,					// pos y
-				coords.dx,					// dim x
-				coords.dy,					// dim y
+				coords.dim_x,				// dim x
+				coords.dim_y,				// dim y
 				NULL,						// hwnd parent
 				NULL,						// hmenu
 				GetModuleHandle(nullptr),	// hinstance process
@@ -164,7 +164,7 @@ namespace ca
 		void window_move(window_t * window, windowcoords_t coords)
 		{
 			HWND hWnd = resolve_handle(window);
-			SetWindowPos(hWnd, NULL, coords.x, coords.y, coords.dx, coords.dy, 0);
+			SetWindowPos(hWnd, NULL, coords.x, coords.y, coords.dim_x, coords.dim_y, 0);
 		}
 	}
 }

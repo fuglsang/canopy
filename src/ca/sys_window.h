@@ -20,8 +20,8 @@ namespace ca
 		{
 			i32 x;
 			i32 y;
-			u32 dx;
-			u32 dy;
+			u32 dim_x;
+			u32 dim_y;
 		};
 
 		struct window_t

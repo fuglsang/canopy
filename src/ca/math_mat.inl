@@ -207,7 +207,7 @@ inline void invert(mat_t<T, N> & M)
 	}
 
 	// calc inverse
-	CA_ASSERT_MSG(det_val != T(0), "matrix is singular and not invertible");
+	CA_ASSERT_MSG(det_val != T(0), "singular matrix not invertible");
 	M = rcp(det_val) * M_adjugate;
 }
 

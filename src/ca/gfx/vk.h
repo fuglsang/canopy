@@ -118,6 +118,9 @@ namespace ca
 			VkSurfaceKHR surface;
 			VkSwapchainKHR swapchain;
 
+			u32 dim_x;
+			u32 dim_y;
+
 			u32 image_index;
 			VkImage * images;
 			u32 fence_index;
