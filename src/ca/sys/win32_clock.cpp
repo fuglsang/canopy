@@ -37,8 +37,8 @@ namespace ca
 			precision_clock_start = time.QuadPart;
 		}
 
-		//--------------
-		// u64 variants
+		//-------------
+		// u64 queries
 
 		u64 clock()
 		{
@@ -55,8 +55,8 @@ namespace ca
 			return precision_clock<1000000>();
 		}
 
-		//--------------
-		// f32 variants
+		//-------------
+		// f32 queries
 
 		f32 clockf()
 		{
@@ -70,11 +70,11 @@ namespace ca
 
 		f32 clockf_micro()
 		{
-			return precision_clock<1000000>();
+			return static_cast<f32>(precision_clock<1000000>());
 		}
 
-		//--------------
-		// f64 variants
+		//-------------
+		// f64 queries
 
 		f64 clockd()
 		{
@@ -88,7 +88,7 @@ namespace ca
 
 		f64 clockd_micro()
 		{
-			return 1.0 * precision_clock<1000000>();
+			return static_cast<f64>(precision_clock<1000000>());
 		}
 	}
 }

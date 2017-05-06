@@ -84,23 +84,24 @@ void main(int argc, char** argv)
 			gfx::create_semaphore(&backbuffer_acquired, &device);
 			gfx::create_semaphore(&backbuffer_presentable, &device);
 
-			int step = 0;
+			u32 step = 0;
 
 			while (sys::window_poll(&window))
 			{
-				if ((++step % 60) == 0)
+				++step;
+				if ((step % 600) == 0)
 				{
 					CA_LOG("time = %f", sys::clockf());
 				}
 
 				gfx::swapchain_acquire(&swapchain, &backbuffer_acquired, nullptr, &backbuffer);
 
-				f32 s = sys::clockf();
+				f32 s = math::tau * sys::clockf();
 				f32 k = math::sin(s) * 0.5f + 0.5f;
 
 				gfx::cmdbuffer_reset(&cmdbuffer);
 				gfx::cmdbuffer_begin(&cmdbuffer);
-				gfx::cmdbuffer_clear_color(&cmdbuffer, &backbuffer, { k, 0.0f, 0.5f * k, 0.0f });
+				gfx::cmdbuffer_clear_color(&cmdbuffer, &backbuffer, { 0.5f * k, 0.0f, k, 0.0f });
 				gfx::cmdbuffer_end(&cmdbuffer);
 
 				gfx::device_submit(&device, &cmdbuffer, &backbuffer_acquired, &backbuffer_presentable, nullptr);

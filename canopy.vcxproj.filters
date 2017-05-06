@@ -147,7 +147,7 @@
     <ClInclude Include="src\ca\gfx_cmdpool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\math_units.h">
+    <ClInclude Include="src\ca\math_const.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
