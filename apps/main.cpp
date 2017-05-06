@@ -46,10 +46,12 @@ void main(int argc, char** argv)
 
 	M += B;
 
+	sys::reset_clock();
+
 	int x = 0;
 	while (x++ < 10)
 	{
-		CA_LOG("clock is %f", (f32)sys::clock_micro());
+		CA_LOG("clock is %f", sys::clockf_micro());
 		sys::thread_sleep(60);
 	}
 
@@ -76,16 +78,24 @@ void main(int argc, char** argv)
 			gfx::create_cmdbuffer(&cmdbuffer, &cmdpool);
 
 			gfx::texture_t backbuffer;
-			gfx::semaphore_t backbuffer_ready;
-			gfx::create_semaphore(&backbuffer_ready, &device);
+			gfx::semaphore_t backbuffer_acquired;
+			gfx::semaphore_t backbuffer_presentable;
+
+			gfx::create_semaphore(&backbuffer_acquired, &device);
+			gfx::create_semaphore(&backbuffer_presentable, &device);
+
+			int step = 0;
 
 			while (sys::window_poll(&window))
 			{
-				//CA_LOG("pos %d, %d, dim %d, %d", window.coords.x, window.coords.y, window.coords.dx, window.coords.dy);
+				if ((++step % 60) == 0)
+				{
+					CA_LOG("time = %f", sys::clockf());
+				}
 
-				gfx::swapchain_acquire_blocking(&swapchain, &backbuffer);
+				gfx::swapchain_acquire(&swapchain, &backbuffer_acquired, nullptr, &backbuffer);
 
-				f32 s = 0.01f * (f32)sys::clock_milli();
+				f32 s = sys::clockf();
 				f32 k = math::sin(s) * 0.5f + 0.5f;
 
 				gfx::cmdbuffer_reset(&cmdbuffer);
@@ -93,9 +103,9 @@ void main(int argc, char** argv)
 				gfx::cmdbuffer_clear_color(&cmdbuffer, &backbuffer, { k, 0.0f, 0.5f * k, 0.0f });
 				gfx::cmdbuffer_end(&cmdbuffer);
 
-				gfx::device_submit(&device, &cmdbuffer, nullptr, &backbuffer_ready, nullptr);
+				gfx::device_submit(&device, &cmdbuffer, &backbuffer_acquired, &backbuffer_presentable, nullptr);
 
-				gfx::swapchain_present(&swapchain, &backbuffer_ready);
+				gfx::swapchain_present(&swapchain, &backbuffer_presentable);
 			}
 
 			gfx::destroy_swapchain(&swapchain);

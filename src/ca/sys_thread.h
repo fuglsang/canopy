@@ -26,7 +26,7 @@ namespace ca
 		void create_thread(thread_t * thread, core::action_t<> action);
 		void destroy_thread(thread_t * thread);
 
-		void thread_sleep(u64 duration_milli);
+		void thread_sleep(u64 microseconds);
 		void thread_suspend(thread_t * thread);
 		void thread_resume(thread_t * thread);
 		void thread_join(thread_t * thread);

@@ -56,10 +56,10 @@ namespace ca
 				int32_t                                     messageCode,
 				const char*                                 pLayerPrefix,
 				const char*                                 pMessage,
-				void*                                       pUserData
-			)
+				void*                                       pUserData)
 			{
 				CA_LOG("%s", pMessage);
+				return VK_FALSE;
 			}
 		};
 

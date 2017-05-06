@@ -10,6 +10,9 @@ namespace ca
 {
 	namespace gfx
 	{
+		static PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT = VK_NULL_HANDLE;
+		static PFN_vkDestroyDebugReportCallbackEXT vkDestroyDebugReportCallbackEXT = VK_NULL_HANDLE;
+
 		static void create_instance(VkInstance * instance, VkAllocationCallbacks * allocator)
 		{
 			u8 const num_instance_extensions = 3;
@@ -44,6 +47,9 @@ namespace ca
 
 			VkResult ret = vkCreateInstance(&instance_create_info, allocator, instance);
 			CA_ASSERT(ret == VK_SUCCESS);
+
+			vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(*instance, "vkCreateDebugReportCallbackEXT");
+			vkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(*instance, "vkDestroyDebugReportCallbackEXT");
 		}
 
 		static void create_debug_callback(VkDebugReportCallbackEXT * debug_callback, VkInstance instance, VkAllocationCallbacks * allocator)
@@ -220,9 +226,9 @@ namespace ca
 			create_instance(&vk_device->instance, &vk_device->allocator);
 			CA_ASSERT(vk_device->instance != VK_NULL_HANDLE);
 
-			//CA_LOG("vulkan_device: create debug callback ... ");
-			//create_debug_callback(&vk_device->debug_callback, vk_device->instance, &vk_device->allocator);
-			//CA_ASSERT(vk_device->debug_callback != VK_NULL_HANDLE);
+			CA_LOG("vulkan_device: create debug callback ... ");
+			create_debug_callback(&vk_device->debug_callback, vk_device->instance, &vk_device->allocator);
+			CA_ASSERT(vk_device->debug_callback != VK_NULL_HANDLE);
 
 			CA_LOG("vulkan_device: select physical device ... ");
 			select_physical_device(&vk_device->physical_device, &vk_device->queue_family, vk_device->instance, arena);
@@ -245,8 +251,8 @@ namespace ca
 			CA_LOG("vulkan_device: destroy logical device ... ");
 			vkDestroyDevice(vk_device->device, &vk_device->allocator);
 
-			//CA_LOG("vulkan_device: destroy debug callback ... ");
-			//vkDestroyDebugReportCallbackEXT(vk_device->instance, vk_device->debug_callback, &vk_device->allocator);
+			CA_LOG("vulkan_device: destroy debug callback ... ");
+			vkDestroyDebugReportCallbackEXT(vk_device->instance, vk_device->debug_callback, &vk_device->allocator);
 
 			CA_LOG("vulkan_device: destroy instance ... ");
 			vkDestroyInstance(vk_device->instance, &vk_device->allocator);

@@ -7,7 +7,10 @@ namespace ca
 {
 	namespace sys
 	{
-		f64 clock()
+		static u64 precision_clock_start = 0;
+
+		template <u64 N>
+		static inline u64 precision_clock()
 		{
 			LARGE_INTEGER time;
 			LARGE_INTEGER freq;
@@ -15,38 +18,77 @@ namespace ca
 			QueryPerformanceCounter(&time);
 			QueryPerformanceFrequency(&freq);
 
-			time.QuadPart *= 1;
+			time.QuadPart -= precision_clock_start;
+			time.QuadPart *= N;
 			time.QuadPart /= freq.QuadPart;
 
-			return static_cast<f64>(time.QuadPart);
+			return time.QuadPart;
 		}
 
-		f64 clock_milli()
+		//-------------
+		// clock reset
+
+		void reset_clock()
 		{
 			LARGE_INTEGER time;
-			LARGE_INTEGER freq;
 
 			QueryPerformanceCounter(&time);
-			QueryPerformanceFrequency(&freq);
-
-			time.QuadPart *= 1000;
-			time.QuadPart /= freq.QuadPart;
-
-			return static_cast<f64>(time.QuadPart);
+			
+			precision_clock_start = time.QuadPart;
 		}
 
-		f64 clock_micro()
+		//--------------
+		// u64 variants
+
+		u64 clock()
 		{
-			LARGE_INTEGER time;
-			LARGE_INTEGER freq;
+			return precision_clock<1>();
+		}
 
-			QueryPerformanceCounter(&time);
-			QueryPerformanceFrequency(&freq);
+		u64 clock_milli()
+		{
+			return precision_clock<1000>();
+		}
 
-			time.QuadPart *= 1000000;
-			time.QuadPart /= freq.QuadPart;
+		u64 clock_micro()
+		{
+			return precision_clock<1000000>();
+		}
 
-			return static_cast<f64>(time.QuadPart);
+		//--------------
+		// f32 variants
+
+		f32 clockf()
+		{
+			return 0.001f * precision_clock<1000>();
+		}
+
+		f32 clockf_milli()
+		{
+			return 0.001f * precision_clock<1000000>();
+		}
+
+		f32 clockf_micro()
+		{
+			return precision_clock<1000000>();
+		}
+
+		//--------------
+		// f64 variants
+
+		f64 clockd()
+		{
+			return 0.001 * precision_clock<1000>();
+		}
+
+		f64 clockd_milli()
+		{
+			return 0.001 * precision_clock<1000000>();
+		}
+
+		f64 clockd_micro()
+		{
+			return 1.0 * precision_clock<1000000>();
 		}
 	}
 }
