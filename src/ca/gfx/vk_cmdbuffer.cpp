@@ -97,6 +97,37 @@ namespace ca
 			vkCmdClearColorImage(vk_cmdbuffer->cmdbuffer, vk_texture->texture, VK_IMAGE_LAYOUT_GENERAL, &ccv, 1, &image_subresource_range);
 		}
 
+		void cmdbuffer_bind_index(cmdbuffer_t * cmdbuffer, buffer_t * buffer, size_t offset, size_t stride)
+		{
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
+			vk_buffer_t * vk_buffer = resolve_type(buffer);
+
+			VkIndexType index_type;
+			switch (stride)
+			{
+			case 2:
+				index_type = VK_INDEX_TYPE_UINT16;
+				break;
+			case 4:
+				index_type = VK_INDEX_TYPE_UINT32;
+				break;
+			default:
+				CA_ASSERT_MSG(false, "unsupported stride");
+			}
+
+			vkCmdBindIndexBuffer(vk_cmdbuffer->cmdbuffer, vk_buffer->buffer, offset, index_type);
+		}
+
+		void cmdbuffer_bind_vertex(cmdbuffer_t * cmdbuffer, buffer_t * buffer, size_t offset)
+		{
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
+			vk_buffer_t * vk_buffer = resolve_type(buffer);
+
+			VkDeviceSize const vk_offset = offset;
+
+			vkCmdBindVertexBuffers(vk_cmdbuffer->cmdbuffer, 0, 1, &vk_buffer->buffer, &vk_offset);
+		}
+
 		void cmdbuffer_draw(cmdbuffer_t * cmdbuffer, u32 vertex_start, u32 vertex_count)
 		{
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);

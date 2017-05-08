@@ -6,14 +6,7 @@
 #error unknown platform
 #endif
 
-#include "ca/gfx_cmdbuffer.h"
-#include "ca/gfx_cmdpool.h"
-#include "ca/gfx_device.h"
-#include "ca/gfx_fence.h"
-#include "ca/gfx_semaphore.h"
-#include "ca/gfx_shader.h"
-#include "ca/gfx_swapchain.h"
-#include "ca/gfx_texture.h"
+#include "ca/gfx.h"
 
 #include <vulkan/vulkan.h>
 
@@ -34,7 +27,7 @@ namespace ca
 
 			static void * VKAPI_PTR realloc(void * pUserData, void * pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
 			{
-				CA_ERROR("realloc not implemented");
+				CA_ERROR("not implemented");
 				sys::breakpoint();
 				return nullptr;
 			}
@@ -65,6 +58,7 @@ namespace ca
 
 		// vk_... types
 
+		struct vk_buffer_t;
 		struct vk_cmdbuffer_t;
 		struct vk_cmdpool_t;
 		struct vk_device_t;
@@ -73,6 +67,12 @@ namespace ca
 		struct vk_shader_t;
 		struct vk_swapchain_t;
 		struct vk_texture_t;
+
+		struct vk_buffer_t
+		{
+			VkBuffer buffer;
+			VkDeviceMemory memory;
+		};
 
 		struct vk_cmdbuffer_t
 		{
@@ -153,6 +153,7 @@ namespace ca
 
 		#define CA_DEFINE_RESOLVE_VK(ID) CA_DEFINE_RESOLVE_VK_TYPE(ID); CA_DEFINE_RESOLVE_VK_HANDLE(ID)
 
+		CA_DEFINE_RESOLVE_VK(buffer);
 		CA_DEFINE_RESOLVE_VK(cmdbuffer);
 		CA_DEFINE_RESOLVE_VK(cmdpool);
 		CA_DEFINE_RESOLVE_VK(device);

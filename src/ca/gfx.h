@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ca/gfx_buffer.h"
 #include "ca/gfx_cmdbuffer.h"
 #include "ca/gfx_cmdpool.h"
 #include "ca/gfx_device.h"
