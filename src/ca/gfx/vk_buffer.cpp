@@ -69,6 +69,7 @@ namespace ca
 			buffer->handle = vk_buffer;
 			buffer->device = device;
 			buffer->type = type;
+			buffer->size = size;
 		}
 
 		void destroy_buffer(buffer_t * buffer)
@@ -83,6 +84,61 @@ namespace ca
 
 			buffer->handle = nullptr;
 			buffer->device = nullptr;
+			buffer->type = NUM_BUFFERTYPES;
+			buffer->size = 0;
+		}
+
+		void * buffer_map(buffer_t * buffer, size_t offset, size_t size)
+		{
+			vk_device_t * vk_device = resolve_type(buffer->device);
+			vk_buffer_t * vk_buffer = resolve_type(buffer);
+
+			void * mapped_base = nullptr;
+			
+			VkResult ret = vkMapMemory(vk_device->device, vk_buffer->memory, offset, size, 0, &mapped_base);
+			CA_ASSERT(ret == VK_SUCCESS);
+
+			return mapped_base;
+		}
+
+		void buffer_mapped_flush(buffer_t * buffer, size_t offset, size_t size)
+		{
+			vk_device_t * vk_device = resolve_type(buffer->device);
+			vk_buffer_t * vk_buffer = resolve_type(buffer);
+
+			VkMappedMemoryRange mapped_memory_range;
+			mapped_memory_range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+			mapped_memory_range.pNext = nullptr;
+			mapped_memory_range.memory = vk_buffer->memory;
+			mapped_memory_range.offset = offset;
+			mapped_memory_range.size = size;
+
+			VkResult ret = vkFlushMappedMemoryRanges(vk_device->device, 1, &mapped_memory_range);
+			CA_ASSERT(ret = VK_SUCCESS);
+		}
+
+		void buffer_mapped_invalidate(buffer_t * buffer, size_t offset, size_t size)
+		{
+			vk_device_t * vk_device = resolve_type(buffer->device);
+			vk_buffer_t * vk_buffer = resolve_type(buffer);
+
+			VkMappedMemoryRange mapped_memory_range;
+			mapped_memory_range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+			mapped_memory_range.pNext = nullptr;
+			mapped_memory_range.memory = vk_buffer->memory;
+			mapped_memory_range.offset = offset;
+			mapped_memory_range.size = size;
+
+			VkResult ret = vkInvalidateMappedMemoryRanges(vk_device->device, 1, &mapped_memory_range);
+			CA_ASSERT(ret = VK_SUCCESS);
+		}
+
+		void buffer_unmap(buffer_t * buffer)
+		{
+			vk_device_t * vk_device = resolve_type(buffer->device);
+			vk_buffer_t * vk_buffer = resolve_type(buffer);
+
+			vkUnmapMemory(vk_device->device, vk_buffer->memory);
 		}
 	}
 }
