@@ -31,6 +31,7 @@ namespace ca
 				window = resolve_window(hWnd);
 				window->system_requested_close = true;
 				PostQuitMessage(0);
+				core::event_dispatch(&window->event, window, WINDOWEVENT_CLOSED);
 				break;
 			
 			case WM_CREATE:
@@ -39,6 +40,7 @@ namespace ca
 					window = reinterpret_cast<window_t *>(info->lpCreateParams);
 					window->handle = hWnd;
 					SetProp(hWnd, WINDOW_DATA, window);
+					core::event_dispatch(&window->event, window, WINDOWEVENT_CREATED);
 				}
 				goto default_proc;
 
@@ -55,12 +57,14 @@ namespace ca
 				window = resolve_window(hWnd);
 				window->coords.x = LOWORD(lParam);
 				window->coords.y = HIWORD(lParam);
+				core::event_dispatch(&window->event, window, WINDOWEVENT_MOVED);
 				goto default_proc;
 
 			case WM_SIZE:
 				window = resolve_window(hWnd);
 				window->coords.dim_x = LOWORD(lParam);
 				window->coords.dim_y = HIWORD(lParam);
+				core::event_dispatch(&window->event, window, WINDOWEVENT_RESIZED);
 				CA_LOG("WM_SIZE -> %d, %d", window->coords.dim_x, window->coords.dim_y);
 				goto default_proc;
 
@@ -106,6 +110,8 @@ namespace ca
 			window->coords = coords;
 			window->system_requested_close = false;
 
+			core::create_event(&window->event);
+
 			HWND hWnd = CreateWindow(
 				WINDOW_NAME,				// window class
 				title,						// window title
@@ -130,6 +136,8 @@ namespace ca
 			window->handle = nullptr;
 			window->coords = { 0, 0, 0, 0 };
 			window->system_requested_close = false;
+
+			core::destroy_event(&window->event);
 		}
 
 		bool window_poll(window_t * window)

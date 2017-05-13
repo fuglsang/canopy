@@ -218,7 +218,7 @@ namespace ca
 
 		void create_swapchain(swapchain_t * swapchain, device_t * device, sys::window_t * window, swapmode preferred_mode)
 		{
-			vk_device_t * vk_device = resolve_type(device);			
+			vk_device_t * vk_device = resolve_type(device);
 			vk_swapchain_t * vk_swapchain = mem::arena_alloc<vk_swapchain_t>(device->arena, 1);
 
 			vk_swapchain->surface = VK_NULL_HANDLE;

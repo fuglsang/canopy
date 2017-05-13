@@ -39,7 +39,7 @@ namespace ca
 
 		void thread_sleep(u64 duration_milli)
 		{
-			Sleep(duration_milli);
+			Sleep((DWORD)duration_milli);
 		}
 
 		void thread_suspend(thread_t * thread)

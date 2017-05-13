@@ -1,53 +1,51 @@
 #pragma once
 
-#include <utility>// std::forward()
-
 namespace ca
 {
 	namespace core
 	{
-		template <typename>
+		template <typename Signature>
 		struct delegate_t;
 
 		template <typename R, typename... P>
 		struct delegate_t<R(P...)>
 		{
-			typedef R(*stub_t)(void *, P &&...);
+			typedef R(*stub_t)(void *, P...);
 
 			void * instance;
 			stub_t function;
 
-			inline R operator()(P &&... args) const
+			inline R operator()(P... args) const
 			{
-				return function(instance, std::forward<P>(args)...);
+				return function(instance, args...);
 			}
 
 			template <R(*f)(P...)>
-			static inline R stub_static(void * instance, P &&... args)
+			static inline R stub_static(void * instance, P... args)
 			{
-				return (*f)(std::forward<P>(args)...);
+				return (*f)(args...);
 			}
 
 			template <typename C, R(C::*f)(P...)>
-			static inline R stub_member(void * instance, P &&... args)
+			static inline R stub_member(void * instance, P... args)
 			{
-				return (static_cast<C *>(instance)->*f)(std::forward<P>(args)...);
+				return (static_cast<C *>(instance)->*f)(args...);
 			}
 
 			template <typename C, R(C::*f)(P...) const>
-			static inline R stub_member(void * instance, P &&... args)
+			static inline R stub_member(void * instance, P... args)
 			{
-				return (static_cast<C *>(instance)->*f)(std::forward<P>(args)...);
+				return (static_cast<C *>(instance)->*f)(args...);
 			}
 
 			template <typename C>
-			static inline R stub_object(void * instance, P &&... args)
+			static inline R stub_object(void * instance, P... args)
 			{
-				return (*static_cast<C *>(instance))(std::forward<P>(args)...);
+				return (*static_cast<C *>(instance))(args...);
 			}
 		};
 
-		template <typename>
+		template <typename Signature>
 		struct resolve_delegate_t;
 
 		template <typename R, typename... P>
@@ -89,7 +87,7 @@ namespace ca
 		template <typename C>
 		auto make_delegate(C * instance)
 		{
-			resolve_delegate_t<decltype(&C::operator())>::resolve_t d;
+			resolve_delegate_t<decltype(&C::operator())>::delegate_t d;
 			d.instance = instance;
 			d.function = &resolve_delegate_t<decltype(&C::operator())>::delegate_t::stub_object<C>;
 			return d;

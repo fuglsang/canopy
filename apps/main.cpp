@@ -21,6 +21,11 @@ void test2()
 	CA_LOG("hello from test2");
 }
 
+void test4(int x)
+{
+	CA_LOG("hello from test4: x=%d", x);
+}
+
 void main(int argc, char** argv)
 {
 	vec_t<f32, 2> a = { 1.0f,2.0f };
@@ -34,9 +39,13 @@ void main(int argc, char** argv)
 
 	auto f = make_delegate<decltype(&test2), &test2>();
 	auto g = make_delegate<decltype(&blah_t::test3), &blah_t::test3>(bla);
+	auto h = make_delegate<decltype(&test4), &test4>();
 
 	f();
 	g();
+	h(2);
+	int harg = 77;
+	h(harg);
 
 	mat4_t A, B;
 	mat4_t M = A + B;
@@ -59,6 +68,14 @@ void main(int argc, char** argv)
 	sys::create_window(&window, "hello win32", { 1000, 50, 320, 200 });
 	sys::window_show(&window);
 	{
+		sys::windowlistener_t listener;
+		auto listener_lambda = [](sys::window_t * window, sys::windowevent msg)
+		{
+			CA_LOG("window %p sends %d", window, msg);
+		};
+		auto listener_action = make_delegate(&listener_lambda);
+		core::create_eventlistener(&listener, listener_action, &window.event);
+
 		size_t heap_size = 128 * 1024 * 1024;
 		void * heap_base = sys::heap_alloc(heap_size);
 		{

@@ -2,11 +2,14 @@
 
 #include "ca/types.h"
 #include "ca/core_action.h"
+#include "ca/core_event.h"
 
 namespace ca
 {
 	namespace sys
 	{
+		struct window_t;
+
 		enum windowevent
 		{
 			WINDOWEVENT_CLOSED,
@@ -28,9 +31,11 @@ namespace ca
 		{
 			void * handle;
 			windowcoords_t coords;
-			core::action_t<window_t *, windowevent> ev;//TODO intrusive list
+			core::event_t<window_t *, windowevent> event;
 			bool system_requested_close;
 		};
+
+		using windowlistener_t = core::eventlistener_t<window_t *, windowevent>;
 
 		void create_window(window_t * window, char const * title, windowcoords_t coords);
 		void destroy_window(window_t * window);

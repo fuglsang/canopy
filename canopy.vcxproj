@@ -183,8 +183,11 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\core.h" />
     <ClInclude Include="src\ca\core_action.h" />
     <ClInclude Include="src\ca\core_assert.h" />
+    <ClInclude Include="src\ca\core_event.h" />
+    <ClInclude Include="src\ca\core_ilist.h" />
     <ClInclude Include="src\ca\core_jobsystem.h" />
     <ClInclude Include="src\ca\core_log.h" />
+    <ClInclude Include="src\ca\core_predicate.h" />
     <ClInclude Include="src\ca\data.h" />
     <ClInclude Include="src\ca\data_image.h" />
     <ClInclude Include="src\ca\data_buffer.h" />
