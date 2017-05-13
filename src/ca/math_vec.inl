@@ -95,3 +95,17 @@ inline T norm(vec_t<T, N> const & v)
 {
 	return sqrt(dot(v, v));
 }
+
+template <typename T, u32 N>
+inline void normalize(vec_t<T, N> & v)
+{
+	v = v / norm(v);
+}
+
+template <typename T, u32 N>
+inline vec_t<T, N> normalize_copy_of(vec_t<T, N> const & v)
+{
+	vec_t<T, N> copy = v;
+	normalize(copy);
+	return copy;
+}

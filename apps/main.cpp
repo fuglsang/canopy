@@ -74,7 +74,7 @@ void main(int argc, char** argv)
 			CA_LOG("window %p sends %d", window, msg);
 		};
 		auto listener_action = make_delegate(&listener_lambda);
-		core::create_eventlistener(&listener, listener_action, &window.event);
+		core::create_eventlistener(&listener, &window.event, listener_action);
 
 		size_t heap_size = 128 * 1024 * 1024;
 		void * heap_base = sys::heap_alloc(heap_size);

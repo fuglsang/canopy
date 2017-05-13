@@ -15,7 +15,7 @@ namespace ca
 			void * instance;
 			stub_t function;
 
-			inline R operator()(P... args) const
+			inline R operator() (P... args) const
 			{
 				return function(instance, args...);
 			}

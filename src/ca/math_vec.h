@@ -19,7 +19,7 @@ namespace ca
 			union
 			{
 				T e[2];
-				T x, y;
+				struct { T x, y; };
 			};
 		};
 
@@ -29,7 +29,7 @@ namespace ca
 			union
 			{
 				T e[3];
-				T x, y, z;
+				struct { T x, y, z; };
 			};
 		};
 
@@ -39,7 +39,7 @@ namespace ca
 			union
 			{
 				T e[4];
-				T x, y, z, w;
+				struct { T x, y, z, w; };
 			};
 		};
 

@@ -126,14 +126,20 @@ inline mat_t<T, N - 1> submatrix(mat_t<T, N> const & M, u32 remove_i, u32 remove
 template <typename T>
 inline T determinant(mat_t<T, 2> const & M)
 {
-	return M.a11 * M.a22 - M.a12 * M.a21;
+	// | a11 a12 |
+	// | a21 a22 |
+	T add = (M.a11 * M.a22);
+	T sub = (M.a12 * M.a21);
+	return add - sub;
 }
 
-//TODO add explicit 3x3 det
-//template <typename T>
-//inline T determinant(mat_t<T, 3> const & M)
-//{
-//}
+template <typename T>
+inline T determinant(mat_t<T, 3> const & M)
+{
+	T add = (M.a11 * M.a22 * M.a33) + (M.a12 * M.a23 * M.a31) + (M.a13 * M.a21 * M.a32);
+	T sub = (M.a13 * M.a22 * M.a31) + (M.a12 * M.a21 * M.a33) + (M.a11 * M.a23 * M.a32);
+	return add - sub;
+}
 
 template <typename T, u32 N>
 inline T determinant(mat_t<T, N> const & M)
@@ -219,8 +225,26 @@ inline mat_t<T, N> invert_copy_of(mat_t<T, N> const & M)
 	return copy;
 }
 
+template <typename T, u32 N>
+inline mat_t<T, N> set_zero(mat_t<T, N> & M)
+{
+	for (i32 i = 0; i != N * N; i++)
+	{
+		M.e[i] = T(0);
+	}
+}
+
+template <typename T, u32 N>
+inline mat_t<T, N> set_identity(mat_t<T, N> & M)
+{
+	set_zero(M);
+	for (i32 i = 0; i != N; i++)
+	{
+		M.row[i].e[i] = T(1);
+	}
+}
+
 //TODO
-// make_affine_identity
 // make_affine_translation
 // make_affine_rotation
 // make_affine_scaling

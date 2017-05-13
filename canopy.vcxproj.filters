@@ -147,9 +147,6 @@
     <ClInclude Include="src\ca\gfx_cmdpool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\math_const.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ca\gfx_buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -160,6 +157,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ca\core_predicate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\math_constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\math_quat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

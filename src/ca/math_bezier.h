@@ -31,7 +31,7 @@ namespace ca
 			union
 			{
 				vec_t<T, N> p[4];
-				vec_t<T, N> p0, p1, p2, p3;
+				struct { vec_t<T, N> p0, p1, p2, p3; };
 			};
 		};
 
