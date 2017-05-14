@@ -54,6 +54,21 @@ namespace ca
 		}
 
 		template <typename T>
+		inline quat_t<T> slerp(quat_t<T> const & q0, quat_t<T> const & q1, T t)
+		{
+			T dot = q0.w * q1.w + dot(q0.xyz, q1.xyz);
+			if (dot < 0.99f && dot > -0.99f)
+			{
+				T theta = acos(dot);
+				return (q0 * sin(theta * (1.0f - t)) + q1 * sin(theta * t)) / sin(theta);
+			}
+			else
+			{
+				return lerp(q0, q1, t);
+			}
+		}
+
+		template <typename T>
 		inline void set_identity(quat_t<T> & q)
 		{
 			q.x = T(0);
@@ -97,18 +112,18 @@ namespace ca
 		}
 
 		template <typename T, u32 N>
-		inline void set_rotation_by_vector_diff(quat_t<T> & q, vec_t<T, N> const & a, vec_t<T, N> const & b)
+		inline void set_rotation_by_direction_change(quat_t<T> & q, vec_t<T, N> const & v0, vec_t<T, N> const & v1)
 		{
 			// method by stan melax
 			// see: game programming gems 1
-			T s = sqrt(T(2) + T(2) * dot(a, b));
+			T s = sqrt(T(2) + T(2) * dot(v0, v1));
 			if (s < T(0.01f))
 			{
 				set_identity(q);
 			}
 			else
 			{
-				q.xyz = cross(a, b) / s;
+				q.xyz = cross(v0, v1) / s;
 				q.w = T(2) * s;
 				normalize(q);
 			}

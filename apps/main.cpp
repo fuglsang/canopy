@@ -103,17 +103,12 @@ void main(int argc, char** argv)
 	sys::create_window(&window, "hello win32", { 1000, 50, 320, 200 });
 	sys::window_show(&window);
 	{
-		sys::windowlistener_t listener;
-		auto listener_lambda = [](sys::window_t * window, sys::windowevent msg)
+		sys::windoweventhandler_t eventhandler;
+		auto eventhandler_anon = [](sys::window_t * window, sys::windowevent msg)
 		{
 			CA_LOG("window %p sends %d", window, msg);
 		};
-		auto listener_action = CA_DELEGATE_ANON(&listener_lambda);
-		core::create_eventlistener(&listener, &window.event, listener_action);
-
-		//auto f = CA_DELEGATE(&myfreefunction)
-		//auto f = CA_DELEGATE(&myfunctor)
-		//auto f = CA_DELEGATE_FUNCTOR(&object_t::member, &myobject)
+		core::create_eventhandler(&eventhandler, &window.event, CA_DELEGATE_ANON(&eventhandler_anon));
 
 		size_t heap_size = 128 * 1024 * 1024;
 		void * heap_base = sys::heap_alloc(heap_size);
@@ -144,8 +139,7 @@ void main(int argc, char** argv)
 
 			while (sys::window_poll(&window))
 			{
-				++step;
-				if ((step % 600) == 0)
+				if ((step++ % 60) == 0)
 				{
 					CA_LOG("time = %f", sys::clockf());
 				}
@@ -176,7 +170,7 @@ void main(int argc, char** argv)
 	while (w > 0)
 	{
 		CA_LOG("%d", w--);
-		sys::thread_sleep(1000);
+		sys::thread_sleep(200);
 	}
 	CA_LOG("%d END", w);
 }

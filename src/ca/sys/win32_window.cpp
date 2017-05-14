@@ -4,12 +4,15 @@
 #include "ca/sys_window.h"
 #include "ca/core_assert.h"
 
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
+
 namespace ca
 {
 	namespace sys
 	{
-		char const * WINDOW_NAME = "ca_window";
-		char const * WINDOW_DATA = "ca_window_data";
+		char const * window_name = "ca_window";
+		char const * window_data = "ca_window_data";
 
 		static HWND resolve_handle(window_t * window)
 		{
@@ -18,7 +21,7 @@ namespace ca
 
 		static window_t * resolve_window(HWND hWnd)
 		{
-			return reinterpret_cast<window_t *>(GetProp(hWnd, WINDOW_DATA));
+			return reinterpret_cast<window_t *>(GetProp(hWnd, window_data));
 		}
 
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -39,7 +42,7 @@ namespace ca
 					CREATESTRUCT * info = reinterpret_cast<CREATESTRUCT *>(lParam);
 					window = reinterpret_cast<window_t *>(info->lpCreateParams);
 					window->handle = hWnd;
-					SetProp(hWnd, WINDOW_DATA, window);
+					SetProp(hWnd, window_data, window);
 					core::event_dispatch(&window->event, window, WINDOWEVENT_CREATED);
 				}
 				goto default_proc;
@@ -65,7 +68,6 @@ namespace ca
 				window->coords.dim_x = LOWORD(lParam);
 				window->coords.dim_y = HIWORD(lParam);
 				core::event_dispatch(&window->event, window, WINDOWEVENT_RESIZED);
-				CA_LOG("WM_SIZE -> %d, %d", window->coords.dim_x, window->coords.dim_y);
 				goto default_proc;
 
 			default: default_proc:
@@ -98,7 +100,7 @@ namespace ca
 			wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 			wc.lpfnWndProc = WndProc;
 			wc.hInstance = GetModuleHandle(nullptr);
-			wc.lpszClassName = WINDOW_NAME;
+			wc.lpszClassName = window_name;
 
 			ATOM ret = RegisterClass(&wc);
 			CA_ASSERT_MSG(ret != 0, "RegisterClass (%s) FAILED", title);
@@ -113,7 +115,7 @@ namespace ca
 			core::create_event(&window->event);
 
 			HWND hWnd = CreateWindow(
-				WINDOW_NAME,				// window class
+				window_name,				// window class
 				title,						// window title
 				style,						// style
 				coords.x,					// pos x
@@ -173,6 +175,12 @@ namespace ca
 		{
 			HWND hWnd = resolve_handle(window);
 			SetWindowPos(hWnd, NULL, coords.x, coords.y, coords.dim_x, coords.dim_y, 0);
+		}
+
+		void window_sync_compositor()
+		{
+			HRESULT ret = DwmFlush();
+			CA_ASSERT(ret == S_OK);
 		}
 	}
 }

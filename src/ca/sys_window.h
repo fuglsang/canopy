@@ -35,7 +35,7 @@ namespace ca
 			bool system_requested_close;
 		};
 
-		using windowlistener_t = core::eventlistener_t<window_t *, windowevent>;
+		using windoweventhandler_t = core::eventhandler_t<window_t *, windowevent>;
 
 		void create_window(window_t * window, char const * title, windowcoords_t coords);
 		void destroy_window(window_t * window);
@@ -44,5 +44,6 @@ namespace ca
 		void window_move(window_t * window, windowcoords_t coords);
 		void window_hide(window_t * window);
 		void window_show(window_t * window);
+		void window_sync_compositor();
 	}
 }

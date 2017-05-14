@@ -103,10 +103,12 @@ namespace ca
 				case SWAPMODE_FREE:
 					CA_ASSERT(has_free);
 					*selected_mode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-				
+					break;
+
 				case SWAPMODE_VSYNC:
 					CA_ASSERT(has_fifo);
 					*selected_mode = VK_PRESENT_MODE_FIFO_KHR;
+					break;
 
 				case SWAPMODE_VSYNC_SKIP:
 					CA_ASSERT(has_mail || has_fifo);
@@ -333,6 +335,9 @@ namespace ca
 			ret = vkWaitForFences(vk_device->device, 1, &fence, VK_FALSE, UINT64_MAX);
 			CA_ASSERT(ret == VK_SUCCESS);
 
+			ret = vkResetFences(vk_device->device, 1, &fence);
+			CA_ASSERT(ret == VK_SUCCESS);
+
 			texture->device = swapchain->device;
 			texture->handle = &vk_swapchain->textures[vk_swapchain->image_index];
 		}
@@ -368,6 +373,13 @@ namespace ca
 			present_info.pSwapchains = &vk_swapchain->swapchain;
 			present_info.pImageIndices = &vk_swapchain->image_index;
 			present_info.pResults = nullptr;
+
+			switch (swapchain->preferred_mode)
+			{
+			case SWAPMODE_VSYNC:
+			case SWAPMODE_VSYNC_SKIP:
+				sys::window_sync_compositor();
+			}
 
 			VkResult ret = vkQueuePresentKHR(vk_device->queue, &present_info);
 			CA_ASSERT(ret == VK_SUCCESS);
