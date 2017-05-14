@@ -26,6 +26,24 @@ void test4(int x)
 	CA_LOG("hello from test4: x=%d", x);
 }
 
+template <typename R, typename C, typename... P>
+void resolve_arg(R(C::*)(P...))
+{
+	CA_LOG("member function pointer");
+}
+
+template <typename R, typename... P>
+void resolve_arg(R(*)(P...))
+{
+	CA_LOG("free function pointer");
+}
+
+template <typename C>
+void resolve_arg(C *)
+{
+	CA_LOG("class pointer");
+}
+
 void main(int argc, char** argv)
 {
 	vec_t<f32, 2> a = { 1.0f,2.0f };
@@ -37,9 +55,26 @@ void main(int argc, char** argv)
 
 	blah_t * bla = new blah_t();
 
-	auto f = make_delegate<decltype(&test2), &test2>();
-	auto g = make_delegate<decltype(&blah_t::test3), &blah_t::test3>(bla);
-	auto h = make_delegate<decltype(&test4), &test4>();
+	struct functor_t
+	{
+		void operator() ()
+		{
+			CA_LOG("functor");
+		}
+	};
+
+	functor_t fobj;
+
+	resolve_arg(&blah_t::test3);
+	resolve_arg(&test2);
+	resolve_arg(&fobj);
+
+
+
+	auto f = CA_DELEGATE(&test2);
+	auto g = CA_DELEGATE(&blah_t::test3, bla);
+	auto h = CA_DELEGATE(&test4);
+	auto l = CA_DELEGATE_ANON(&fobj);
 
 	f();
 	g();
@@ -73,8 +108,12 @@ void main(int argc, char** argv)
 		{
 			CA_LOG("window %p sends %d", window, msg);
 		};
-		auto listener_action = make_delegate(&listener_lambda);
+		auto listener_action = CA_DELEGATE_ANON(&listener_lambda);
 		core::create_eventlistener(&listener, &window.event, listener_action);
+
+		//auto f = CA_DELEGATE(&myfreefunction)
+		//auto f = CA_DELEGATE(&myfunctor)
+		//auto f = CA_DELEGATE_FUNCTOR(&object_t::member, &myobject)
 
 		size_t heap_size = 128 * 1024 * 1024;
 		void * heap_base = sys::heap_alloc(heap_size);

@@ -39,11 +39,11 @@ namespace ca
 			{
 				listener->action(args...);
 			};
-			ilist_foreach(&event->node, make_delegate(&dispatch_with_args));
+			ilist_foreach(&event->node, CA_DELEGATE_ANON(&dispatch_with_args));
 		}
 
 		template <typename... P>
-		void create_eventlistener(eventlistener_t<P...> * listener, action_t<P...> action, event_t<P...> * event)
+		void create_eventlistener(eventlistener_t<P...> * listener, event_t<P...> * event, action_t<P...> action)
 		{
 			listener->action = action;
 			create_ilist(&listener->node, listener);

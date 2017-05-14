@@ -17,7 +17,7 @@ namespace ca
 
 			VkBufferCreateFlags buffer_create_flags = 0;// non-sparse
 
-			VkBufferUsageFlags buffer_usage_flags;
+			VkBufferUsageFlags buffer_usage_flags = 0;
 			switch (type)
 			{
 			case BUFFERTYPE_INDEX:

@@ -96,7 +96,7 @@ namespace ca
 			set_from_euler_angles(q, { theta_x, theta_y, theta_z });
 		}
 
-		template <typename T>
+		template <typename T, u32 N>
 		inline void set_rotation_by_vector_diff(quat_t<T> & q, vec_t<T, N> const & a, vec_t<T, N> const & b)
 		{
 			// method by stan melax
