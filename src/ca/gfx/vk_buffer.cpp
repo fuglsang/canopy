@@ -58,7 +58,7 @@ namespace ca
 			memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 			memory_allocate_info.pNext = nullptr;
 			memory_allocate_info.allocationSize = memory_requirements.size;
-			memory_allocate_info.memoryTypeIndex = 0;//TODO match up with device
+			memory_allocate_info.memoryTypeIndex = 0;//TODO device memory indices!
 
 			ret = vkAllocateMemory(vk_device->device, &memory_allocate_info, &vk_device->allocator, &vk_buffer->memory);
 			CA_ASSERT(ret == VK_SUCCESS);

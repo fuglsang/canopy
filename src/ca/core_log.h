@@ -36,3 +36,15 @@
 		fprintf(stderr, "\n");																				\
 	}																										\
 	while (false)
+
+#define CA_FATAL(...)																						\
+	do																										\
+	{																										\
+		fprintf(stderr, "//----------------------------------------------------------------------------\n"	\
+						"// %s, line %d (%s)\n"																\
+						"// FATAL ERROR: ", __FILE__, __LINE__, __func__);									\
+		fprintf(stderr, __VA_ARGS__);																		\
+		fprintf(stderr, "\n");																				\
+		ca::sys::breakpoint();																				\
+	}																										\
+	while (false)

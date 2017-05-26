@@ -79,6 +79,35 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
+		void cmdbuffer_begin_renderpass(cmdbuffer_t * cmdbuffer, renderpass_t * renderpass)
+		{
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
+			vk_renderpass_t * vk_renderpass = resolve_type(renderpass);
+			
+			VkRect2D render_area;
+			render_area.offset.x = 0;
+			render_area.offset.y = 0;
+			render_area.extent.width = vk_renderpass->dim_x;
+			render_area.extent.height = vk_renderpass->dim_y;
+
+			VkRenderPassBeginInfo renderpass_begin_info;
+			renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			renderpass_begin_info.pNext = nullptr;
+			renderpass_begin_info.renderPass = vk_renderpass->renderpass;
+			renderpass_begin_info.framebuffer = vk_renderpass->framebuffer;
+			renderpass_begin_info.renderArea = render_area;
+			renderpass_begin_info.clearValueCount = vk_renderpass->attachment_count;
+			renderpass_begin_info.pClearValues = vk_renderpass->attachment_clearvalues;
+
+			vkCmdBeginRenderPass(vk_cmdbuffer->cmdbuffer, &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+		}
+
+		void cmdbuffer_end_renderpass(cmdbuffer_t * cmdbuffer)
+		{
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
+			vkCmdEndRenderPass(vk_cmdbuffer->cmdbuffer);
+		}
+
 		void cmdbuffer_clear_color(cmdbuffer_t * cmdbuffer, texture_t * texture, math::vec4_t const & color)
 		{
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
@@ -97,7 +126,7 @@ namespace ca
 			vkCmdClearColorImage(vk_cmdbuffer->cmdbuffer, vk_texture->texture, VK_IMAGE_LAYOUT_GENERAL, &ccv, 1, &image_subresource_range);
 		}
 
-		void cmdbuffer_bind_index(cmdbuffer_t * cmdbuffer, buffer_t * buffer, size_t offset, size_t stride)
+		void cmdbuffer_bind_indexbuffer(cmdbuffer_t * cmdbuffer, buffer_t * buffer, size_t offset, size_t stride)
 		{
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
 			vk_buffer_t * vk_buffer = resolve_type(buffer);
@@ -118,7 +147,7 @@ namespace ca
 			vkCmdBindIndexBuffer(vk_cmdbuffer->cmdbuffer, vk_buffer->buffer, offset, index_type);
 		}
 
-		void cmdbuffer_bind_vertex(cmdbuffer_t * cmdbuffer, buffer_t * buffer, size_t offset)
+		void cmdbuffer_bind_vertexbuffer(cmdbuffer_t * cmdbuffer, buffer_t * buffer, size_t offset)
 		{
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
 			vk_buffer_t * vk_buffer = resolve_type(buffer);

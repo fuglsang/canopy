@@ -74,7 +74,7 @@ void main(int argc, char** argv)
 	auto f = CA_DELEGATE(&test2);
 	auto g = CA_DELEGATE(&blah_t::test3, bla);
 	auto h = CA_DELEGATE(&test4);
-	auto l = CA_DELEGATE_ANON(&fobj);
+	auto l = CA_DELEGATE(&decltype(fobj)::operator(), &fobj);
 
 	f();
 	g();
@@ -119,6 +119,20 @@ void main(int argc, char** argv)
 			gfx::device_t device;
 			gfx::create_device(&device, &heap);
 
+			char const * vs_source =
+				"#version 450 core\n"
+				"layout(location = 0) in vec2 aVertex;\n"
+				"layout(location = 1) in vec4 aColor;\n"
+				"out vec4 vColor;\n"
+				"void main()\n"
+				"{\n"
+				"    vColor = aColor;\n"
+				"    gl_Position = vec4(aVertex, 0, 1);\n"
+				"}\n";
+
+			gfx::shader_t vs;
+			gfx::create_shader(&vs, &device, vs_source, sizeof(vs_source));
+
 			gfx::swapchain_t swapchain;
 			gfx::create_swapchain(&swapchain, &device, &window, gfx::SWAPMODE_VSYNC);
 
@@ -145,6 +159,14 @@ void main(int argc, char** argv)
 				}
 
 				gfx::swapchain_acquire(&swapchain, &backbuffer_acquired, nullptr, &backbuffer);
+
+				gfx::renderattachment_t attachments[1] = {
+					&backbuffer, gfx::RENDERLOADOP_CLEAR, gfx::RENDERSTOREOP_STORE, { 0.5f, 0.5f, 0.5f, 0.5f }, 1.0f, 0,
+				};
+
+				gfx::renderpass_t renderpass;
+				gfx::create_renderpass(&renderpass, &device, attachments, 1);
+				gfx::destroy_renderpass(&renderpass);
 
 				f32 s = math::tau * sys::clockf();
 				f32 k = math::sin(s) * 0.5f + 0.5f;

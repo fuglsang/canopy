@@ -172,9 +172,10 @@ namespace ca
 
 		static void create_logical_device(VkDevice * logical_device, VkQueue * logical_device_queue, VkPhysicalDevice physical_device, u32 physical_device_queue_family, VkAllocationCallbacks * allocator)
 		{
-			u8 const num_device_extensions = 1;
+			u8 const num_device_extensions = 2;
 			char const * device_extensions[num_device_extensions] = {
 				VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+				VK_NV_GLSL_SHADER_EXTENSION_NAME,
 			};
 
 			float device_queue_priority = 1.0f;

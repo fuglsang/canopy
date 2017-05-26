@@ -182,6 +182,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="ext\tlsf\tlsf.h" />
     <ClInclude Include="src\ca\core.h" />
     <ClInclude Include="src\ca\core_action.h" />
+    <ClInclude Include="src\ca\core_array.h" />
     <ClInclude Include="src\ca\core_assert.h" />
     <ClInclude Include="src\ca\core_event.h" />
     <ClInclude Include="src\ca\core_ilist.h" />
@@ -198,6 +199,8 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\gfx_cmdbuffer.h" />
     <ClInclude Include="src\ca\gfx_cmdpool.h" />
     <ClInclude Include="src\ca\gfx_fence.h" />
+    <ClInclude Include="src\ca\gfx_pipeline.h" />
+    <ClInclude Include="src\ca\gfx_renderpass.h" />
     <ClInclude Include="src\ca\gfx_semaphore.h" />
     <ClInclude Include="src\ca\gfx_swapchain.h" />
     <ClInclude Include="src\ca\math.h" />
@@ -216,6 +219,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\math_util.h" />
     <ClInclude Include="src\ca\math_vec.h" />
     <ClInclude Include="src\ca\core_delegate.h" />
+    <ClInclude Include="src\ca\sys\win32.h" />
     <ClInclude Include="src\ca\sys_breakpoint.h" />
     <ClInclude Include="src\ca\sys_heap.h" />
     <ClInclude Include="src\ca\sys_window.h" />
@@ -223,7 +227,6 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\sys_mutex.h" />
     <ClInclude Include="src\ca\sys_thread.h" />
     <ClInclude Include="src\ca\gfx_device.h" />
-    <ClInclude Include="src\ca\gfx_pipeline.h" />
     <ClInclude Include="src\ca\gfx_shader.h" />
     <ClInclude Include="src\ca\gfx_texture.h" />
     <ClInclude Include="src\ca\mem_arena.h" />
@@ -244,6 +247,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="src\ca\gfx\vk_cmdpool.cpp" />
     <ClCompile Include="src\ca\gfx\vk_device.cpp" />
     <ClCompile Include="src\ca\gfx\vk_fence.cpp" />
+    <ClCompile Include="src\ca\gfx\vk_renderpass.cpp" />
     <ClCompile Include="src\ca\gfx\vk_semaphore.cpp" />
     <ClCompile Include="src\ca\gfx\vk_shader.cpp" />
     <ClCompile Include="src\ca\gfx\vk_swapchain.cpp" />
@@ -258,6 +262,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="src\ca\sys\win32_mutex.cpp" />
     <ClCompile Include="src\ca\sys\win32_thread.cpp" />
     <ClCompile Include="src\ca\sys\win32_window.cpp" />
+    <ClCompile Include="src\ca\gfx\vk_pipeline.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

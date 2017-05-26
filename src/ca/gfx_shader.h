@@ -21,7 +21,7 @@ namespace ca
 			shadertype type;
 		};
 
-		void create_shader(shader_t * shader, device_t * device);
+		void create_shader(shader_t * shader, device_t * device, char const * glsl_source, size_t glsl_source_size);
 		void destroy_shader(shader_t * shader);
 	}
 }

@@ -16,8 +16,5 @@ namespace ca
 
 		void create_pipeline(pipeline_t * pipeline, device_t * device);
 		void destroy_pipeline(pipeline_t * pipeline);
-
-		void pipeline_bind_stage(pipeline_t * pipeline, shadertype stage, shader_t * shader);
-		void pipeline_unbind_stage(pipeline_t * pipeline, shadertype stage);
 	}
 }

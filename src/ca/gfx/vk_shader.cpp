@@ -10,7 +10,7 @@ namespace ca
 {
 	namespace gfx
 	{
-		void create_shader(shader_t * shader, device_t * device)
+		void create_shader(shader_t * shader, device_t * device, char const * glsl_source, size_t glsl_source_size)
 		{
 			vk_device_t * vk_device = resolve_type(device);
 			vk_shader_t * vk_shader = mem::arena_alloc<vk_shader_t>(device->arena, 1);
@@ -19,8 +19,8 @@ namespace ca
 			shader_create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 			shader_create_info.pNext = nullptr;
 			shader_create_info.flags = 0;
-			shader_create_info.codeSize = 0;//TODO
-			shader_create_info.pCode = nullptr;
+			shader_create_info.codeSize = glsl_source_size;
+			shader_create_info.pCode = reinterpret_cast<u32 const *>(glsl_source);
 
 			VkResult ret = vkCreateShaderModule(vk_device->device, &shader_create_info, &vk_device->allocator, &vk_shader->shader);
 			CA_ASSERT(ret == VK_SUCCESS);

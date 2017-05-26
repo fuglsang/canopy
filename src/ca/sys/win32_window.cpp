@@ -1,6 +1,7 @@
 #include "ca/platform.h"
 
 #if CA_PLATFORM_WIN32
+#include "ca/sys/win32.h"
 #include "ca/sys_window.h"
 #include "ca/core_assert.h"
 

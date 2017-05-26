@@ -154,7 +154,7 @@ namespace ca
 
 			VkImageUsageFlags desired_image_usage = 0;
 			desired_image_usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-			desired_image_usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+			desired_image_usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;//TODO
 
 			VkSurfaceTransformFlagBitsKHR desired_transform;
 			if (surface_capabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
@@ -188,7 +188,7 @@ namespace ca
 			vk_swapchain->dim_x = desired_image_extents.width;
 			vk_swapchain->dim_y = desired_image_extents.height;
 
-			CA_LOG("vulkan_swapchain: create images pointers ... ");
+			CA_LOG("vulkan_swapchain: create image array ... ");
 			ret = vkGetSwapchainImagesKHR(vk_device->device, vk_swapchain->swapchain, &swapchain->max_buffers_in_flight, nullptr);
 			CA_ASSERT(ret == VK_SUCCESS);
 			CA_LOG("max_images_in_flight = %d", swapchain->max_buffers_in_flight);
@@ -202,6 +202,33 @@ namespace ca
 			for (u32 i = 0; i != swapchain->max_buffers_in_flight; i++)
 			{
 				vk_swapchain->textures[i].texture = vk_swapchain->images[i];
+				vk_swapchain->textures[i].format = surface_format.format;
+
+				VkComponentMapping component_mapping;
+				component_mapping.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+				component_mapping.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+				component_mapping.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+				component_mapping.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+				VkImageSubresourceRange image_subresource_range;
+				image_subresource_range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				image_subresource_range.baseMipLevel = 0;
+				image_subresource_range.levelCount = 1;
+				image_subresource_range.baseArrayLayer = 0;
+				image_subresource_range.layerCount = 1;
+
+				VkImageViewCreateInfo imageview_create_info;
+				imageview_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+				imageview_create_info.pNext = nullptr;
+				imageview_create_info.flags = 0;
+				imageview_create_info.image = vk_swapchain->images[i];
+				imageview_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+				imageview_create_info.format = surface_format.format;
+				imageview_create_info.components = component_mapping;
+				imageview_create_info.subresourceRange = image_subresource_range;
+
+				ret = vkCreateImageView(vk_device->device, &imageview_create_info, &vk_device->allocator, &vk_swapchain->textures[i].view);
+				CA_ASSERT(ret == VK_SUCCESS);
 			}
 
 			CA_LOG("vulkan_swapchain: create fences ... ");
@@ -257,7 +284,7 @@ namespace ca
 			CA_LOG("vulkan_swapchain: destroy texture objects ... ");
 			mem::arena_free(swapchain->device->arena, vk_swapchain->textures);
 
-			CA_LOG("vulkan_swapchain: destroy image pointers ... ");
+			CA_LOG("vulkan_swapchain: destroy image array ... ");
 			mem::arena_free(swapchain->device->arena, vk_swapchain->images);
 
 			CA_LOG("vulkan_swapchain: destroy swapchain ... ");
@@ -309,10 +336,10 @@ namespace ca
 		{
 			vk_swapchain_t * vk_swapchain = resolve_type(swapchain);
 
-			bool dx_changed = (vk_swapchain->dim_x != swapchain->window->coords.dim_x);
-			bool dy_changed = (vk_swapchain->dim_y != swapchain->window->coords.dim_y);
+			bool dim_x_changed = (vk_swapchain->dim_x != swapchain->window->coords.dim_x);
+			bool dim_y_changed = (vk_swapchain->dim_y != swapchain->window->coords.dim_y);
 
-			if (dx_changed || dy_changed)
+			if (dim_x_changed || dim_y_changed)
 			{
 				recreate_swapchain(swapchain);
 			}

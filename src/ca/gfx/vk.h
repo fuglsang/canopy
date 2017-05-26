@@ -63,6 +63,8 @@ namespace ca
 		struct vk_cmdpool_t;
 		struct vk_device_t;
 		struct vk_fence_t;
+		struct vk_pipeline_t;
+		struct vk_renderpass_t;
 		struct vk_semaphore_t;
 		struct vk_shader_t;
 		struct vk_swapchain_t;
@@ -103,6 +105,23 @@ namespace ca
 			VkFence fence;
 		};
 
+		struct vk_pipeline_t
+		{
+			VkPipeline pipeline;
+		};
+
+		struct vk_renderpass_t
+		{
+			VkRenderPass renderpass;
+			VkFramebuffer framebuffer;
+			
+			u32 dim_x;
+			u32 dim_y;
+
+			u32 attachment_count;
+			VkClearValue * attachment_clearvalues;
+		};
+
 		struct vk_semaphore_t
 		{
 			VkSemaphore semaphore;
@@ -132,6 +151,8 @@ namespace ca
 		struct vk_texture_t
 		{
 			VkImage texture;
+			VkFormat format;
+			VkImageView view;
 		};
 
 		// resolve_type(), resolve_handle()
@@ -159,6 +180,8 @@ namespace ca
 		CA_DEFINE_RESOLVE_VK(device);
 		CA_DEFINE_RESOLVE_VK(fence);
 		CA_DEFINE_RESOLVE_VK(texture);
+		CA_DEFINE_RESOLVE_VK(pipeline);
+		CA_DEFINE_RESOLVE_VK(renderpass);
 		CA_DEFINE_RESOLVE_VK(semaphore);
 		CA_DEFINE_RESOLVE_VK(shader);
 		CA_DEFINE_RESOLVE_VK(swapchain);
@@ -168,4 +191,3 @@ namespace ca
 		#undef CA_DEFINE_RESOLVE_VK_TYPE
 	}
 }
-

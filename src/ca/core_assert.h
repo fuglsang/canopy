@@ -8,8 +8,7 @@
 	{																		\
 		if ((condition) == false)											\
 		{																	\
-			CA_ERROR("assertion FAILED ( " #condition " )");				\
-			ca::sys::breakpoint();											\
+			CA_FATAL("assertion FAILED ( " #condition " )");				\
 		}																	\
 	}																		\
 	while (false)
@@ -19,8 +18,7 @@
 	{																		\
 		if ((condition) == false)											\
 		{																	\
-			CA_ERROR("assertion FAILED ( " #condition " ) " __VA_ARGS__);	\
-			ca::sys::breakpoint();											\
+			CA_FATAL("assertion FAILED ( " #condition " ) " __VA_ARGS__);	\
 		}																	\
 	}																		\
 	while (false)

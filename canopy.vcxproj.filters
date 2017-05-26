@@ -45,9 +45,6 @@
     <ClInclude Include="src\ca\gfx_device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\gfx_pipeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ca\gfx_shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -165,6 +162,18 @@
     <ClInclude Include="src\ca\math_quat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ca\gfx_pipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\gfx_renderpass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\sys\win32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\core_array.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ca\math_bezier.inl">
@@ -245,6 +254,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ca\gfx\vk_buffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\gfx\vk_pipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\gfx\vk_renderpass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
