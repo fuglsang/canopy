@@ -14,14 +14,14 @@ namespace ca
 
 			inline T & operator [] (u32 index)
 			{
-				CA_ASSERT_MSG(index >= 0 && index < N, "array out of bounds: %i vs [0..%d]", index, N - 1);
+				CA_ASSERT_MSG(index >= 0 && index < N, "index out of bounds: %d vs [0..%d]", index, N - 1);
 				return data[index];
 			}
 
 			template <typename T, u32 N>
 			inline T const & operator [] (u32 index) const
 			{
-				CA_ASSERT_MSG(index >= 0 && index < N, "array out of bounds: %i vs [0..%d]", index, N - 1);
+				CA_ASSERT_MSG(index >= 0 && index < N, "index out of bounds: %d vs [0..%d]", index, N - 1);
 				return data[index];
 			}
 		};

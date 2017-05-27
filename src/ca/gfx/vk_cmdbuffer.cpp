@@ -108,7 +108,7 @@ namespace ca
 			vkCmdEndRenderPass(vk_cmdbuffer->cmdbuffer);
 		}
 
-		void cmdbuffer_clear_color(cmdbuffer_t * cmdbuffer, texture_t * texture, math::vec4_t const & color)
+		void cmdbuffer_clear_color(cmdbuffer_t * cmdbuffer, texture_t * texture, math::fvec4_t const & color)
 		{
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
 			vk_texture_t * vk_texture = resolve_type(texture);

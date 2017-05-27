@@ -235,6 +235,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
   <ItemGroup>
     <None Include="src\ca\math_bezier.inl" />
     <None Include="src\ca\math_mat.inl" />
+    <None Include="src\ca\math_quat.inl" />
     <None Include="src\ca\math_vec.inl" />
   </ItemGroup>
   <ItemGroup>

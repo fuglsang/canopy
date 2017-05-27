@@ -82,10 +82,23 @@ void main(int argc, char** argv)
 	int harg = 77;
 	h(harg);
 
-	mat4_t A, B;
-	mat4_t M = A + B;
-	vec4_t r;
+	fmat4_t A, B;
+	fmat4_t M = A + B;
+	fvec4_t r;
 
+	fmat3_t rot;
+	fquat_t q;
+	set_identity(q);
+	set_rotation_by_direction_change(q, { 1.0f,0.0f,0.0f }, { 0.0f,1.0f,0.0f });
+	set_rotation_by_euler_angles(q, { 0.0f,math::pi,math::tau });
+
+	set_rotation_by_angle_x(rot, math::pi_2);
+	set_rotation_by_angle_y(rot, math::pi_2);
+	set_rotation_by_angle_z(rot, math::pi_2);
+	set_rotation_by_axis_angle(rot, { 1.0f,0.0f,0.0f }, math::pi_2);
+	set_rotation_by_quaternion(rot, q);
+	set_rotation_by_look_direction(rot, { 0.0f,0.0f,-1.0f }, { 0.0f,1.0f,0.0f });
+	
 	r = M * r;
 
 	M += B;

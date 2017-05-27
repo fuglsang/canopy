@@ -185,6 +185,9 @@
     <None Include="src\ca\math_vec.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="src\ca\math_quat.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ca\core_jobsystem.cpp">
