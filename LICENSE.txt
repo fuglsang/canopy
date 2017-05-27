@@ -1,5 +1,3 @@
-BSD 2-Clause License
-
 Copyright (c) 2017, Lasse Jon Fuglsang Pedersen
 All rights reserved.
 
