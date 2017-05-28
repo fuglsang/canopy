@@ -6,20 +6,21 @@ namespace ca
 {
 	namespace mem
 	{
-		struct lineararena_t : arena_t
+		struct linearallocator_t
 		{
+			void * base;
+			size_t size;
 			size_t used;
 			size_t free;
 		};
 
-		void create_arena(lineararena_t * arena, void * base, size_t size);
-		template <typename A>
-		void create_arena(lineararena_t * arena, A * base_arena, size_t size)
-		{
-			create_arena(arena, arena_alloc(base_arena, size, 1), size);
-		}
+		void create_allocator(linearallocator_t * allocator, void * base, size_t size);
+		void destroy_allocator(linearallocator_t * allocator);
 
-		void * arena_alloc(lineararena_t * arena, size_t size, size_t alignment);
-		void arena_free(lineararena_t * arena, void * block);
+		void * allocator_alloc(linearallocator_t * allocator, size_t size, size_t alignment);
+		void allocator_free(linearallocator_t * allocator, void * block);
+
+		typedef arena_t<linearallocator_t, multithreadaccesspolicy_t> lineararena_mt_t;
+		typedef arena_t<linearallocator_t, singlethreadaccesspolicy_t> lineararena_t;
 	}
 }

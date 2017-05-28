@@ -35,7 +35,7 @@ namespace ca
 			bool system_requested_close;
 		};
 
-		using windoweventhandler_t = core::eventhandler_t<window_t *, windowevent>;
+		typedef core::eventhandler_t<window_t *, windowevent> windoweventhandler_t;
 
 		void create_window(window_t * window, char const * title, windowcoords_t coords);
 		void destroy_window(window_t * window);

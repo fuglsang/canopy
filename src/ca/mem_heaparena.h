@@ -1,31 +1,25 @@
 #pragma once
 
 #include "ca/mem_arena.h"
-#include "ca/types.h"
 
 namespace ca
 {
 	namespace mem
 	{
-		struct heaparena_t : arena_t
+		struct heapallocator_t
 		{
+			void * base;
+			size_t size;
 			void * handle;
 		};
 
-		void create_arena(heaparena_t * arena, void * base, size_t size);
-		template <typename A>
-		void create_arena(heaparena_t * arena, A * base_arena, size_t size)
-		{
-			create_arena(arena, arena_alloc(base_arena, size, 1), size);
-		}
+		void create_allocator(heapallocator_t * allocator, void * base, size_t size);
+		void destroy_allocator(heapallocator_t * allocator);
 
-		void * arena_alloc(heaparena_t * arena, size_t size, size_t alignment);
-		template <typename T>
-		T * arena_alloc(heaparena_t * arena, u32 count)
-		{
-			return reinterpret_cast<T *>(arena_alloc(arena, count * sizeof(T), alignof(T)));
-		}
+		void * allocator_alloc(heapallocator_t * allocator, size_t size, size_t alignment);
+		void allocator_free(heapallocator_t * allocator, void * block);
 
-		void arena_free(heaparena_t * arena, void * block);
+		typedef arena_t<heapallocator_t, multithreadaccesspolicy_t> heaparena_mt_t;
+		typedef arena_t<heapallocator_t, singlethreadaccesspolicy_t> heaparena_t;
 	}
 }

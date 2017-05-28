@@ -208,6 +208,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\math_constants.h" />
     <ClInclude Include="src\ca\math_quat.h" />
     <ClInclude Include="src\ca\mem.h" />
+    <ClInclude Include="src\ca\mem_accesspolicy.h" />
     <ClInclude Include="src\ca\mem_chunkarena.h" />
     <ClInclude Include="src\ca\mem_heaparena.h" />
     <ClInclude Include="src\ca\mem_lineararena.h" />
@@ -237,6 +238,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <None Include="src\ca\math_mat.inl" />
     <None Include="src\ca\math_quat.inl" />
     <None Include="src\ca\math_vec.inl" />
+    <None Include="src\ca\mem_arena.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="apps\main.cpp" />
@@ -253,7 +255,6 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="src\ca\gfx\vk_shader.cpp" />
     <ClCompile Include="src\ca\gfx\vk_swapchain.cpp" />
     <ClCompile Include="src\ca\gfx\vk_texture.cpp" />
-    <ClCompile Include="src\ca\mem_chunkarena.cpp" />
     <ClCompile Include="src\ca\mem_heaparena.cpp" />
     <ClCompile Include="src\ca\mem_lineararena.cpp" />
     <ClCompile Include="src\ca\mem_stackarena.cpp" />

@@ -12,46 +12,48 @@ namespace ca
 			void * block;
 		};
 
-		void create_arena(stackarena_t * arena, void * base, size_t size)
+		void create_allocator(stackallocator_t * allocator, void * base, size_t size)
 		{
-			arena->base = base;
-			arena->size = size;
-			arena->next = base;
-			arena->free = size;
+			allocator->base = base;
+			allocator->size = size;
+			allocator->next = base;
+			allocator->free = size;
 		}
 
-		void * arena_alloc(stackarena_t * arena, size_t size, size_t alignment)
+		void destroy_allocator(stackallocator_t * allocator) {}
+
+		void * allocator_alloc(stackallocator_t * allocator, size_t size, size_t alignment)
 		{
-			void * block_base = arena->next;
+			void * block_base = allocator->next;
 			void * block = align_up(block_base, alignment);
 
 			size_t req_align = ptr_diff(block_base, block);
 			size_t req_total = size + req_align + sizeof(stackframe_t);
 
-			CA_ASSERT_MSG(arena->free >= req_total, "stack arena out of memory");
+			CA_ASSERT_MSG(allocator->free >= req_total, "stack allocator out of memory");
 
 			stackframe_t * frame = reinterpret_cast<stackframe_t *>(ptr_add(block, size));
 			
 			frame->block_base = block_base;
 			frame->block = block;
 
-			arena->next = ptr_add(arena->next, req_total);
-			arena->free = arena->size - ptr_diff(arena->base, arena->next);
+			allocator->next = ptr_add(allocator->next, req_total);
+			allocator->free = allocator->size - ptr_diff(allocator->base, allocator->next);
 
 			return block;
 		}
 
-		void arena_free(stackarena_t * arena, void * block)
+		void allocator_free(stackallocator_t * allocator, void * block)
 		{
-			CA_ASSERT_MSG(0 <= ptr_diff(arena->base, block) && ptr_diff(arena->base, block) < (ptrdiff_t)arena->size, "cannot free alien block");
-			CA_ASSERT_MSG(ptr_diff(arena->base, arena->next) > 0, "stack arena underflow");
+			CA_ASSERT_MSG(0 <= ptr_diff(allocator->base, block) && ptr_diff(allocator->base, block) < (ptrdiff_t)allocator->size, "cannot free alien block");
+			CA_ASSERT_MSG(ptr_diff(allocator->base, allocator->next) > 0, "stack allocator underflow");
 
-			stackframe_t * frame = reinterpret_cast<stackframe_t *>(arena->next) - 1;
+			stackframe_t * frame = reinterpret_cast<stackframe_t *>(allocator->next) - 1;
 			
-			CA_ASSERT_MSG(ptr_equals(block, frame->block), "stack arena operations must be filo");
+			CA_ASSERT_MSG(ptr_equals(block, frame->block), "stack allocator operations must be filo");
 
-			arena->base = frame->block_base;
-			arena->free = arena->size - ptr_diff(arena->base, arena->next);
+			allocator->base = frame->block_base;
+			allocator->free = allocator->size - ptr_diff(allocator->base, allocator->next);
 		}
 	}
 }

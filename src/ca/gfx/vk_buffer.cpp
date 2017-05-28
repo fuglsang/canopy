@@ -35,7 +35,7 @@ namespace ca
 				buffer_usage_flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 				break;
 			default:
-				CA_ASSERT_MSG(false, "unsupported type");
+				CA_FATAL("unsupported type");
 			}
 			
 			VkBufferCreateInfo buffer_create_info;

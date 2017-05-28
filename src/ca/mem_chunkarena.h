@@ -7,24 +7,39 @@ namespace ca
 {
 	namespace mem
 	{
-		template <u32 CHUNK_SIZE, u32 CHUNK_ALIGNMENT>
-		struct chunkarena_t : arena_t
+		template <u32 NChunkSize, u32 NChunkAlignment>
+		struct chunkallocator_t
 		{
-			size_t used;
-			size_t free;
+			void * base;
+			size_t size;
 		};
 
-		template <u32 CHUNK_SIZE, u32 CHUNK_ALIGNMENT>
-		void create_arena(chunkarena_t<CHUNK_SIZE, CHUNK_ALIGNMENT> * arena, void * base, size_t size);
-		template <u32 CHUNK_SIZE, u32 CHUNK_ALIGNMENT, typename A>
-		void create_arena(chunkarena_t<CHUNK_SIZE, CHUNK_ALIGNMENT> * arena, A * base_arena, size_t size)
+		template <u32 NChunkSize, u32 NChunkAlignment>
+		void create_allocator(chunkallocator_t<NChunkSize, NChunkAlignment> * allocator, void * base, size_t size)
 		{
-			create_arena(arena, arena_alloc(base_arena, size, 1), size);
+			allocator->base = base;
+			allocator->size = size;
+			CA_FATAL("TODO");
 		}
 
-		template <u32 CHUNK_SIZE, u32 CHUNK_ALIGNMENT>
-		void * arena_alloc(chunkarena_t<CHUNK_SIZE, CHUNK_ALIGNMENT> * arena, size_t size, size_t alignment);
-		template <u32 CHUNK_SIZE, u32 CHUNK_ALIGNMENT>
-		void arena_free(chunkarena_t<CHUNK_SIZE, CHUNK_ALIGNMENT> * arena, void * block);
+		template <u32 NChunkSize, u32 NChunkAlignment>
+		void destroy_allocator(chunkallocator_t<NChunkSize, NChunkAlignment> * allocator) {}
+
+		template <u32 NChunkSize, u32 NChunkAlignment>
+		void * allocator_alloc(chunkallocator_t<NChunkSize, NChunkAlignment> * allocator, size_t size, size_t alignment)
+		{
+			CA_FATAL("TODO");
+		}
+
+		template <u32 NChunkSize, u32 NChunkAlignment>
+		void allocator_free(chunkallocator_t<NChunkSize, NChunkAlignment> * allocator, void * block)
+		{
+			CA_FATAL("TODO");
+		}
+
+		template <u32 NChunkSize, u32 NChunkAlignment>
+		using chunkarena_mt_t = arena_t<chunkallocator_t<NChunkSize, NChunkAlignment>, multithreadaccesspolicy_t>;
+		template <u32 NChunkSize, u32 NChunkAlignment>
+		using chunkarena_t = arena_t<chunkallocator_t<NChunkSize, NChunkAlignment>, singlethreadaccesspolicy_t>;
 	}
 }

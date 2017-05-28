@@ -141,7 +141,7 @@ namespace ca
 				index_type = VK_INDEX_TYPE_UINT32;
 				break;
 			default:
-				CA_ASSERT_MSG(false, "unsupported stride");
+				CA_FATAL("unsupported stride");
 			}
 
 			vkCmdBindIndexBuffer(vk_cmdbuffer->cmdbuffer, vk_buffer->buffer, offset, index_type);
