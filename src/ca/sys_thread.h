@@ -3,6 +3,9 @@
 #include "ca/types.h"
 #include "ca/core_action.h"
 
+#define CA_THREAD_STACK ca::sys::thread_t::tls_stack
+#define CA_THREAD_STACK ca::sys::thread_t::tls_stack
+
 namespace ca
 {
 	namespace sys

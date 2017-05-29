@@ -31,4 +31,4 @@ Like C, but with namespaces and template meta-programming.
 Lasse Jon Fuglsang Pedersen <<volmer@gmail.com>>
 
 #### LICENSE
-BSD 2-Clause (see [LICENSE.txt](LICENSE.txt))
+BSD 2-Clause (see [LICENSE](LICENSE))

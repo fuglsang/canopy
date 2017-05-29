@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ca/types.h"
-#include "ca/math_util.h"
 
 namespace ca
 {

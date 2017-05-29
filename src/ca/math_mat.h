@@ -2,7 +2,6 @@
 
 #include "ca/types.h"
 #include "ca/math_vec.h"
-#include "ca/math_util.h"
 #include "ca/math_quat.h"
 
 namespace ca

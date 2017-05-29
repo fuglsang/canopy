@@ -34,7 +34,7 @@ namespace ca
 
 		void allocator_free(linearallocator_t * allocator, void * block)
 		{
-			CA_FATAL("not supported");
+			CA_FATAL("linear allocator does not support free");
 		}
 	}
 }

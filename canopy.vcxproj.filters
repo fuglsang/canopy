@@ -153,9 +153,6 @@
     <ClInclude Include="src\ca\core_predicate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\math_constants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ca\math_quat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -175,6 +172,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ca\mem_lineararena.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\math_const.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -266,6 +266,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ca\mem_lineararena.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\mem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -112,6 +112,12 @@ namespace ca
 			else
 				return a;
 		}
+		
+		template <typename T>
+		inline T saturate(T const & a)
+		{
+			return clamp(a, T(0), T(1));
+		}
 
 		template <typename T>
 		inline T lerp(T const & a0, T const & a1, T t)

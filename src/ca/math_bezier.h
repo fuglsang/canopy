@@ -39,6 +39,24 @@ namespace ca
 		typedef bezier_t<f32, 3> bezier3_t;
 		typedef bezier_t<f32, 4> bezier4_t;
 
-		#include "ca/math_bezier.inl"
+		template <typename T, u32 N>
+		T bezier_curvature_t0(bezier_t<T, N> const * bezier);
+
+		template <typename T, u32 N>
+		T bezier_curvature(bezier_t<T, N> * const bezier, f32 t);
+
+		template <typename T, u32 N>
+		void bezier_eval(bezier_t<T, N> const * bezier, f32 t, vec_t<T, N> * x, vec_t<T, N> * v, vec_t<T, N> * a);
+
+		template <typename T, u32 N>
+		void bezier_eval(bezier_t<T, N> const * bezier, f32 t, vec_t<T, N> * x, vec_t<T, N> * v);
+
+		template <typename T, u32 N>
+		void bezier_eval(bezier_t<T, N> const * bezier, f32 t, vec_t<T, N> * x);
+
+		template <typename T, u32 N>
+		void bezier_split(bezier_t<T, N> const * bezier, f32 t, bezier_t<T, N> * split_left, bezier_t<T, N> * split_right);
 	}
 }
+
+#include "ca/math_bezier.inl"

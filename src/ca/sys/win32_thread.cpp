@@ -4,6 +4,7 @@
 #include "ca/sys/win32.h"
 #include "ca/sys_thread.h"
 #include "ca/core_assert.h"
+#include "ca/mem.h"
 
 namespace ca
 {
@@ -11,9 +12,13 @@ namespace ca
 	{
 		DWORD WINAPI win32_delegate(LPVOID lpParam)
 		{
-			thread_t * thread = static_cast<thread_t *>(lpParam);
-			thread->state = THREADSTATE_RUNNING;
-			thread->action();
+			mem::initialize_tls();
+			{
+				thread_t * thread = static_cast<thread_t *>(lpParam);
+				thread->state = THREADSTATE_RUNNING;
+				thread->action();
+			}
+			mem::finalize_tls();
 			return 0;
 		}
 

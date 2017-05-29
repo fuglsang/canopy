@@ -1,3 +1,5 @@
+#include "ca/math_util.h"
+
 namespace ca
 {
 	namespace math

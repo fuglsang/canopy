@@ -1,4 +1,5 @@
-#include "math_mat.h"
+#include "ca/math_util.h"
+
 namespace ca
 {
 	namespace math
