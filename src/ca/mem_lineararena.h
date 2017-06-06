@@ -10,7 +10,7 @@ namespace ca
 		{
 			void * base;
 			size_t size;
-			size_t used;
+			void * next;
 			size_t free;
 		};
 
@@ -20,7 +20,7 @@ namespace ca
 		void * allocator_alloc(linearallocator_t * allocator, size_t size, size_t alignment);
 		void allocator_free(linearallocator_t * allocator, void * block);
 
-		typedef arena_t<linearallocator_t, multithreadaccesspolicy_t> lineararena_mt_t;
-		typedef arena_t<linearallocator_t, singlethreadaccesspolicy_t> lineararena_t;
+		typedef arena_t<linearallocator_t, core::multithreadpolicy_t> lineararena_mt_t;
+		typedef arena_t<linearallocator_t, core::singlethreadpolicy_t> lineararena_t;
 	}
 }

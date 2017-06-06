@@ -168,13 +168,13 @@
     <ClInclude Include="src\ca\core_array.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\mem_accesspolicy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ca\mem_lineararena.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ca\math_const.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\core_threadpolicy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

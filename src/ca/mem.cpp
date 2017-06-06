@@ -25,7 +25,6 @@ namespace ca
 			create_arena(&app_heap, app_heap_base, app_heap_size);
 
 			app_stack_size = stack_size_per_thread;
-
 			initialize_tls();
 		}
 
@@ -40,11 +39,12 @@ namespace ca
 			CA_ASSERT_MSG(app_heap_base != nullptr, "bad order of initialization");
 
 			finalize_tls();
+			app_stack_size = 0;
 
 			destroy_arena(&app_heap);
 			sys::heap_free(app_heap_base);
-
 			app_heap_base = nullptr;
+			app_heap_size = 0;
 		}
 
 		void finalize_tls()

@@ -112,6 +112,11 @@ void main(int argc, char** argv)
 		sys::thread_sleep(60);
 	}
 
+	size_t reserved_heap = 1024 * 1024 * 128;
+	size_t reserved_stack_per_thread = 1024 * 1024 * 1;
+
+	mem::initialize(reserved_heap, reserved_stack_per_thread);
+
 	sys::window_t window;
 	sys::create_window(&window, "hello win32", { 1000, 50, 320, 200 });
 	sys::window_show(&window);
@@ -123,83 +128,80 @@ void main(int argc, char** argv)
 		};
 		core::create_eventhandler(&eventhandler, &window.event, CA_DELEGATE_ANON(&eventhandler_anon));
 
-		size_t heap_size = 128 * 1024 * 1024;
-		void * heap_base = sys::heap_alloc(heap_size);
+		mem::heaparena_t gfx_heap;
+		mem::create_arena(&gfx_heap, CA_APP_HEAP, 1024 * 1024 * 32);
+
+		gfx::device_t device;
+		gfx::create_device(&device, &gfx_heap);
+
+		char const * vs_source =
+			"#version 450 core\n"
+			"layout(location = 0) in vec2 aVertex;\n"
+			"layout(location = 1) in vec4 aColor;\n"
+			"out vec4 vColor;\n"
+			"void main()\n"
+			"{\n"
+			"    vColor = aColor;\n"
+			"    gl_Position = vec4(aVertex, 0, 1);\n"
+			"}\n";
+
+		gfx::shader_t vs;
+		gfx::create_shader(&vs, &device, vs_source, sizeof(vs_source));
+
+		gfx::swapchain_t swapchain;
+		gfx::create_swapchain(&swapchain, &device, &window, gfx::SWAPMODE_VSYNC);
+
+		gfx::cmdpool_t cmdpool;
+		gfx::create_cmdpool(&cmdpool, &device);
+
+		gfx::cmdbuffer_t cmdbuffer;
+		gfx::create_cmdbuffer(&cmdbuffer, &cmdpool);
+
+		gfx::texture_t backbuffer;
+		gfx::semaphore_t backbuffer_acquired;
+		gfx::semaphore_t backbuffer_presentable;
+
+		gfx::create_semaphore(&backbuffer_acquired, &device);
+		gfx::create_semaphore(&backbuffer_presentable, &device);
+
+		u32 step = 0;
+
+		while (sys::window_poll(&window))
 		{
-			mem::heaparena_t heap;
-			mem::create_arena(&heap, heap_base, heap_size);
-
-			gfx::device_t device;
-			gfx::create_device(&device, &heap);
-
-			char const * vs_source =
-				"#version 450 core\n"
-				"layout(location = 0) in vec2 aVertex;\n"
-				"layout(location = 1) in vec4 aColor;\n"
-				"out vec4 vColor;\n"
-				"void main()\n"
-				"{\n"
-				"    vColor = aColor;\n"
-				"    gl_Position = vec4(aVertex, 0, 1);\n"
-				"}\n";
-
-			gfx::shader_t vs;
-			gfx::create_shader(&vs, &device, vs_source, sizeof(vs_source));
-
-			gfx::swapchain_t swapchain;
-			gfx::create_swapchain(&swapchain, &device, &window, gfx::SWAPMODE_VSYNC);
-
-			gfx::cmdpool_t cmdpool;
-			gfx::create_cmdpool(&cmdpool, &device);
-
-			gfx::cmdbuffer_t cmdbuffer;
-			gfx::create_cmdbuffer(&cmdbuffer, &cmdpool);
-
-			gfx::texture_t backbuffer;
-			gfx::semaphore_t backbuffer_acquired;
-			gfx::semaphore_t backbuffer_presentable;
-
-			gfx::create_semaphore(&backbuffer_acquired, &device);
-			gfx::create_semaphore(&backbuffer_presentable, &device);
-
-			u32 step = 0;
-
-			while (sys::window_poll(&window))
+			if ((step++ % 60) == 0)
 			{
-				if ((step++ % 60) == 0)
-				{
-					CA_LOG("time = %f", sys::clockf());
-				}
-
-				gfx::swapchain_acquire(&swapchain, &backbuffer_acquired, nullptr, &backbuffer);
-
-				gfx::renderattachment_t attachments[1] = {
-					&backbuffer, gfx::RENDERLOADOP_CLEAR, gfx::RENDERSTOREOP_STORE, { 0.5f, 0.5f, 0.5f, 0.5f }, 1.0f, 0,
-				};
-
-				gfx::renderpass_t renderpass;
-				gfx::create_renderpass(&renderpass, &device, attachments, 1);
-				gfx::destroy_renderpass(&renderpass);
-
-				f32 s = math::tau * sys::clockf();
-				f32 k = math::sin(s) * 0.5f + 0.5f;
-
-				gfx::cmdbuffer_reset(&cmdbuffer);
-				gfx::cmdbuffer_begin(&cmdbuffer);
-				gfx::cmdbuffer_clear_color(&cmdbuffer, &backbuffer, { 0.5f * k, 0.0f, k, 0.0f });
-				gfx::cmdbuffer_end(&cmdbuffer);
-
-				gfx::device_submit(&device, &cmdbuffer, &backbuffer_acquired, &backbuffer_presentable, nullptr);
-
-				gfx::swapchain_present(&swapchain, &backbuffer_presentable);
+				CA_LOG("time = %f", sys::clockf());
 			}
 
-			gfx::destroy_swapchain(&swapchain);
-			gfx::destroy_device(&device);
+			gfx::swapchain_acquire(&swapchain, &backbuffer_acquired, nullptr, &backbuffer);
+
+			gfx::renderattachment_t attachments[1] = {
+				&backbuffer, gfx::RENDERLOADOP_CLEAR, gfx::RENDERSTOREOP_STORE, { 0.5f, 0.5f, 0.5f, 0.5f }, 1.0f, 0,
+			};
+
+			gfx::renderpass_t renderpass;
+			gfx::create_renderpass(&renderpass, &device, attachments, 1);
+			gfx::destroy_renderpass(&renderpass);
+
+			f32 s = math::tau * sys::clockf();
+			f32 k = math::sin(s) * 0.5f + 0.5f;
+
+			gfx::cmdbuffer_reset(&cmdbuffer);
+			gfx::cmdbuffer_begin(&cmdbuffer);
+			gfx::cmdbuffer_clear_color(&cmdbuffer, &backbuffer, { 0.5f * k, 0.0f, k, 0.0f });
+			gfx::cmdbuffer_end(&cmdbuffer);
+
+			gfx::device_submit(&device, &cmdbuffer, &backbuffer_acquired, &backbuffer_presentable, nullptr);
+
+			gfx::swapchain_present(&swapchain, &backbuffer_presentable);
 		}
-		sys::heap_free(heap_base);
-	}
+
+		gfx::destroy_swapchain(&swapchain);
+		gfx::destroy_device(&device);
+	}	
 	sys::destroy_window(&window);
+	
+	mem::finalize();
 
 	int w = 3;
 	while (w > 0)

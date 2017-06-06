@@ -1,17 +1,17 @@
 #pragma once
 
 #include "ca/types.h"
-#include "ca/mem_accesspolicy.h"
+#include "ca/core_threadpolicy.h"
 
 namespace ca
 {
 	namespace mem
 	{
-		template <typename TAllocator, typename TAccessPolicy>
+		template <typename TAllocator, typename TThreadPolicy>
 		struct arena_t
 		{
 			TAllocator allocator;
-			TAccessPolicy accesspolicy;
+			TThreadPolicy threadpolicy;
 		};
 
 		template <typename TArena>

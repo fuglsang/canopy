@@ -189,6 +189,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\core_jobsystem.h" />
     <ClInclude Include="src\ca\core_log.h" />
     <ClInclude Include="src\ca\core_predicate.h" />
+    <ClInclude Include="src\ca\core_threadpolicy.h" />
     <ClInclude Include="src\ca\data.h" />
     <ClInclude Include="src\ca\data_image.h" />
     <ClInclude Include="src\ca\data_buffer.h" />
@@ -208,7 +209,6 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\math_const.h" />
     <ClInclude Include="src\ca\math_quat.h" />
     <ClInclude Include="src\ca\mem.h" />
-    <ClInclude Include="src\ca\mem_accesspolicy.h" />
     <ClInclude Include="src\ca\mem_chunkarena.h" />
     <ClInclude Include="src\ca\mem_heaparena.h" />
     <ClInclude Include="src\ca\mem_lineararena.h" />

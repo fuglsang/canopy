@@ -5,6 +5,7 @@
 #include "ca/core_assert.h"
 #include "ca/core_log.h"
 #include "ca/math_util.h"
+#include "ca/mem.h"
 #include "ca/gfx/vk.h"
 
 namespace ca
@@ -28,7 +29,7 @@ namespace ca
 		#endif
 		}
 
-		static void select_surface_format(VkSurfaceFormatKHR * selected_format, vk_device_t * vk_device, VkSurfaceKHR surface, mem::heaparena_t * arena)
+		static void select_surface_format(VkSurfaceFormatKHR * selected_format, vk_device_t * vk_device, VkSurfaceKHR surface)
 		{
 			u32 format_count;
 
@@ -36,7 +37,7 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 			CA_ASSERT(format_count > 0);
 
-			VkSurfaceFormatKHR * formats = mem::arena_alloc<VkSurfaceFormatKHR>(arena, format_count);
+			VkSurfaceFormatKHR * formats = mem::arena_alloc<VkSurfaceFormatKHR>(CA_APP_STACK, format_count);
 			{
 				ret = vkGetPhysicalDeviceSurfaceFormatsKHR(vk_device->physical_device, surface, &format_count, formats);
 				CA_ASSERT(ret == VK_SUCCESS);
@@ -60,10 +61,10 @@ namespace ca
 					}
 				}
 			}
-			mem::arena_free(arena, formats);
+			mem::arena_free(CA_APP_STACK, formats);
 		}
 
-		static void select_present_mode(VkPresentModeKHR * selected_mode, vk_device_t * vk_device, VkSurfaceKHR surface, mem::heaparena_t * arena, swapmode mode)
+		static void select_present_mode(VkPresentModeKHR * selected_mode, vk_device_t * vk_device, VkSurfaceKHR surface, swapmode mode)
 		{
 			u32 mode_count;
 
@@ -71,7 +72,7 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 			CA_ASSERT(mode_count > 0);
 
-			VkPresentModeKHR * modes = mem::arena_alloc<VkPresentModeKHR>(arena, mode_count);
+			VkPresentModeKHR * modes = mem::arena_alloc<VkPresentModeKHR>(CA_APP_STACK, mode_count);
 			{
 				ret = vkGetPhysicalDeviceSurfacePresentModesKHR(vk_device->physical_device, surface, &mode_count, modes);
 				CA_ASSERT(ret == VK_SUCCESS);
@@ -118,7 +119,7 @@ namespace ca
 						*selected_mode = VK_PRESENT_MODE_FIFO_KHR;
 				}
 			}
-			mem::arena_free(arena, modes);
+			mem::arena_free(CA_APP_STACK, modes);
 		}
 
 		void create_swapchain_internal(swapchain_t * swapchain)
@@ -133,11 +134,11 @@ namespace ca
 
 			CA_LOG("vulkan_swapchain: select surface format ... ");
 			VkSurfaceFormatKHR surface_format;
-			select_surface_format(&surface_format, vk_device, vk_swapchain->surface, swapchain->device->arena);
+			select_surface_format(&surface_format, vk_device, vk_swapchain->surface);
 
 			CA_LOG("vulkan_swapchain: select surface present mode ... ");
 			VkPresentModeKHR surface_present_mode;
-			select_present_mode(&surface_present_mode, vk_device, vk_swapchain->surface, swapchain->device->arena, swapchain->preferred_mode);
+			select_present_mode(&surface_present_mode, vk_device, vk_swapchain->surface, swapchain->preferred_mode);
 
 			CA_LOG("vulkan_swapchain: select surface capabilities ... ");
 			VkSurfaceCapabilitiesKHR surface_capabilities;

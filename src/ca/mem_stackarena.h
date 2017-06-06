@@ -20,7 +20,7 @@ namespace ca
 		void * allocator_alloc(stackallocator_t * allocator, size_t size, size_t alignment);
 		void allocator_free(stackallocator_t * allocator, void * block);
 
-		typedef arena_t<stackallocator_t, multithreadaccesspolicy_t> stackarena_mt_t;
-		typedef arena_t<stackallocator_t, singlethreadaccesspolicy_t> stackarena_t;
+		typedef arena_t<stackallocator_t, core::multithreadpolicy_t> stackarena_mt_t;
+		typedef arena_t<stackallocator_t, core::singlethreadpolicy_t> stackarena_t;
 	}
 }

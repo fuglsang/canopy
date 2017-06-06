@@ -27,8 +27,7 @@ namespace ca
 
 			static void * VKAPI_PTR realloc(void * pUserData, void * pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
 			{
-				CA_ERROR("not implemented");
-				sys::breakpoint();
+				CA_FATAL("not implemented");
 				return nullptr;
 			}
 

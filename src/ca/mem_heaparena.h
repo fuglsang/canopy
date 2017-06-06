@@ -19,7 +19,7 @@ namespace ca
 		void * allocator_alloc(heapallocator_t * allocator, size_t size, size_t alignment);
 		void allocator_free(heapallocator_t * allocator, void * block);
 
-		typedef arena_t<heapallocator_t, multithreadaccesspolicy_t> heaparena_mt_t;
-		typedef arena_t<heapallocator_t, singlethreadaccesspolicy_t> heaparena_t;
+		typedef arena_t<heapallocator_t, core::multithreadpolicy_t> heaparena_mt_t;
+		typedef arena_t<heapallocator_t, core::singlethreadpolicy_t> heaparena_t;
 	}
 }

@@ -8,6 +8,8 @@ namespace ca
 {
 	namespace math
 	{
+		//TODO move definitions to .inl
+
 		inline f32 acos(f32 s)
 		{
 			return ::acosf(s);
@@ -82,6 +84,12 @@ namespace ca
 		inline T rcp(T const & a)
 		{
 			return (T(1) / a);
+		}
+
+		template <typename T>
+		inline T rsqrt(T const & a)
+		{
+			return rcp(sqrt(a));
 		}
 
 		template <typename T>

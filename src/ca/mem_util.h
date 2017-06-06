@@ -6,20 +6,26 @@ namespace ca
 {
 	namespace mem
 	{
+		inline uintptr_t align_up(uintptr_t address, size_t alignment)
+		{
+			return ((address + (alignment - 1)) & ~(alignment - 1));
+		}
+
+		inline uintptr_t align_down(uintptr_t address, size_t alignment)
+		{
+			return (address & ~(alignment - 1));
+		}
+
 		template <typename T>
 		inline T * align_up(T * block, size_t alignment)
 		{
-			uintptr_t a = reinterpret_cast<uintptr_t>(block);
-			uintptr_t aa = (a + (alignment - 1)) & ~(alignment - 1);
-			return reinterpret_cast<T *>(aa);
+			return reinterpret_cast<T *>(align_up(reinterpret_cast<uintptr_t>(block), alignment));
 		}
 
 		template <typename T>
 		inline T * align_down(T * block, size_t alignment)
 		{
-			uintptr_t a = reinterpret_cast<uintptr_t>(block);
-			uintptr_t aa = (a & ~(alignment - 1));
-			return reinterpret_cast<T *>(aa);
+			return reinterpret_cast<T *>(align_down(reinterpret_cast<uintptr_t>(block), alignment));
 		}
 
 		template <typename T>

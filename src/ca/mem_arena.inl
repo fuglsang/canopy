@@ -8,7 +8,7 @@ namespace ca
 		inline void create_arena(TArena * arena, void * base, size_t size)
 		{
 			create_allocator(&arena->allocator, base, size);
-			create_accesspolicy(&arena->accesspolicy);
+			core::create_threadpolicy(&arena->threadpolicy);
 		}
 
 		template <typename TArena, typename TBaseArena>
@@ -21,15 +21,15 @@ namespace ca
 		inline void destroy_arena(TArena * arena)
 		{
 			destroy_allocator(&arena->allocator);
-			destroy_accesspolicy(&arena->accesspolicy);
+			core::destroy_threadpolicy(&arena->threadpolicy);
 		}
 
 		template <typename TArena>
 		inline void * arena_alloc(TArena * arena, size_t size, size_t alignment)
 		{
-			accesspolicy_begin(&arena->accesspolicy);
+			core::threadpolicy_begin(&arena->threadpolicy);
 			void * block = allocator_alloc(&arena->allocator, size, alignment);
-			accesspolicy_end(&arena->accesspolicy);
+			core::threadpolicy_end(&arena->threadpolicy);
 			return block;
 		}
 
@@ -42,9 +42,9 @@ namespace ca
 		template <typename TArena>
 		inline void arena_free(TArena * arena, void * block)
 		{
-			accesspolicy_begin(&arena->accesspolicy);
+			core::threadpolicy_begin(&arena->threadpolicy);
 			allocator_free(&arena->allocator, block);
-			accesspolicy_end(&arena->accesspolicy);
+			core::threadpolicy_end(&arena->threadpolicy);
 		}
 	}
 }

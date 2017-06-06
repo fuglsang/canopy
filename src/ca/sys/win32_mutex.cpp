@@ -24,7 +24,7 @@ namespace ca
 		void mutex_lock(mutex_t * mutex)
 		{
 			DWORD ret = WaitForSingleObject(mutex->handle, INFINITE);
-			CA_ASSERT(ret != WAIT_OBJECT_0);
+			CA_ASSERT(ret == WAIT_OBJECT_0);
 		}
 
 		void mutex_unlock(mutex_t * mutex)

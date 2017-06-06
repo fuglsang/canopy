@@ -10,7 +10,7 @@ namespace ca
 		{
 			allocator->base = base;
 			allocator->size = size;
-			allocator->used = 0;
+			allocator->next = base;
 			allocator->free = size;
 		}
 
@@ -18,7 +18,7 @@ namespace ca
 
 		void * allocator_alloc(linearallocator_t * allocator, size_t size, size_t alignment)
 		{
-			void * block_base = ptr_add(allocator->base, allocator->used);
+			void * block_base = allocator->next;
 			void * block = align_up(block_base, alignment);
 
 			size_t req_align = ptr_diff(block_base, block);
@@ -26,8 +26,8 @@ namespace ca
 
 			CA_ASSERT_MSG(allocator->free >= req_total, "linear allocator out of memory");
 
-			allocator->used += req_total;
-			allocator->free -= req_total;
+			allocator->next = ptr_add(allocator->next, req_total);
+			allocator->free = allocator->size - ptr_diff(allocator->base, allocator->next);
 
 			return block;
 		}

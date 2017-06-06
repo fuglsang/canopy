@@ -4,6 +4,7 @@
 #include "ca/types.h"
 #include "ca/core_assert.h"
 #include "ca/core_log.h"
+#include "ca/mem.h"
 #include "ca/gfx/vk.h"
 
 namespace ca
@@ -70,14 +71,14 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
-		static i32 select_queue_family(VkPhysicalDevice device, mem::heaparena_t * arena)
+		static i32 select_queue_family(VkPhysicalDevice device)
 		{
 			i32 queue_family = -1;
 			u32 queue_family_count;
 			vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
 
 			VkQueueFlags const required_flags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT;
-			VkQueueFamilyProperties * queue_family_properties = mem::arena_alloc<VkQueueFamilyProperties>(arena, queue_family_count);
+			VkQueueFamilyProperties * queue_family_properties = mem::arena_alloc<VkQueueFamilyProperties>(CA_APP_STACK, queue_family_count);
 			{
 				vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_family_properties);
 
@@ -99,12 +100,12 @@ namespace ca
 					}
 				}
 			}
-			mem::arena_free(arena, queue_family_properties);
+			mem::arena_free(CA_APP_STACK, queue_family_properties);
 
 			return queue_family;
 		}
 
-		static void select_physical_device(VkPhysicalDevice * selected_device, u32 * selected_queue_family, VkInstance instance, mem::heaparena_t * arena)
+		static void select_physical_device(VkPhysicalDevice * selected_device, u32 * selected_queue_family, VkInstance instance)
 		{
 			u32 device_count = 0;
 			i32 device_score = -1;
@@ -115,7 +116,7 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 			CA_LOG("vulkan_device: detected %d devices", device_count);
 
-			VkPhysicalDevice * devices = mem::arena_alloc<VkPhysicalDevice>(arena, device_count);
+			VkPhysicalDevice * devices = mem::arena_alloc<VkPhysicalDevice>(CA_APP_STACK, device_count);
 			{
 				ret = vkEnumeratePhysicalDevices(instance, &device_count, devices);
 				CA_ASSERT(ret == VK_SUCCESS);
@@ -144,7 +145,7 @@ namespace ca
 						}
 					}
 
-					i32 queue_family = select_queue_family(devices[i], arena);
+					i32 queue_family = select_queue_family(devices[i]);
 					if (queue_family != -1 && score > device_score)
 					{
 						device_score = score;
@@ -167,7 +168,7 @@ namespace ca
 					*selected_queue_family = 0;
 				}
 			}
-			mem::arena_free(arena, devices);
+			mem::arena_free(CA_APP_STACK, devices);
 		}
 
 		static void create_logical_device(VkDevice * logical_device, VkQueue * logical_device_queue, VkPhysicalDevice physical_device, u32 physical_device_queue_family, VkAllocationCallbacks * allocator)
@@ -232,7 +233,7 @@ namespace ca
 			CA_ASSERT(vk_device->debug_callback != VK_NULL_HANDLE);
 
 			CA_LOG("vulkan_device: select physical device ... ");
-			select_physical_device(&vk_device->physical_device, &vk_device->queue_family, vk_device->instance, arena);
+			select_physical_device(&vk_device->physical_device, &vk_device->queue_family, vk_device->instance);
 			CA_ASSERT(vk_device->physical_device != VK_NULL_HANDLE);
 
 			CA_LOG("vulkan_device: create logical device ... ");
