@@ -81,7 +81,7 @@ namespace ca
 
 			u32 chunk_index = ptr_diff(allocator->chunk_base, block) / allocator->chunk_size;
 
-			allocator->index_free[--allocator->index_cursor] = chunk_index;
+			*(--allocator->free_head) = chunk_index;
 		}
 
 		template <size_t NChunkSize, size_t NChunkAlignment>
