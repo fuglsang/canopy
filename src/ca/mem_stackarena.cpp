@@ -45,7 +45,7 @@ namespace ca
 
 		void allocator_free(stackallocator_t * allocator, void * block)
 		{
-			CA_ASSERT_MSG(ptr_diff(allocator->base, block) > 0, "cannot free alien block");
+			CA_ASSERT_MSG(ptr_diff(allocator->base, block) >= 0, "cannot free alien block");
 			CA_ASSERT_MSG(ptr_diff(allocator->base, block) < static_cast<ptrdiff_t>(allocator->size), "cannot free alien block");
 			CA_ASSERT_MSG(ptr_diff(allocator->base, allocator->next) > 0, "stack allocator underflow");
 
