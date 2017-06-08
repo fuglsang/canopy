@@ -3,9 +3,6 @@
 #include "ca/mem_heaparena.h"
 #include "ca/mem_stackarena.h"
 
-#define CA_APP_HEAP (&mem::app_heap)
-#define CA_APP_STACK (&mem::app_stack)
-
 namespace ca
 {
 	namespace mem
@@ -20,3 +17,6 @@ namespace ca
 		void finalize_tls();
 	}
 }
+
+#define CA_APP_HEAP (&ca::mem::app_heap)
+#define CA_APP_STACK (&ca::mem::app_stack)

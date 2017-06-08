@@ -1,18 +1,26 @@
 #pragma once
 
 #include "ca/types.h"
+#include "ca/core_assert.h"
 
 namespace ca
 {
 	namespace mem
 	{
+		inline bool align_ispow2(size_t alignment)
+		{
+			return !(alignment & (alignment - 1));
+		}
+
 		inline uintptr_t align_up(uintptr_t address, size_t alignment)
 		{
+			CA_ASSERT_MSG(align_ispow2(alignment), "alignment must be power of 2");
 			return ((address + (alignment - 1)) & ~(alignment - 1));
 		}
 
 		inline uintptr_t align_down(uintptr_t address, size_t alignment)
 		{
+			CA_ASSERT_MSG(align_ispow2(alignment), "alignment must be power of 2");
 			return (address & ~(alignment - 1));
 		}
 

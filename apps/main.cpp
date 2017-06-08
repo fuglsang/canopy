@@ -1,6 +1,7 @@
 #include "ca/core.h"
 #include "ca/math.h"
 #include "ca/mem.h"
+#include "ca/mem_chunkarena.h"
 #include "ca/gfx.h"
 #include "ca/sys.h"
 
@@ -116,6 +117,28 @@ void main(int argc, char** argv)
 	size_t reserved_stack_per_thread = 1024 * 1024 * 1;
 
 	mem::initialize(reserved_heap, reserved_stack_per_thread);
+
+	mem::chunkarena_t<80, 32> chunkarena;
+	mem::create_arena(&chunkarena, CA_APP_HEAP, 600);
+
+	void * p0 = mem::arena_alloc(&chunkarena, 80, 32);
+	void * p1 = mem::arena_alloc(&chunkarena, 80, 32);
+	void * p2 = mem::arena_alloc(&chunkarena, 80, 32);
+	void * p3 = mem::arena_alloc(&chunkarena, 80, 32);
+
+	mem::arena_free(&chunkarena, p2);
+	mem::arena_free(&chunkarena, p0);
+	mem::arena_free(&chunkarena, p3);
+	mem::arena_free(&chunkarena, p1);
+
+	u32 * free = chunkarena.allocator.index_head;
+	while (free != chunkarena.allocator.index_tail)
+	{
+		CA_LOG("free: %d", *(free++));
+	}
+
+	CA_LOG("done");
+	getc(stdin);
 
 	sys::window_t window;
 	sys::create_window(&window, "hello win32", { 1000, 50, 320, 200 });

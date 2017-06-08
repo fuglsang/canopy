@@ -95,10 +95,10 @@ namespace ca
 	}
 }
 
-#define __CA_DELEGATE_1(_1) make_delegate<decltype(_1), _1>()
-#define __CA_DELEGATE_2(_1, _2) make_delegate<decltype(_1), _1>(_2)
+#define __CA_DELEGATE_1(_1) ca::core::make_delegate<decltype(_1), _1>()
+#define __CA_DELEGATE_2(_1, _2) ca::core::make_delegate<decltype(_1), _1>(_2)
 #define __CA_DELEGATE_SELECT(_1, _2, NAME, ...) NAME
 #define __CA_DELEGATE_EXPAND(x) x
 
 #define CA_DELEGATE(...) __CA_DELEGATE_EXPAND(__CA_DELEGATE_SELECT(__VA_ARGS__, __CA_DELEGATE_2, __CA_DELEGATE_1)(__VA_ARGS__))
-#define CA_DELEGATE_ANON(_1) make_delegate(_1)// TODO would be nice to have just one macro...
+#define CA_DELEGATE_ANON(_1) ca::core::make_delegate(_1)// TODO would be nice to have just one macro...

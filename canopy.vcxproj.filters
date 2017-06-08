@@ -177,6 +177,9 @@
     <ClInclude Include="src\ca\core_threadpolicy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ca\core_bitmask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ca\math_bezier.inl">

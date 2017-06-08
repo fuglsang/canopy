@@ -232,6 +232,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\gfx_texture.h" />
     <ClInclude Include="src\ca\mem_arena.h" />
     <ClInclude Include="src\ca\sys_clock.h" />
+    <ClInclude Include="src\ca\core_bitmask.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ca\math_bezier.inl" />
