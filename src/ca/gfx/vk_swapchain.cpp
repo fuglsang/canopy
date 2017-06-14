@@ -138,7 +138,7 @@ namespace ca
 
 			CA_LOG("vulkan_swapchain: select surface present mode ... ");
 			VkPresentModeKHR surface_present_mode;
-			select_present_mode(&surface_present_mode, vk_device, vk_swapchain->surface, swapchain->preferred_mode);
+			select_present_mode(&surface_present_mode, vk_device, vk_swapchain->surface, swapchain->preferred_swapmode);
 
 			CA_LOG("vulkan_swapchain: select surface capabilities ... ");
 			VkSurfaceCapabilitiesKHR surface_capabilities;
@@ -246,7 +246,7 @@ namespace ca
 			}
 		}
 
-		void create_swapchain(swapchain_t * swapchain, device_t * device, sys::window_t * window, swapmode preferred_mode)
+		void create_swapchain(swapchain_t * swapchain, device_t * device, sys::window_t * window, swapmode preferred_swapmode)
 		{
 			vk_device_t * vk_device = resolve_type(device);
 			vk_swapchain_t * vk_swapchain = mem::arena_alloc<vk_swapchain_t>(device->arena, 1);
@@ -261,8 +261,8 @@ namespace ca
 			swapchain->handle = vk_swapchain;
 			swapchain->device = device;
 			swapchain->window = window;
+			swapchain->preferred_swapmode = preferred_swapmode;
 			swapchain->max_buffers_in_flight = 0;
-			swapchain->preferred_mode = preferred_mode;
 
 			CA_LOG("vulkan_swapchain: enter internal create ... ");
 			create_swapchain_internal(swapchain);
@@ -300,8 +300,8 @@ namespace ca
 			swapchain->handle = nullptr;
 			swapchain->device = nullptr;
 			swapchain->window = nullptr;
+			swapchain->preferred_swapmode = NUM_SWAPMODES;
 			swapchain->max_buffers_in_flight = 0;
-			swapchain->preferred_mode = NUM_SWAPMODES;
 		}
 
 		void recreate_swapchain(swapchain_t * swapchain)
@@ -368,6 +368,10 @@ namespace ca
 
 			texture->device = swapchain->device;
 			texture->handle = &vk_swapchain->textures[vk_swapchain->image_index];
+			//texture->format = 0;//TODO
+			//texture->type = 0;//TODO
+			texture->dim_x = swapchain->window->coords.dim_x;
+			texture->dim_y = swapchain->window->coords.dim_y;
 		}
 
 		void swapchain_acquire(swapchain_t * swapchain, semaphore_t * signal_semaphore, fence_t * signal_fence, texture_t * texture)
@@ -382,6 +386,10 @@ namespace ca
 
 			texture->device = swapchain->device;
 			texture->handle = &vk_swapchain->textures[vk_swapchain->image_index];
+			//texture->format = 0;//TODO
+			//texture->type = 0;//TODO
+			texture->dim_x = swapchain->window->coords.dim_x;
+			texture->dim_y = swapchain->window->coords.dim_y;
 		}
 
 		void swapchain_present(swapchain_t * swapchain, semaphore_t * wait_semaphore)
@@ -402,7 +410,7 @@ namespace ca
 			present_info.pImageIndices = &vk_swapchain->image_index;
 			present_info.pResults = nullptr;
 
-			switch (swapchain->preferred_mode)
+			switch (swapchain->preferred_swapmode)
 			{
 			case SWAPMODE_VSYNC:
 			case SWAPMODE_VSYNC_SKIP:

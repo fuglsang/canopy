@@ -1,6 +1,8 @@
 #pragma once
 
-#include <stdio.h>
+#include "ca/sys_breakpoint.h"
+
+#include <cstdio>
 
 #define CA_LOG(...)																							\
 	do																										\

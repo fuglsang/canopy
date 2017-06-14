@@ -19,6 +19,7 @@ namespace ca
 		void create_device(device_t * device, mem::heaparena_t * arena);
 		void destroy_device(device_t * device);
 
+		void device_flush(device_t * device);
 		void device_submit(device_t * device, cmdbuffer_t * cmdbuffer, semaphore_t * wait_semaphore, semaphore_t * signal_semaphore, fence_t * signal_fence);
 	}
 }

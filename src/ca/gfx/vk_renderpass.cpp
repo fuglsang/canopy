@@ -94,6 +94,15 @@ namespace ca
 				subpass_desc.preserveAttachmentCount = 0;
 				subpass_desc.pPreserveAttachments = nullptr;
 
+				//VkSubpassDependency subpass_dep;
+				//subpass_dep.srcSubpass = VK_SUBPASS_EXTERNAL;
+				//subpass_dep.dstSubpass = 0;
+				//subpass_dep.srcStageMask;//TODO
+				//subpass_dep.dstStageMask;//TODO
+				//subpass_dep.srcAccessMask;//TODO
+				//subpass_dep.dstAccessMask;//TODO
+				//subpass_dep.dependencyFlags = 0;//TODO
+
 				VkRenderPassCreateInfo renderpass_create_info;
 				renderpass_create_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 				renderpass_create_info.pNext = nullptr;

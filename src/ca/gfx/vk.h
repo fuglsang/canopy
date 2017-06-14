@@ -14,48 +14,7 @@ namespace ca
 {
 	namespace gfx
 	{
-		// vk callbacks
-
-		template <typename A>
-		struct vk_allocation_callbacks
-		{
-			static void * VKAPI_PTR alloc(void * pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
-			{
-				A * arena = reinterpret_cast<A *>(pUserData);
-				return arena_alloc(arena, size, alignment);
-			}
-
-			static void * VKAPI_PTR realloc(void * pUserData, void * pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
-			{
-				CA_FATAL("not implemented");
-				return nullptr;
-			}
-
-			static void VKAPI_PTR free(void * pUserData, void * memory)
-			{
-				A * arena = reinterpret_cast<A *>(pUserData);
-				arena_free(arena, memory);
-			}
-		};
-
-		struct vk_debug_callbacks
-		{
-			static VkBool32 VKAPI_PTR report(
-				VkDebugReportFlagsEXT                       flags,
-				VkDebugReportObjectTypeEXT                  objectType,
-				uint64_t                                    object,
-				size_t                                      location,
-				int32_t                                     messageCode,
-				const char*                                 pLayerPrefix,
-				const char*                                 pMessage,
-				void*                                       pUserData)
-			{
-				CA_LOG("%s", pMessage);
-				return VK_FALSE;
-			}
-		};
-
-		// vk_... types
+		// internal types
 
 		struct vk_buffer_t;
 		struct vk_cmdbuffer_t;
@@ -87,10 +46,10 @@ namespace ca
 
 		struct vk_device_t
 		{
+			VkDebugReportCallbackEXT debug_callback;
+
 			VkAllocationCallbacks allocator;//TODO allocator per-type? research granularity..
 			VkInstance instance;
-
-			VkDebugReportCallbackEXT debug_callback;
 
 			VkPhysicalDevice physical_device;
 			VkDevice device;

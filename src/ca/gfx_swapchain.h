@@ -23,11 +23,11 @@ namespace ca
 			void * handle;
 			device_t * device;
 			sys::window_t * window;
+			swapmode preferred_swapmode;
 			u32 max_buffers_in_flight;
-			swapmode preferred_mode;
 		};
 
-		void create_swapchain(swapchain_t * swapchain, device_t * device, sys::window_t * window, swapmode preferred_mode);
+		void create_swapchain(swapchain_t * swapchain, device_t * device, sys::window_t * window, swapmode preferred_swapmode);
 		void destroy_swapchain(swapchain_t * swapchain);
 
 		void swapchain_acquire_blocking(swapchain_t * swapchain, texture_t * texture);

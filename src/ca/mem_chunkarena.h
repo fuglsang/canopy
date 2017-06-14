@@ -82,7 +82,8 @@ namespace ca
 			CA_ASSERT_MSG(allocator->index_head > allocator->index_base, "chunk allocator underflow");
 
 			ptrdiff_t chunk_offset = ptr_diff(allocator->chunk_base, block);
-			CA_ASSERT_MSG((chunk_offset % allocator->chunk_size) == 0, "cannot free alien block");
+			ptrdiff_t chunk_excess = chunk_offset % allocator->chunk_size;
+			CA_ASSERT_MSG(chunk_excess == 0, "cannot free alien block");
 			
 			u32 chunk_index = chunk_offset / allocator->chunk_size;
 

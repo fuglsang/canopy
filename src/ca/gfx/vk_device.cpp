@@ -11,11 +11,52 @@ namespace ca
 {
 	namespace gfx
 	{
+		template <typename TArena>
+		struct allocation_callbacks
+		{
+			static void * VKAPI_PTR alloc(void * pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
+			{
+				TArena * arena = reinterpret_cast<TArena *>(pUserData);
+				return arena_alloc(arena, size, alignment);
+			}
+
+			static void * VKAPI_PTR realloc(void * pUserData, void * pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope)
+			{
+				CA_FATAL("not implemented");
+				return nullptr;
+			}
+
+			static void VKAPI_PTR free(void * pUserData, void * memory)
+			{
+				TArena * arena = reinterpret_cast<TArena *>(pUserData);
+				arena_free(arena, memory);
+			}
+		};
+
+		static VkBool32 VKAPI_PTR debug_report_callback(
+			VkDebugReportFlagsEXT                       flags,
+			VkDebugReportObjectTypeEXT                  objectType,
+			uint64_t                                    object,
+			size_t                                      location,
+			int32_t                                     messageCode,
+			const char*                                 pLayerPrefix,
+			const char*                                 pMessage,
+			void*                                       pUserData)
+		{
+			CA_LOG("%s", pMessage);
+			return VK_FALSE;
+		}
+
 		static PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT = VK_NULL_HANDLE;
 		static PFN_vkDestroyDebugReportCallbackEXT vkDestroyDebugReportCallbackEXT = VK_NULL_HANDLE;
 
 		static void create_instance(VkInstance * instance, VkAllocationCallbacks * allocator)
 		{
+			u8 const num_instance_layers = 1;
+			char const * instance_layers[num_instance_layers] = {
+				"VK_LAYER_LUNARG_standard_validation",
+			};
+
 			u8 const num_instance_extensions = 3;
 			char const * instance_extensions[num_instance_extensions] = {
 				VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
@@ -41,8 +82,8 @@ namespace ca
 			instance_create_info.pNext = nullptr;
 			instance_create_info.flags = 0;
 			instance_create_info.pApplicationInfo = &application_info;
-			instance_create_info.enabledLayerCount = 0;
-			instance_create_info.ppEnabledLayerNames = nullptr;
+			instance_create_info.enabledLayerCount = num_instance_layers;
+			instance_create_info.ppEnabledLayerNames = instance_layers;
 			instance_create_info.enabledExtensionCount = num_instance_extensions;
 			instance_create_info.ppEnabledExtensionNames = instance_extensions;
 
@@ -64,7 +105,7 @@ namespace ca
 			debug_report_create_info.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
 			debug_report_create_info.pNext = nullptr;
 			debug_report_create_info.flags = debug_report_flags;
-			debug_report_create_info.pfnCallback = &vk_debug_callbacks::report;
+			debug_report_create_info.pfnCallback = debug_report_callback;
 			debug_report_create_info.pUserData = nullptr;
 
 			VkResult ret = vkCreateDebugReportCallbackEXT(instance, &debug_report_create_info, allocator, debug_callback);
@@ -213,9 +254,9 @@ namespace ca
 			vk_device_t * vk_device = mem::arena_alloc<vk_device_t>(arena, 1);
 			
 			vk_device->allocator.pUserData = arena;
-			vk_device->allocator.pfnAllocation = &vk_allocation_callbacks<mem::heaparena_t>::alloc;
-			vk_device->allocator.pfnReallocation = &vk_allocation_callbacks<mem::heaparena_t>::realloc;
-			vk_device->allocator.pfnFree = &vk_allocation_callbacks<mem::heaparena_t>::free;
+			vk_device->allocator.pfnAllocation = &allocation_callbacks<mem::heaparena_t>::alloc;
+			vk_device->allocator.pfnReallocation = &allocation_callbacks<mem::heaparena_t>::realloc;
+			vk_device->allocator.pfnFree = &allocation_callbacks<mem::heaparena_t>::free;
 			vk_device->allocator.pfnInternalAllocation = nullptr;
 			vk_device->allocator.pfnInternalFree = nullptr;
 
@@ -264,6 +305,14 @@ namespace ca
 
 			device->handle = nullptr;
 			device->arena = nullptr;
+		}
+
+		void device_flush(device_t * device)
+		{
+			vk_device_t * vk_device = resolve_type(device);
+
+			VkResult ret = vkDeviceWaitIdle(vk_device->device);
+			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
 		void device_submit(device_t * device, cmdbuffer_t * cmdbuffer, semaphore_t * wait_semaphore, semaphore_t * signal_semaphore, fence_t * signal_fence)
