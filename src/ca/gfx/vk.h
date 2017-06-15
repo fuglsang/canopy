@@ -72,6 +72,7 @@ namespace ca
 		struct vk_pipeline_t
 		{
 			VkPipeline pipeline;
+			VkPipelineLayout layout;
 		};
 
 		struct vk_semaphore_t

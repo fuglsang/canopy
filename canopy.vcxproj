@@ -222,7 +222,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\core_delegate.h" />
     <ClInclude Include="src\ca\sys\win32.h" />
     <ClInclude Include="src\ca\sys_breakpoint.h" />
-    <ClInclude Include="src\ca\sys_heap.h" />
+    <ClInclude Include="src\ca\sys_process.h" />
     <ClInclude Include="src\ca\sys_window.h" />
     <ClInclude Include="src\ca\types.h" />
     <ClInclude Include="src\ca\sys_mutex.h" />
@@ -251,7 +251,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="src\ca\gfx\vk_cmdpool.cpp" />
     <ClCompile Include="src\ca\gfx\vk_device.cpp" />
     <ClCompile Include="src\ca\gfx\vk_fence.cpp" />
-    <ClCompile Include="src\ca\gfx\vk_renderpass.cpp" />
+    <ClCompile Include="src\ca\gfx\vk_framebuffer.cpp" />
     <ClCompile Include="src\ca\gfx\vk_semaphore.cpp" />
     <ClCompile Include="src\ca\gfx\vk_shader.cpp" />
     <ClCompile Include="src\ca\gfx\vk_swapchain.cpp" />
@@ -262,8 +262,8 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="src\ca\mem_stackarena.cpp" />
     <ClCompile Include="src\ca\sys\win32_breakpoint.cpp" />
     <ClCompile Include="src\ca\sys\win32_clock.cpp" />
-    <ClCompile Include="src\ca\sys\win32_heap.cpp" />
     <ClCompile Include="src\ca\sys\win32_mutex.cpp" />
+    <ClCompile Include="src\ca\sys\win32_process.cpp" />
     <ClCompile Include="src\ca\sys\win32_thread.cpp" />
     <ClCompile Include="src\ca\sys\win32_window.cpp" />
     <ClCompile Include="src\ca\gfx\vk_pipeline.cpp" />

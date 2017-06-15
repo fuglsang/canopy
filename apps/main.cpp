@@ -137,9 +137,6 @@ void main(int argc, char** argv)
 		CA_LOG("free: %d", *(free++));
 	}
 
-	CA_LOG("done");
-	getc(stdin);
-
 	sys::window_t window;
 	sys::create_window(&window, "hello win32", { 1000, 50, 320, 200 });
 	sys::window_show(&window);
@@ -177,49 +174,85 @@ void main(int argc, char** argv)
 		gfx::cmdpool_t cmdpool;
 		gfx::create_cmdpool(&cmdpool, &device);
 
-		gfx::cmdbuffer_t cmdbuffer;
-		gfx::create_cmdbuffer(&cmdbuffer, &cmdpool);
+		struct framedata_t
+		{
+			gfx::fence_t submitted;
+			gfx::cmdbuffer_t cmdbuffer;
+			gfx::framebuffer_t framebuffer;
+		};
 
-		gfx::texture_t backbuffer;
-		gfx::semaphore_t backbuffer_acquired;
-		gfx::semaphore_t backbuffer_presentable;
+		framedata_t * framedata = mem::arena_alloc<framedata_t>(CA_APP_HEAP, swapchain.length);
 
-		gfx::create_semaphore(&backbuffer_acquired, &device);
-		gfx::create_semaphore(&backbuffer_presentable, &device);
+		gfx::semaphore_t * frame_acquired = mem::arena_alloc<gfx::semaphore_t>(CA_APP_HEAP, swapchain.length);
+		gfx::semaphore_t * frame_presentable = mem::arena_alloc<gfx::semaphore_t>(CA_APP_HEAP, swapchain.length);
+		u32 frame_index = 0;
 
-		u32 step = 0;
+		for (u32 i = 0; i != swapchain.length; i++)
+		{
+			gfx::create_fence(&framedata[i].submitted, &device, true);
+			gfx::create_cmdbuffer(&framedata[i].cmdbuffer, &cmdpool);
+			gfx::rendertarget_t attachments[1] = {
+				&swapchain.textures[i], gfx::RENDERTARGETLOADOP_CLEAR, gfx::RENDERTARGETSTOREOP_STORE, { 1.0f, 0.0f, 0.5f, 1.0f }, 1.0f, 0,
+			};			
+			gfx::create_framebuffer(&framedata[i].framebuffer, &device, attachments, 1);			
+			gfx::create_semaphore(&frame_acquired[i], &device);
+			gfx::create_semaphore(&frame_presentable[i], &device);
+		}
+
+		gfx::pipeline_t pipeline;
+		gfx::create_pipeline(&pipeline, &framedata[0].framebuffer);
+
+		u32 acquired_count = 0;
+		u32 acquired_index;
 
 		while (sys::window_poll(&window))
 		{
-			if ((step++ % 60) == 0)
+			if ((acquired_count++ % 60) == 0)
 			{
 				CA_LOG("time = %f", sys::clockf());
 			}
 
-			gfx::swapchain_acquire(&swapchain, &backbuffer_acquired, nullptr, &backbuffer);
+			gfx::swapchain_acquire(&swapchain, &frame_acquired[frame_index], nullptr, &acquired_index);
+			
+			framedata_t * frame = &framedata[acquired_index];
+			{
+				f32 s = math::tau * sys::clockf();
+				f32 k = math::sin(s) * 0.5f + 0.5f;
 
-			gfx::renderattachment_t attachments[1] = {
-				&backbuffer, gfx::RENDERLOADOP_CLEAR, gfx::RENDERSTOREOP_STORE, { 0.5f, 0.5f, 0.5f, 0.5f }, 1.0f, 0,
-			};
+				gfx::fence_wait_signaled(&frame->submitted);
+				gfx::fence_reset_signaled(&frame->submitted);
 
-			gfx::renderpass_t renderpass;
-			gfx::create_renderpass(&renderpass, &device, attachments, 1);
-			gfx::destroy_renderpass(&renderpass);
+				gfx::cmdbuffer_reset(&frame->cmdbuffer);
+				gfx::cmdbuffer_begin(&frame->cmdbuffer);
+				gfx::cmdbuffer_begin_renderpass(&frame->cmdbuffer, &frame->framebuffer);
+				
+				// ...
+				
+				gfx::cmdbuffer_end_renderpass(&frame->cmdbuffer);
+				gfx::cmdbuffer_end(&frame->cmdbuffer);
+			}
 
-			f32 s = math::tau * sys::clockf();
-			f32 k = math::sin(s) * 0.5f + 0.5f;
+			gfx::device_submit(&device, &frame->cmdbuffer, &frame_acquired[frame_index], &frame_presentable[frame_index], &frame->submitted);
+			gfx::swapchain_present(&swapchain, &frame_presentable[frame_index], acquired_index);
 
-			gfx::cmdbuffer_reset(&cmdbuffer);
-			gfx::cmdbuffer_begin(&cmdbuffer);
-			gfx::cmdbuffer_clear_color(&cmdbuffer, &backbuffer, { 0.5f * k, 0.0f, k, 0.0f });
-			gfx::cmdbuffer_end(&cmdbuffer);
-
-			gfx::device_submit(&device, &cmdbuffer, &backbuffer_acquired, &backbuffer_presentable, nullptr);
-
-			gfx::swapchain_present(&swapchain, &backbuffer_presentable);
+			frame_index += 1;
+			frame_index %= swapchain.length;
 		}
 
+		gfx::device_flush(&device);
+
+		for (u32 i = 0; i != swapchain.length; i++)
+		{
+			gfx::destroy_semaphore(&frame_presentable[i]);
+			gfx::destroy_semaphore(&frame_acquired[i]);
+			gfx::destroy_framebuffer(&framedata[i].framebuffer);
+			gfx::destroy_cmdbuffer(&framedata[i].cmdbuffer);
+			gfx::destroy_fence(&framedata[i].submitted);
+		}
+		
+		gfx::destroy_cmdpool(&cmdpool);
 		gfx::destroy_swapchain(&swapchain);
+		gfx::destroy_shader(&vs);
 		gfx::destroy_device(&device);
 	}	
 	sys::destroy_window(&window);
@@ -230,7 +263,7 @@ void main(int argc, char** argv)
 	while (w > 0)
 	{
 		CA_LOG("%d", w--);
-		sys::thread_sleep(200);
+		sys::thread_sleep(1000);
 	}
 	CA_LOG("%d END", w);
 }

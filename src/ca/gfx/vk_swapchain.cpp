@@ -205,13 +205,6 @@ namespace ca
 			for (u32 i = 0; i != swapchain->length; i++)
 			{
 				vk_texture_t * vk_texture = mem::arena_alloc<vk_texture_t>(swapchain->device->arena, 1);
-				texture_t * texture = &swapchain->textures[i];
-
-				texture->handle = vk_texture;
-				texture->device = swapchain->device;
-				texture->format = NUM_TEXTUREFORMATS;//TODO backwards resolve
-				texture->width = swapchain->width;
-				texture->height = swapchain->height;
 
 				vk_texture->texture = vk_swapchain->images[i];
 				vk_texture->format = surface_format.format;
@@ -241,6 +234,13 @@ namespace ca
 
 				ret = vkCreateImageView(vk_device->device, &imageview_create_info, &vk_device->allocator, &vk_texture->view);
 				CA_ASSERT(ret == VK_SUCCESS);
+
+				texture_t * texture = &swapchain->textures[i];
+				texture->handle = vk_texture;
+				texture->device = swapchain->device;
+				texture->format = NUM_TEXTUREFORMATS;//TODO backwards resolve
+				texture->width = swapchain->width;
+				texture->height = swapchain->height;
 			}
 		}
 

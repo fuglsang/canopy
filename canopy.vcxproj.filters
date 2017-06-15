@@ -111,9 +111,6 @@
     <ClInclude Include="src\ca\core_action.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\sys_heap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ca\gfx\opengl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -180,6 +177,9 @@
     <ClInclude Include="src\ca\core_bitmask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ca\sys_process.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ca\math_bezier.inl">
@@ -215,9 +215,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ca\sys\win32_clock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ca\sys\win32_heap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ca\sys\win32_mutex.cpp">
@@ -265,13 +262,16 @@
     <ClCompile Include="src\ca\gfx\vk_pipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ca\gfx\vk_renderpass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ca\mem_lineararena.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ca\mem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\gfx\vk_framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\sys\win32_process.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -2,6 +2,7 @@
 
 #include "ca/gfx_device.h"
 #include "ca/gfx_shader.h"
+#include "ca/gfx_framebuffer.h"
 
 namespace ca
 {
@@ -11,10 +12,9 @@ namespace ca
 		{
 			void * handle;
 			device_t * device;
-			shader_t * stages[NUM_SHADERTYPES];
 		};
 
-		void create_pipeline(pipeline_t * pipeline, device_t * device);
+		void create_pipeline(pipeline_t * pipeline, framebuffer_t * framebuffer);
 		void destroy_pipeline(pipeline_t * pipeline);
 	}
 }
