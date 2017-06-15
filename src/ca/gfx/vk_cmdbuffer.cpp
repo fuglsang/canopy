@@ -38,7 +38,7 @@ namespace ca
 
 			vkFreeCommandBuffers(vk_device->device, vk_cmdpool->cmdpool, 1, &vk_cmdbuffer->cmdbuffer);
 
-			mem::arena_free(cmdbuffer->cmdpool->device->arena, cmdbuffer->handle);
+			mem::arena_free(cmdbuffer->cmdpool->device->arena, vk_cmdbuffer);
 
 			cmdbuffer->handle = nullptr;
 			cmdbuffer->cmdpool = nullptr;
@@ -46,9 +46,7 @@ namespace ca
 
 		void cmdbuffer_reset(cmdbuffer_t * cmdbuffer)
 		{
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
-
-			VkResult ret = vkResetCommandBuffer(vk_cmdbuffer->cmdbuffer, 0);
+			VkResult ret = vkResetCommandBuffer(resolve_handle(cmdbuffer), 0);
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
@@ -79,33 +77,30 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
-		void cmdbuffer_begin_renderpass(cmdbuffer_t * cmdbuffer, renderpass_t * renderpass)
+		void cmdbuffer_begin_renderpass(cmdbuffer_t * cmdbuffer, framebuffer_t * framebuffer)
 		{
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
-			vk_renderpass_t * vk_renderpass = resolve_type(renderpass);
+			vk_framebuffer_t * vk_framebuffer = resolve_type(framebuffer);
 			
 			VkRect2D render_area;
-			render_area.offset.x = 0;
-			render_area.offset.y = 0;
-			render_area.extent.width = vk_renderpass->dim_x;
-			render_area.extent.height = vk_renderpass->dim_y;
+			render_area.offset = { 0, 0 };
+			render_area.extent = { framebuffer->width, framebuffer->height };
 
 			VkRenderPassBeginInfo renderpass_begin_info;
 			renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			renderpass_begin_info.pNext = nullptr;
-			renderpass_begin_info.renderPass = vk_renderpass->renderpass;
-			renderpass_begin_info.framebuffer = vk_renderpass->framebuffer;
+			renderpass_begin_info.renderPass = vk_framebuffer->renderpass;
+			renderpass_begin_info.framebuffer = vk_framebuffer->framebuffer;
 			renderpass_begin_info.renderArea = render_area;
-			renderpass_begin_info.clearValueCount = vk_renderpass->attachment_count;
-			renderpass_begin_info.pClearValues = vk_renderpass->attachment_clearvalues;
+			renderpass_begin_info.clearValueCount = vk_framebuffer->attachment_count;
+			renderpass_begin_info.pClearValues = vk_framebuffer->attachment_clearvalues;
 
 			vkCmdBeginRenderPass(vk_cmdbuffer->cmdbuffer, &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
 		}
 
 		void cmdbuffer_end_renderpass(cmdbuffer_t * cmdbuffer)
 		{
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
-			vkCmdEndRenderPass(vk_cmdbuffer->cmdbuffer);
+			vkCmdEndRenderPass(resolve_handle(cmdbuffer));
 		}
 
 		void cmdbuffer_clear_color(cmdbuffer_t * cmdbuffer, texture_t * texture, math::fvec4_t const & color)
@@ -114,7 +109,10 @@ namespace ca
 			vk_texture_t * vk_texture = resolve_type(texture);
 
 			VkClearColorValue ccv;
-			memcpy(ccv.float32, color.e, sizeof(ccv.float32));
+			ccv.float32[0] = color.x;
+			ccv.float32[1] = color.y;
+			ccv.float32[2] = color.z;
+			ccv.float32[3] = color.w;
 
 			VkImageSubresourceRange image_subresource_range;
 			image_subresource_range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -159,21 +157,17 @@ namespace ca
 
 		void cmdbuffer_draw(cmdbuffer_t * cmdbuffer, u32 vertex_start, u32 vertex_count)
 		{
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
-			vkCmdDraw(vk_cmdbuffer->cmdbuffer, vertex_count, 1, vertex_start, 0);
+			vkCmdDraw(resolve_handle(cmdbuffer), vertex_count, 1, vertex_start, 0);
 		}
 
 		void cmdbuffer_draw_indexed(cmdbuffer_t * cmdbuffer, u32 vertex_start, u32 index_start, u32 index_count)
 		{
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
-			vkCmdDrawIndexed(vk_cmdbuffer->cmdbuffer, index_count, 1, index_start, vertex_start, 0);
+			vkCmdDrawIndexed(resolve_handle(cmdbuffer), index_count, 1, index_start, vertex_start, 0);
 		}
 
 		void cmdbuffer_end(cmdbuffer_t * cmdbuffer)
 		{
-			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
-
-			VkResult ret = vkEndCommandBuffer(vk_cmdbuffer->cmdbuffer);
+			VkResult ret = vkEndCommandBuffer(resolve_handle(cmdbuffer));
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 	}

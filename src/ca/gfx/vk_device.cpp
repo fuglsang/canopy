@@ -300,7 +300,7 @@ namespace ca
 			CA_LOG("vulkan_device: destroy instance ... ");
 			vkDestroyInstance(vk_device->instance, &vk_device->allocator);
 
-			mem::arena_free(device->arena, device->handle);
+			mem::arena_free(device->arena, vk_device);
 			CA_LOG("vulkan_device: CLEAN");
 
 			device->handle = nullptr;

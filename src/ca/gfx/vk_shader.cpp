@@ -36,7 +36,7 @@ namespace ca
 
 			vkDestroyShaderModule(vk_device->device, vk_shader->shader, &vk_device->allocator);
 
-			mem::arena_free(shader->device->arena, shader->handle);
+			mem::arena_free(shader->device->arena, vk_shader);
 
 			shader->handle = nullptr;
 			shader->device = nullptr;

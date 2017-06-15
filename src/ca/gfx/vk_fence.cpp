@@ -37,7 +37,7 @@ namespace ca
 
 			vkDestroyFence(vk_device->device, vk_fence->fence, &vk_device->allocator);
 
-			mem::arena_free(fence->device->arena, fence->handle);
+			mem::arena_free(fence->device->arena, vk_fence);
 
 			fence->handle = nullptr;
 			fence->device = nullptr;

@@ -80,7 +80,7 @@ namespace ca
 			vkFreeMemory(vk_device->device, vk_buffer->memory, &vk_device->allocator);
 			vkDestroyBuffer(vk_device->device, vk_buffer->buffer, &vk_device->allocator);
 
-			mem::arena_free(buffer->device->arena, buffer->handle);
+			mem::arena_free(buffer->device->arena, vk_buffer);
 
 			buffer->handle = nullptr;
 			buffer->device = nullptr;

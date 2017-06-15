@@ -34,7 +34,7 @@ namespace ca
 
 			vkDestroySemaphore(vk_device->device, vk_semaphore->semaphore, &vk_device->allocator);
 
-			mem::arena_free(semaphore->device->arena, semaphore->handle);
+			mem::arena_free(semaphore->device->arena, vk_semaphore);
 
 			semaphore->handle = nullptr;
 			semaphore->device = nullptr;

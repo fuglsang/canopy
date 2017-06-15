@@ -66,8 +66,8 @@ namespace ca
 
 			case WM_SIZE:
 				window = resolve_window(hWnd);
-				window->coords.dim_x = LOWORD(lParam);
-				window->coords.dim_y = HIWORD(lParam);
+				window->coords.width = LOWORD(lParam);
+				window->coords.height = HIWORD(lParam);
 				core::event_dispatch(&window->event, window, WINDOWEVENT_RESIZED);
 				goto default_proc;
 
@@ -83,16 +83,16 @@ namespace ca
 			RECT rect;
 			rect.left = coords->x;
 			rect.top = coords->y;
-			rect.right = coords->x + coords->dim_x;
-			rect.bottom = coords->y + coords->dim_y;
+			rect.right = coords->x + coords->width;
+			rect.bottom = coords->y + coords->height;
 
 			BOOL ret = AdjustWindowRect(&rect, style, FALSE);
 			CA_ASSERT(ret == TRUE);
 
 			coords->x = rect.left;
 			coords->y = rect.top;
-			coords->dim_x = rect.right - rect.left;
-			coords->dim_y = rect.bottom - rect.top;
+			coords->width = rect.right - rect.left;
+			coords->height = rect.bottom - rect.top;
 		}
 
 		void create_window(window_t * window, char const * title, windowcoords_t coords)
@@ -121,8 +121,8 @@ namespace ca
 				style,						// style
 				coords.x,					// pos x
 				coords.y,					// pos y
-				coords.dim_x,				// dim x
-				coords.dim_y,				// dim y
+				coords.width,				// dim x
+				coords.height,				// dim y
 				NULL,						// hwnd parent
 				NULL,						// hmenu
 				GetModuleHandle(nullptr),	// hinstance process
@@ -175,7 +175,7 @@ namespace ca
 		void window_move(window_t * window, windowcoords_t coords)
 		{
 			HWND hWnd = resolve_handle(window);
-			SetWindowPos(hWnd, NULL, coords.x, coords.y, coords.dim_x, coords.dim_y, 0);
+			SetWindowPos(hWnd, NULL, coords.x, coords.y, coords.width, coords.height, 0);
 		}
 
 		void window_sync_compositor()

@@ -21,8 +21,8 @@ namespace ca
 		struct vk_cmdpool_t;
 		struct vk_device_t;
 		struct vk_fence_t;
+		struct vk_framebuffer_t;
 		struct vk_pipeline_t;
-		struct vk_renderpass_t;
 		struct vk_semaphore_t;
 		struct vk_shader_t;
 		struct vk_swapchain_t;
@@ -47,13 +47,11 @@ namespace ca
 		struct vk_device_t
 		{
 			VkDebugReportCallbackEXT debug_callback;
-
 			VkAllocationCallbacks allocator;//TODO allocator per-type? research granularity..
 			VkInstance instance;
 
 			VkPhysicalDevice physical_device;
 			VkDevice device;
-
 			u32 queue_family;
 			VkQueue queue;
 		};
@@ -63,21 +61,17 @@ namespace ca
 			VkFence fence;
 		};
 
+		struct vk_framebuffer_t
+		{
+			VkFramebuffer framebuffer;
+			VkRenderPass renderpass;
+			u32 attachment_count;
+			VkClearValue * attachment_clearvalues;
+		};
+
 		struct vk_pipeline_t
 		{
 			VkPipeline pipeline;
-		};
-
-		struct vk_renderpass_t
-		{
-			VkRenderPass renderpass;
-			VkFramebuffer framebuffer;
-			
-			u32 dim_x;
-			u32 dim_y;
-
-			u32 attachment_count;
-			VkClearValue * attachment_clearvalues;
 		};
 
 		struct vk_semaphore_t
@@ -94,16 +88,9 @@ namespace ca
 		{
 			VkSurfaceKHR surface;
 			VkSwapchainKHR swapchain;
-
-			u32 dim_x;
-			u32 dim_y;
-
-			u32 image_index;
 			VkImage * images;
-			u32 fence_index;
 			VkFence * fences;
-
-			vk_texture_t * textures;
+			u32 fence_index;
 		};
 
 		struct vk_texture_t
@@ -137,9 +124,9 @@ namespace ca
 		CA_DEFINE_RESOLVE_VK(cmdpool);
 		CA_DEFINE_RESOLVE_VK(device);
 		CA_DEFINE_RESOLVE_VK(fence);
+		CA_DEFINE_RESOLVE_VK(framebuffer);
 		CA_DEFINE_RESOLVE_VK(texture);
 		CA_DEFINE_RESOLVE_VK(pipeline);
-		CA_DEFINE_RESOLVE_VK(renderpass);
 		CA_DEFINE_RESOLVE_VK(semaphore);
 		CA_DEFINE_RESOLVE_VK(shader);
 		CA_DEFINE_RESOLVE_VK(swapchain);

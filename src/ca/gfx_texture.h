@@ -6,32 +6,25 @@ namespace ca
 {
 	namespace gfx
 	{
-		enum texturetype
-		{
-			TEXTURETYPE_2D,
-			TEXTURETYPE_3D,
-			NUM_TEXTURETYPES,
-		};
-
 		enum textureformat
 		{
-			// depth
+			// depth formats
 			TEXTUREFORMAT_DEPTH16,
-			TEXTUREFORMAT_DEPTH32,
-
-			// depth-stencil
+			TEXTUREFORMAT_DEPTH32F,
 			TEXTUREFORMAT_DEPTH24_STENCIL8,
 
-			// rgba
+			// color formats
 			TEXTUREFORMAT_R8,
 			TEXTUREFORMAT_RG8,
 			TEXTUREFORMAT_RGB8,
 			TEXTUREFORMAT_RGBA8,
-			
-			// rgba float
+			TEXTUREFORMAT_RGB10A2,
+
+			// float formats
 			TEXTUREFORMAT_R16F,
 			TEXTUREFORMAT_RG16F,
 
+			// ...
 			NUM_TEXTUREFORMATS,
 		};
 
@@ -39,13 +32,12 @@ namespace ca
 		{
 			void * handle;
 			device_t * device;
-			texturetype type;
 			textureformat format;
-			u32 dim_x;
-			u32 dim_y;
+			u32 width;
+			u32 height;
 		};
 
-		void create_texture(texture_t * texture, device_t * device);
+		void create_texture(texture_t * texture, device_t * device, textureformat format, u32 width, u32 height);
 		void destroy_texture(texture_t * texture);
 	}
 }

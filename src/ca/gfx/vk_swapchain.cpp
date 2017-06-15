@@ -64,7 +64,7 @@ namespace ca
 			mem::arena_free(CA_APP_STACK, formats);
 		}
 
-		static void select_present_mode(VkPresentModeKHR * selected_mode, vk_device_t * vk_device, VkSurfaceKHR surface, swapmode mode)
+		static void select_present_mode(VkPresentModeKHR * selected_mode, vk_device_t * vk_device, VkSurfaceKHR surface, swapmode preferred_swapmode)
 		{
 			u32 mode_count;
 
@@ -77,46 +77,36 @@ namespace ca
 				ret = vkGetPhysicalDeviceSurfacePresentModesKHR(vk_device->physical_device, surface, &mode_count, modes);
 				CA_ASSERT(ret == VK_SUCCESS);
 
-				bool has_mail = false;
-				bool has_fifo = false;
-				bool has_free = false;
-
+				bool selected = false;
+				
 				for (u32 i = 0; i != mode_count; i++)
 				{
 					switch (modes[i])
 					{
-					case VK_PRESENT_MODE_IMMEDIATE_KHR:
-						has_free = true;
+					case VK_PRESENT_MODE_FIFO_RELAXED_KHR:
+						selected = (preferred_swapmode == SWAPMODE_FREE);
 						break;
 
 					case VK_PRESENT_MODE_FIFO_KHR:
-						has_fifo = true;
+						selected = (preferred_swapmode == SWAPMODE_VSYNC);
 						break;
 
 					case VK_PRESENT_MODE_MAILBOX_KHR:
-						has_mail = true;
+						selected = (preferred_swapmode == SWAPMODE_VSYNC_SKIP);
+						break;
+					}
+
+					if (selected)
+					{
+						*selected_mode = modes[i];
 						break;
 					}
 				}
 
-				switch (mode)
+				if (!selected)
 				{
-				case SWAPMODE_FREE:
-					CA_ASSERT(has_free);
-					*selected_mode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-					break;
-
-				case SWAPMODE_VSYNC:
-					CA_ASSERT(has_fifo);
+					CA_WARN("preferred swapmode not supported... using VK_PRESENT_MODE_FIFO_KHR as fallback");
 					*selected_mode = VK_PRESENT_MODE_FIFO_KHR;
-					break;
-
-				case SWAPMODE_VSYNC_SKIP:
-					CA_ASSERT(has_mail || has_fifo);
-					if (has_mail)
-						*selected_mode = VK_PRESENT_MODE_MAILBOX_KHR;
-					else
-						*selected_mode = VK_PRESENT_MODE_FIFO_KHR;
 				}
 			}
 			mem::arena_free(CA_APP_STACK, modes);
@@ -155,7 +145,7 @@ namespace ca
 
 			VkImageUsageFlags desired_image_usage = 0;
 			desired_image_usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-			desired_image_usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;//TODO
+			desired_image_usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
 			VkSurfaceTransformFlagBitsKHR desired_transform;
 			if (surface_capabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
@@ -186,24 +176,45 @@ namespace ca
 			CA_LOG("vulkan_swapchain: create swapchain ... ");
 			ret = vkCreateSwapchainKHR(vk_device->device, &swapchain_create_info, &vk_device->allocator, &vk_swapchain->swapchain);
 			CA_ASSERT(ret == VK_SUCCESS);
-			vk_swapchain->dim_x = desired_image_extents.width;
-			vk_swapchain->dim_y = desired_image_extents.height;
+			swapchain->width = desired_image_extents.width;
+			swapchain->height = desired_image_extents.height;
 
 			CA_LOG("vulkan_swapchain: create image array ... ");
-			ret = vkGetSwapchainImagesKHR(vk_device->device, vk_swapchain->swapchain, &swapchain->max_buffers_in_flight, nullptr);
+			ret = vkGetSwapchainImagesKHR(vk_device->device, vk_swapchain->swapchain, &swapchain->length, nullptr);
 			CA_ASSERT(ret == VK_SUCCESS);
-			CA_LOG("max_images_in_flight = %d", swapchain->max_buffers_in_flight);
-			vk_swapchain->image_index = 0;
-			vk_swapchain->images = mem::arena_alloc<VkImage>(swapchain->device->arena, swapchain->max_buffers_in_flight);
-			ret = vkGetSwapchainImagesKHR(vk_device->device, vk_swapchain->swapchain, &swapchain->max_buffers_in_flight, vk_swapchain->images);
+			CA_LOG("length = %d", swapchain->length);
+			vk_swapchain->images = mem::arena_alloc<VkImage>(swapchain->device->arena, swapchain->length);
+			ret = vkGetSwapchainImagesKHR(vk_device->device, vk_swapchain->swapchain, &swapchain->length, vk_swapchain->images);
 			CA_ASSERT(ret == VK_SUCCESS);
 
-			CA_LOG("vulkan_swapchain: create texture objects ... ");
-			vk_swapchain->textures = mem::arena_alloc<vk_texture_t>(swapchain->device->arena, swapchain->max_buffers_in_flight);
-			for (u32 i = 0; i != swapchain->max_buffers_in_flight; i++)
+			CA_LOG("vulkan_swapchain: create fences ... ");
+			vk_swapchain->fence_index = 0;
+			vk_swapchain->fences = mem::arena_alloc<VkFence>(swapchain->device->arena, swapchain->length);
+			for (u32 i = 0; i != swapchain->length; i++)
 			{
-				vk_swapchain->textures[i].texture = vk_swapchain->images[i];
-				vk_swapchain->textures[i].format = surface_format.format;
+				VkFenceCreateInfo fence_create_info;
+				fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+				fence_create_info.pNext = nullptr;
+				fence_create_info.flags = 0;
+				
+				vkCreateFence(vk_device->device, &fence_create_info, &vk_device->allocator, &vk_swapchain->fences[i]);
+			}
+
+			CA_LOG("vulkan_swapchain: create texture objects ... ");
+			swapchain->textures = mem::arena_alloc<texture_t>(swapchain->device->arena, swapchain->length);
+			for (u32 i = 0; i != swapchain->length; i++)
+			{
+				vk_texture_t * vk_texture = mem::arena_alloc<vk_texture_t>(swapchain->device->arena, 1);
+				texture_t * texture = &swapchain->textures[i];
+
+				texture->handle = vk_texture;
+				texture->device = swapchain->device;
+				texture->format = NUM_TEXTUREFORMATS;//TODO backwards resolve
+				texture->width = swapchain->width;
+				texture->height = swapchain->height;
+
+				vk_texture->texture = vk_swapchain->images[i];
+				vk_texture->format = surface_format.format;
 
 				VkComponentMapping component_mapping;
 				component_mapping.r = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -222,27 +233,14 @@ namespace ca
 				imageview_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 				imageview_create_info.pNext = nullptr;
 				imageview_create_info.flags = 0;
-				imageview_create_info.image = vk_swapchain->images[i];
+				imageview_create_info.image = vk_texture->texture;
 				imageview_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-				imageview_create_info.format = surface_format.format;
+				imageview_create_info.format = vk_texture->format;
 				imageview_create_info.components = component_mapping;
 				imageview_create_info.subresourceRange = image_subresource_range;
 
-				ret = vkCreateImageView(vk_device->device, &imageview_create_info, &vk_device->allocator, &vk_swapchain->textures[i].view);
+				ret = vkCreateImageView(vk_device->device, &imageview_create_info, &vk_device->allocator, &vk_texture->view);
 				CA_ASSERT(ret == VK_SUCCESS);
-			}
-
-			CA_LOG("vulkan_swapchain: create fences ... ");
-			vk_swapchain->fence_index = 0;
-			vk_swapchain->fences = mem::arena_alloc<VkFence>(swapchain->device->arena, swapchain->max_buffers_in_flight);
-			for (u32 i = 0; i != swapchain->max_buffers_in_flight; i++)
-			{
-				VkFenceCreateInfo fence_create_info;
-				fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-				fence_create_info.pNext = nullptr;
-				fence_create_info.flags = 0;
-
-				vkCreateFence(vk_device->device, &fence_create_info, &vk_device->allocator, &vk_swapchain->fences[i]);
 			}
 		}
 
@@ -262,7 +260,7 @@ namespace ca
 			swapchain->device = device;
 			swapchain->window = window;
 			swapchain->preferred_swapmode = preferred_swapmode;
-			swapchain->max_buffers_in_flight = 0;
+			swapchain->length = 0;
 
 			CA_LOG("vulkan_swapchain: enter internal create ... ");
 			create_swapchain_internal(swapchain);
@@ -275,15 +273,21 @@ namespace ca
 			vk_device_t * vk_device = resolve_type(swapchain->device);
 			vk_swapchain_t * vk_swapchain = resolve_type(swapchain);
 
+			CA_LOG("vulkan_swapchain: destroy texture objects ... ");
+			for (u32 i = 0; i != swapchain->length; i++)
+			{
+				vk_texture_t * vk_texture = resolve_type(&swapchain->textures[i]);
+				vkDestroyImageView(vk_device->device, vk_texture->view, &vk_device->allocator);
+				mem::arena_free(swapchain->device->arena, vk_texture);
+			}
+			mem::arena_free(swapchain->device->arena, swapchain->textures);
+
 			CA_LOG("vulkan_swapchain: destroy fences ... ");
-			for (int i = 0; i != swapchain->max_buffers_in_flight; i++)
+			for (u32 i = 0; i != swapchain->length; i++)
 			{
 				vkDestroyFence(vk_device->device, vk_swapchain->fences[i], &vk_device->allocator);
 			}
 			mem::arena_free(swapchain->device->arena, vk_swapchain->fences);
-
-			CA_LOG("vulkan_swapchain: destroy texture objects ... ");
-			mem::arena_free(swapchain->device->arena, vk_swapchain->textures);
 
 			CA_LOG("vulkan_swapchain: destroy image array ... ");
 			mem::arena_free(swapchain->device->arena, vk_swapchain->images);
@@ -294,14 +298,14 @@ namespace ca
 			CA_LOG("vulkan_swapchain: destroy surface ... ");
 			vkDestroySurfaceKHR(vk_device->instance, vk_swapchain->surface, &vk_device->allocator);
 
-			mem::arena_free(swapchain->device->arena, swapchain->handle);
+			mem::arena_free(swapchain->device->arena, vk_swapchain);
 			CA_LOG("vulkan_swapchain: CLEAN");
 
 			swapchain->handle = nullptr;
 			swapchain->device = nullptr;
 			swapchain->window = nullptr;
 			swapchain->preferred_swapmode = NUM_SWAPMODES;
-			swapchain->max_buffers_in_flight = 0;
+			swapchain->length = 0;
 		}
 
 		void recreate_swapchain(swapchain_t * swapchain)
@@ -312,13 +316,23 @@ namespace ca
 			CA_LOG("vulkan_swapchain: wait for idle ... ");
 			vkDeviceWaitIdle(vk_device->device);
 
-			CA_LOG("vulkan_swapchain: destroy appendices ... ");
-			for (int i = 0; i != swapchain->max_buffers_in_flight; i++)
+			CA_LOG("vulkan_swapchain: destroy texture objects ... ");
+			for (u32 i = 0; i != swapchain->length; i++)
+			{
+				vk_texture_t * vk_texture = resolve_type(&swapchain->textures[i]);
+				vkDestroyImageView(vk_device->device, vk_texture->view, &vk_device->allocator);
+				mem::arena_free(swapchain->device->arena, vk_texture);
+			}
+			mem::arena_free(swapchain->device->arena, swapchain->textures);
+
+			CA_LOG("vulkan_swapchain: destroy fences ... ");
+			for (u32 i = 0; i != swapchain->length; i++)
 			{
 				vkDestroyFence(vk_device->device, vk_swapchain->fences[i], &vk_device->allocator);
 			}
 			mem::arena_free(swapchain->device->arena, vk_swapchain->fences);
-			mem::arena_free(swapchain->device->arena, vk_swapchain->textures);
+
+			CA_LOG("vulkan_swapchain: destroy image array ... ");
 			mem::arena_free(swapchain->device->arena, vk_swapchain->images);
 
 			CA_LOG("vulkan_swapchain: get old swapchain ... ");
@@ -335,18 +349,16 @@ namespace ca
 
 		static void recreate_swapchain_if_invalid(swapchain_t * swapchain)
 		{
-			vk_swapchain_t * vk_swapchain = resolve_type(swapchain);
-
-			bool dim_x_changed = (vk_swapchain->dim_x != swapchain->window->coords.dim_x);
-			bool dim_y_changed = (vk_swapchain->dim_y != swapchain->window->coords.dim_y);
-
-			if (dim_x_changed || dim_y_changed)
+			bool changed_width = (swapchain->width != swapchain->window->coords.width);
+			bool changed_height = (swapchain->height != swapchain->window->coords.height);
+			
+			if (changed_width || changed_height)
 			{
 				recreate_swapchain(swapchain);
 			}
 		}
 
-		void swapchain_acquire_blocking(swapchain_t * swapchain, texture_t * texture)
+		void swapchain_acquire_blocking(swapchain_t * swapchain, u32 * acquired_index)
 		{
 			recreate_swapchain_if_invalid(swapchain);
 
@@ -354,10 +366,10 @@ namespace ca
 			vk_swapchain_t * vk_swapchain = resolve_type(swapchain);
 
 			vk_swapchain->fence_index += 1;
-			vk_swapchain->fence_index %= swapchain->max_buffers_in_flight;
+			vk_swapchain->fence_index %= swapchain->length;
 			VkFence fence = vk_swapchain->fences[vk_swapchain->fence_index];
 
-			VkResult ret = vkAcquireNextImageKHR(vk_device->device, vk_swapchain->swapchain, UINT64_MAX, VK_NULL_HANDLE, fence, &vk_swapchain->image_index);
+			VkResult ret = vkAcquireNextImageKHR(vk_device->device, vk_swapchain->swapchain, UINT64_MAX, VK_NULL_HANDLE, fence, acquired_index);
 			CA_ASSERT(ret == VK_SUCCESS);
 
 			ret = vkWaitForFences(vk_device->device, 1, &fence, VK_FALSE, UINT64_MAX);
@@ -365,34 +377,20 @@ namespace ca
 
 			ret = vkResetFences(vk_device->device, 1, &fence);
 			CA_ASSERT(ret == VK_SUCCESS);
-
-			texture->device = swapchain->device;
-			texture->handle = &vk_swapchain->textures[vk_swapchain->image_index];
-			//texture->format = 0;//TODO
-			//texture->type = 0;//TODO
-			texture->dim_x = swapchain->window->coords.dim_x;
-			texture->dim_y = swapchain->window->coords.dim_y;
 		}
 
-		void swapchain_acquire(swapchain_t * swapchain, semaphore_t * signal_semaphore, fence_t * signal_fence, texture_t * texture)
+		void swapchain_acquire(swapchain_t * swapchain, semaphore_t * signal_semaphore, fence_t * signal_fence, u32 * acquired_index)
 		{
 			recreate_swapchain_if_invalid(swapchain);
 
 			vk_device_t * vk_device = resolve_type(swapchain->device);
 			vk_swapchain_t * vk_swapchain = resolve_type(swapchain);
 
-			VkResult ret = vkAcquireNextImageKHR(vk_device->device, vk_swapchain->swapchain, UINT64_MAX, resolve_handle(signal_semaphore), resolve_handle(signal_fence), &vk_swapchain->image_index);
+			VkResult ret = vkAcquireNextImageKHR(vk_device->device, vk_swapchain->swapchain, UINT64_MAX, resolve_handle(signal_semaphore), resolve_handle(signal_fence), acquired_index);
 			CA_ASSERT(ret == VK_SUCCESS);
-
-			texture->device = swapchain->device;
-			texture->handle = &vk_swapchain->textures[vk_swapchain->image_index];
-			//texture->format = 0;//TODO
-			//texture->type = 0;//TODO
-			texture->dim_x = swapchain->window->coords.dim_x;
-			texture->dim_y = swapchain->window->coords.dim_y;
 		}
 
-		void swapchain_present(swapchain_t * swapchain, semaphore_t * wait_semaphore)
+		void swapchain_present(swapchain_t * swapchain, semaphore_t * wait_semaphore, u32 acquired_index)
 		{
 			vk_device_t * vk_device = resolve_type(swapchain->device);
 			vk_swapchain_t * vk_swapchain = resolve_type(swapchain);
@@ -407,8 +405,11 @@ namespace ca
 			present_info.pWaitSemaphores = &wait;
 			present_info.swapchainCount = 1;
 			present_info.pSwapchains = &vk_swapchain->swapchain;
-			present_info.pImageIndices = &vk_swapchain->image_index;
+			present_info.pImageIndices = &acquired_index;
 			present_info.pResults = nullptr;
+
+			VkResult ret = vkQueuePresentKHR(vk_device->queue, &present_info);
+			CA_ASSERT(ret == VK_SUCCESS);
 
 			switch (swapchain->preferred_swapmode)
 			{
@@ -416,9 +417,6 @@ namespace ca
 			case SWAPMODE_VSYNC_SKIP:
 				sys::window_sync_compositor();
 			}
-
-			VkResult ret = vkQueuePresentKHR(vk_device->queue, &present_info);
-			CA_ASSERT(ret == VK_SUCCESS);
 		}
 	}
 }

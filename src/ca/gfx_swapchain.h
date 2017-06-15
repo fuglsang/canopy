@@ -24,14 +24,17 @@ namespace ca
 			device_t * device;
 			sys::window_t * window;
 			swapmode preferred_swapmode;
-			u32 max_buffers_in_flight;
+			u32 width;
+			u32 height;
+			u32 length;
+			texture_t * textures;
 		};
 
 		void create_swapchain(swapchain_t * swapchain, device_t * device, sys::window_t * window, swapmode preferred_swapmode);
 		void destroy_swapchain(swapchain_t * swapchain);
 
-		void swapchain_acquire_blocking(swapchain_t * swapchain, texture_t * texture);
-		void swapchain_acquire(swapchain_t * swapchain, semaphore_t * signal_semaphore, fence_t * signal_fence, texture_t * texture);
-		void swapchain_present(swapchain_t * swapchain, semaphore_t * wait_semaphore);
+		void swapchain_acquire_blocking(swapchain_t * swapchain, u32 * acquired_image_index);
+		void swapchain_acquire(swapchain_t * swapchain, semaphore_t * signal_semaphore, fence_t * signal_fence, u32 * acquired_image_index);
+		void swapchain_present(swapchain_t * swapchain, semaphore_t * wait_semaphore, u32 acquired_image_index);
 	}
 }
