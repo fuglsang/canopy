@@ -10,7 +10,7 @@ namespace ca
 {
 	namespace gfx
 	{
-		void create_shader(shader_t * shader, device_t * device, char const * glsl_source, size_t glsl_source_size)
+		void create_shader(shader_t * shader, device_t * device, shaderstage stage, char const * glsl_source, size_t glsl_source_size)
 		{
 			vk_device_t * vk_device = resolve_type(device);
 			vk_shader_t * vk_shader = mem::arena_alloc<vk_shader_t>(device->arena, 1);
@@ -27,6 +27,7 @@ namespace ca
 
 			shader->handle = vk_shader;
 			shader->device = device;
+			shader->stage = stage;
 		}
 
 		void destroy_shader(shader_t * shader)

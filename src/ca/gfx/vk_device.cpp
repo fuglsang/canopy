@@ -43,7 +43,13 @@ namespace ca
 			const char*                                 pMessage,
 			void*                                       pUserData)
 		{
-			CA_LOG("%s", pMessage);
+			if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+				CA_ERROR("%s", pMessage);
+			else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
+				CA_WARN("%s", pMessage);
+			else
+				CA_LOG("%s", pMessage);
+
 			return VK_FALSE;
 		}
 

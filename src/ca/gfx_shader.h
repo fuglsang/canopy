@@ -6,22 +6,23 @@ namespace ca
 {
 	namespace gfx
 	{
-		enum shadertype
+		enum shaderstage
 		{
-			SHADERTYPE_VERTEX,
-			SHADERTYPE_GEOMETRY,
-			SHADERTYPE_FRAGMENT,
-			NUM_SHADERTYPES,
+			SHADERSTAGE_COMPUTE,
+			SHADERSTAGE_FRAGMENT,
+			SHADERSTAGE_GEOMETRY,
+			SHADERSTAGE_VERTEX,
+			NUM_SHADERSTAGES,
 		};
 
 		struct shader_t
 		{
 			void * handle;
 			device_t * device;
-			shadertype type;
+			shaderstage stage;
 		};
 
-		void create_shader(shader_t * shader, device_t * device, char const * glsl_source, size_t glsl_source_size);
+		void create_shader(shader_t * shader, device_t * device, shaderstage stage, char const * glsl_source, size_t glsl_source_size);
 		void destroy_shader(shader_t * shader);
 	}
 }

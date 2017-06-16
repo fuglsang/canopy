@@ -154,19 +154,26 @@ void main(int argc, char** argv)
 		gfx::device_t device;
 		gfx::create_device(&device, &gfx_heap);
 
-		char const * vs_source =
-			"#version 450 core\n"
-			"layout(location = 0) in vec2 aVertex;\n"
-			"layout(location = 1) in vec4 aColor;\n"
-			"out vec4 vColor;\n"
-			"void main()\n"
-			"{\n"
-			"    vColor = aColor;\n"
-			"    gl_Position = vec4(aVertex, 0, 1);\n"
-			"}\n";
+		char const vs_glsl[] =
+			"#version 400\n"
+			"void main() {"
+			"	vec2 pos[3] = vec2[3](vec2(-0.7, 0.7), vec2(0.7, 0.7), vec2(0.0, -0.7));"
+			"	gl_Position = vec4(pos[gl_VertexIndex], 0.0, 1.0);"
+			"}";
 
 		gfx::shader_t vs;
-		gfx::create_shader(&vs, &device, vs_source, sizeof(vs_source));
+		gfx::create_shader(&vs, &device, gfx::SHADERSTAGE_VERTEX, vs_glsl, sizeof(vs_glsl));
+
+		char const fs_glsl[] =
+			"#version 400\n"
+			"layout(location = 0) out vec4 out_Color;"
+			"void main()"
+			"{"
+			"	out_Color = vec4(0.0, 0.4, 1.0, 1.0);"
+			"}";
+
+		gfx::shader_t fs;
+		gfx::create_shader(&fs, &device, gfx::SHADERSTAGE_FRAGMENT, fs_glsl, sizeof(fs_glsl));
 
 		gfx::swapchain_t swapchain;
 		gfx::create_swapchain(&swapchain, &device, &window, gfx::SWAPMODE_VSYNC);
@@ -200,7 +207,8 @@ void main(int argc, char** argv)
 		}
 
 		gfx::pipeline_t pipeline;
-		gfx::create_pipeline(&pipeline, &framedata[0].framebuffer);
+		gfx::shader_t pipeline_shaders[2] = { vs, fs };
+		gfx::create_pipeline(&pipeline, &framedata[0].framebuffer, pipeline_shaders, 2);
 
 		u32 acquired_count = 0;
 		u32 acquired_index;
@@ -225,6 +233,12 @@ void main(int argc, char** argv)
 				gfx::cmdbuffer_reset(&frame->cmdbuffer);
 				gfx::cmdbuffer_begin(&frame->cmdbuffer);
 				gfx::cmdbuffer_begin_renderpass(&frame->cmdbuffer, &frame->framebuffer);
+		
+				gfx::cmdbuffer_bind_pipeline(&frame->cmdbuffer, &pipeline);
+				gfx::cmdbuffer_set_viewport(&frame->cmdbuffer, 0, 0, swapchain.width, swapchain.height);
+				gfx::cmdbuffer_set_scissor(&frame->cmdbuffer, 0, 0, swapchain.width, swapchain.height);
+				
+				gfx::cmdbuffer_draw(&frame->cmdbuffer, 0, 3);
 				
 				// ...
 				
@@ -241,6 +255,8 @@ void main(int argc, char** argv)
 
 		gfx::device_flush(&device);
 
+		gfx::destroy_pipeline(&pipeline);
+
 		for (u32 i = 0; i != swapchain.length; i++)
 		{
 			gfx::destroy_semaphore(&frame_presentable[i]);
@@ -252,6 +268,7 @@ void main(int argc, char** argv)
 		
 		gfx::destroy_cmdpool(&cmdpool);
 		gfx::destroy_swapchain(&swapchain);
+		gfx::destroy_shader(&fs);
 		gfx::destroy_shader(&vs);
 		gfx::destroy_device(&device);
 	}	

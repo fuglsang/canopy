@@ -124,6 +124,15 @@ namespace ca
 			vkCmdClearColorImage(vk_cmdbuffer->cmdbuffer, vk_texture->texture, VK_IMAGE_LAYOUT_GENERAL, &ccv, 1, &image_subresource_range);
 		}
 
+		void cmdbuffer_bind_pipeline(cmdbuffer_t * cmdbuffer, pipeline_t * pipeline)
+		{
+			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
+			vk_pipeline_t * vk_pipeline = resolve_type(pipeline);
+
+			CA_ASSERT(pipeline->type == PIPELINETYPE_GRAPHICS);
+			vkCmdBindPipeline(vk_cmdbuffer->cmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline->pipeline);
+		}
+
 		void cmdbuffer_bind_indexbuffer(cmdbuffer_t * cmdbuffer, buffer_t * buffer, size_t offset, size_t stride)
 		{
 			vk_cmdbuffer_t * vk_cmdbuffer = resolve_type(cmdbuffer);
@@ -153,6 +162,28 @@ namespace ca
 			VkDeviceSize const vk_offset = offset;
 
 			vkCmdBindVertexBuffers(vk_cmdbuffer->cmdbuffer, 0, 1, &vk_buffer->buffer, &vk_offset);
+		}
+
+		void cmdbuffer_set_viewport(cmdbuffer_t * cmdbuffer, u32 x, u32 y, u32 width, u32 height)
+		{
+			VkViewport viewport;
+			viewport.x = x;
+			viewport.y = y;
+			viewport.width = width;
+			viewport.height = height;
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			vkCmdSetViewport(resolve_handle(cmdbuffer), 0, 1, &viewport);
+		}
+
+		void cmdbuffer_set_scissor(cmdbuffer_t * cmdbuffer, u32 x, u32 y, u32 width, u32 height)
+		{
+			VkRect2D scissor;
+			scissor.offset.x = x;
+			scissor.offset.y = y;
+			scissor.extent.width = width;
+			scissor.extent.height = height;
+			vkCmdSetScissor(resolve_handle(cmdbuffer), 0, 1, &scissor);
 		}
 
 		void cmdbuffer_draw(cmdbuffer_t * cmdbuffer, u32 vertex_start, u32 vertex_count)

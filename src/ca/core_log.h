@@ -22,7 +22,7 @@
 #define CA_WARN(...)																						\
 	do																										\
 	{																										\
-		fprintf(stdout, "WARNING: ");																		\
+		fprintf(stdout, "[WARNING] ");																		\
 		fprintf(stdout, __VA_ARGS__);																		\
 		fprintf(stdout, "\n");																				\
 	}																										\

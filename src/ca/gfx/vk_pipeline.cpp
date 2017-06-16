@@ -11,17 +11,46 @@ namespace ca
 {
 	namespace gfx
 	{
-		struct pipelinestage_t
+		VkShaderStageFlagBits resolve_stage(shaderstage stage)
 		{
-			shader_t * shader;
-		};
+			switch (stage)
+			{
+			case SHADERSTAGE_COMPUTE:
+				return VK_SHADER_STAGE_COMPUTE_BIT;
+			
+			case SHADERSTAGE_FRAGMENT:
+				return VK_SHADER_STAGE_FRAGMENT_BIT;
+			
+			case SHADERSTAGE_GEOMETRY:
+				return VK_SHADER_STAGE_GEOMETRY_BIT;
+			
+			case SHADERSTAGE_VERTEX:
+				return VK_SHADER_STAGE_VERTEX_BIT;
+			
+			default:
+				CA_FATAL("unsupported shaderstage");
+				return VK_SHADER_STAGE_ALL;
+			}
+		}
 
-		void create_pipeline(pipeline_t * pipeline, framebuffer_t * framebuffer)
+		void create_pipeline(pipeline_t * pipeline, framebuffer_t * framebuffer, shader_t * stages, u32 stage_count)
 		{
 			device_t * device = framebuffer->device;
 			vk_device_t * vk_device = resolve_type(device);
 			vk_pipeline_t * vk_pipeline = mem::arena_alloc<vk_pipeline_t>(device->arena, 1);
 			vk_framebuffer_t * vk_framebuffer = resolve_type(framebuffer);
+
+			VkPipelineShaderStageCreateInfo * pipeline_shaderstages = mem::arena_alloc<VkPipelineShaderStageCreateInfo>(CA_APP_STACK, stage_count);
+			for (u32 i = 0; i != stage_count; i++)
+			{
+				pipeline_shaderstages[i].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+				pipeline_shaderstages[i].pNext = nullptr;
+				pipeline_shaderstages[i].flags = 0;
+				pipeline_shaderstages[i].stage = resolve_stage(stages[i].stage);
+				pipeline_shaderstages[i].module = resolve_type(&stages[i])->shader;
+				pipeline_shaderstages[i].pName = "main";
+				pipeline_shaderstages[i].pSpecializationInfo = nullptr;
+			}
 
 			VkPipelineLayoutCreateInfo pipelinelayout_create_info;
 			pipelinelayout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -130,8 +159,8 @@ namespace ca
 			pipeline_create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 			pipeline_create_info.pNext = nullptr;
 			pipeline_create_info.flags = 0;
-			pipeline_create_info.stageCount = 0;//TODO stages
-			pipeline_create_info.pStages = nullptr;//TODO stages
+			pipeline_create_info.stageCount = stage_count;
+			pipeline_create_info.pStages = pipeline_shaderstages;
 			pipeline_create_info.pVertexInputState = &pipeline_vertexinputstate;
 			pipeline_create_info.pInputAssemblyState = &pipeline_inputassemblystate;
 			pipeline_create_info.pTessellationState = nullptr;
@@ -151,9 +180,11 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 
 			mem::arena_free(CA_APP_STACK, pipeline_colorblendattachments);
+			mem::arena_free(CA_APP_STACK, pipeline_shaderstages);
 
 			pipeline->handle = vk_pipeline;
 			pipeline->device = device;
+			pipeline->type = PIPELINETYPE_GRAPHICS;
 		}
 
 		void destroy_pipeline(pipeline_t * pipeline)
@@ -166,6 +197,7 @@ namespace ca
 
 			pipeline->handle = nullptr;
 			pipeline->device = nullptr;
+			pipeline->type = NUM_PIPELINETYPES;
 		}
 	}
 }
