@@ -1,15 +1,12 @@
 #pragma once
 
 #include "ca/types.h"
-#include "ca/core_action.h"
 #include "ca/core_event.h"
 
 namespace ca
 {
 	namespace sys
 	{
-		struct window_t;
-
 		enum windowevent
 		{
 			WINDOWEVENT_CLOSED,
@@ -19,7 +16,7 @@ namespace ca
 			NUM_WINDOWEVENTS,
 		};
 
-		struct windowcoords_t
+		struct windowrect_t
 		{
 			i32 x;
 			i32 y;
@@ -30,18 +27,18 @@ namespace ca
 		struct window_t
 		{
 			void * handle;
-			windowcoords_t coords;
-			core::event_t<window_t *, windowevent> event;
+			windowrect_t rect;
 			bool system_requested_close;
+			core::event_t<window_t *, windowevent> event;
 		};
 
 		typedef core::eventhandler_t<window_t *, windowevent> windoweventhandler_t;
 
-		void create_window(window_t * window, char const * title, windowcoords_t coords);
+		void create_window(window_t * window, char const * title, windowrect_t rect);
 		void destroy_window(window_t * window);
 
 		bool window_poll(window_t * window);
-		void window_move(window_t * window, windowcoords_t coords);
+		void window_move(window_t * window, windowrect_t rect);
 		void window_hide(window_t * window);
 		void window_show(window_t * window);
 		void window_sync_compositor();

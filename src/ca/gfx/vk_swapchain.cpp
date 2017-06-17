@@ -265,6 +265,9 @@ namespace ca
 			CA_LOG("vulkan_swapchain: enter internal create ... ");
 			create_swapchain_internal(swapchain);
 
+			CA_LOG("vulkan_swapchain: create events ... ");
+			core::create_event(&swapchain->recreated);
+
 			CA_LOG("vulkan_swapchain: READY");
 		}
 
@@ -272,6 +275,9 @@ namespace ca
 		{
 			vk_device_t * vk_device = resolve_type(swapchain->device);
 			vk_swapchain_t * vk_swapchain = resolve_type(swapchain);
+
+			CA_LOG("vulkan_swapchain: destroy events ... ");
+			core::destroy_event(&swapchain->recreated);
 
 			CA_LOG("vulkan_swapchain: destroy texture objects ... ");
 			for (u32 i = 0; i != swapchain->length; i++)
@@ -345,14 +351,15 @@ namespace ca
 			vkDestroySwapchainKHR(vk_device->device, old_swapchain, &vk_device->allocator);
 
 			CA_LOG("vulkan_swapchain: RECREATED");
+			core::event_dispatch(&swapchain->recreated, swapchain);
 		}
 
 		static void recreate_swapchain_if_invalid(swapchain_t * swapchain)
 		{
-			bool changed_width = (swapchain->width != swapchain->window->coords.width);
-			bool changed_height = (swapchain->height != swapchain->window->coords.height);
+			bool invalid_width = (swapchain->width != swapchain->window->rect.width);
+			bool invalid_height = (swapchain->height != swapchain->window->rect.height);
 			
-			if (changed_width || changed_height)
+			if (invalid_width || invalid_height)
 			{
 				recreate_swapchain(swapchain);
 			}

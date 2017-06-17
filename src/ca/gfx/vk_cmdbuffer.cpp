@@ -164,7 +164,7 @@ namespace ca
 			vkCmdBindVertexBuffers(vk_cmdbuffer->cmdbuffer, 0, 1, &vk_buffer->buffer, &vk_offset);
 		}
 
-		void cmdbuffer_set_viewport(cmdbuffer_t * cmdbuffer, u32 x, u32 y, u32 width, u32 height)
+		void cmdbuffer_set_viewport(cmdbuffer_t * cmdbuffer, f32 x, f32 y, f32 width, f32 height)
 		{
 			VkViewport viewport;
 			viewport.x = x;
@@ -176,7 +176,7 @@ namespace ca
 			vkCmdSetViewport(resolve_handle(cmdbuffer), 0, 1, &viewport);
 		}
 
-		void cmdbuffer_set_scissor(cmdbuffer_t * cmdbuffer, u32 x, u32 y, u32 width, u32 height)
+		void cmdbuffer_set_scissor(cmdbuffer_t * cmdbuffer, i32 x, i32 y, u32 width, u32 height)
 		{
 			VkRect2D scissor;
 			scissor.offset.x = x;

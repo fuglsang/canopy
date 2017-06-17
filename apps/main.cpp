@@ -157,7 +157,7 @@ void main(int argc, char** argv)
 		char const vs_glsl[] =
 			"#version 400\n"
 			"void main() {"
-			"	vec2 pos[3] = vec2[3](vec2(-0.7, 0.7), vec2(0.7, 0.7), vec2(0.0, -0.7));"
+			"	vec2 pos[3] = vec2[3](vec2(-0.4, 0.4), vec2(0.4, 0.4), vec2(0.0, -0.4));"
 			"	gl_Position = vec4(pos[gl_VertexIndex], 0.0, 1.0);"
 			"}";
 
@@ -188,11 +188,10 @@ void main(int argc, char** argv)
 			gfx::framebuffer_t framebuffer;
 		};
 
+		u32 frame_index = 0;
 		framedata_t * framedata = mem::arena_alloc<framedata_t>(CA_APP_HEAP, swapchain.length);
-
 		gfx::semaphore_t * frame_acquired = mem::arena_alloc<gfx::semaphore_t>(CA_APP_HEAP, swapchain.length);
 		gfx::semaphore_t * frame_presentable = mem::arena_alloc<gfx::semaphore_t>(CA_APP_HEAP, swapchain.length);
-		u32 frame_index = 0;
 
 		for (u32 i = 0; i != swapchain.length; i++)
 		{
@@ -205,6 +204,20 @@ void main(int argc, char** argv)
 			gfx::create_semaphore(&frame_acquired[i], &device);
 			gfx::create_semaphore(&frame_presentable[i], &device);
 		}
+
+		core::eventhandler_t<gfx::swapchain_t *> handle_swapchain_recreated;
+		auto anon_recreate_framedata = [&framedata](gfx::swapchain_t * swapchain)
+		{
+			for (u32 i = 0; i != swapchain->length; i++)
+			{
+				gfx::destroy_framebuffer(&framedata[i].framebuffer);
+				gfx::rendertarget_t attachments[1] = {
+					&swapchain->textures[i], gfx::RENDERTARGETLOADOP_CLEAR, gfx::RENDERTARGETSTOREOP_STORE,{ 1.0f, 0.0f, 0.5f, 1.0f }, 1.0f, 0,
+				};
+				gfx::create_framebuffer(&framedata[i].framebuffer, swapchain->device, attachments, 1);
+			}
+		};
+		core::create_eventhandler(&handle_swapchain_recreated, &swapchain.recreated, CA_DELEGATE_ANON(&anon_recreate_framedata));
 
 		gfx::pipeline_t pipeline;
 		gfx::shader_t pipeline_shaders[2] = { vs, fs };
@@ -221,7 +234,7 @@ void main(int argc, char** argv)
 			}
 
 			gfx::swapchain_acquire(&swapchain, &frame_acquired[frame_index], nullptr, &acquired_index);
-			
+
 			framedata_t * frame = &framedata[acquired_index];
 			{
 				f32 s = math::tau * sys::clockf();
@@ -232,12 +245,13 @@ void main(int argc, char** argv)
 
 				gfx::cmdbuffer_reset(&frame->cmdbuffer);
 				gfx::cmdbuffer_begin(&frame->cmdbuffer);
+
 				gfx::cmdbuffer_begin_renderpass(&frame->cmdbuffer, &frame->framebuffer);
-		
+
 				gfx::cmdbuffer_bind_pipeline(&frame->cmdbuffer, &pipeline);
-				gfx::cmdbuffer_set_viewport(&frame->cmdbuffer, 0, 0, swapchain.width, swapchain.height);
+				gfx::cmdbuffer_set_viewport(&frame->cmdbuffer, 0.1f * math::cos(0.2f * s) * swapchain.width, 0.1f * math::sin(0.2f * s) * swapchain.height, swapchain.width, swapchain.height);
 				gfx::cmdbuffer_set_scissor(&frame->cmdbuffer, 0, 0, swapchain.width, swapchain.height);
-				
+
 				gfx::cmdbuffer_draw(&frame->cmdbuffer, 0, 3);
 				
 				// ...

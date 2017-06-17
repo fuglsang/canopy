@@ -59,15 +59,15 @@ namespace ca
 
 			case WM_MOVE:
 				window = resolve_window(hWnd);
-				window->coords.x = LOWORD(lParam);
-				window->coords.y = HIWORD(lParam);
+				window->rect.x = LOWORD(lParam);
+				window->rect.y = HIWORD(lParam);
 				core::event_dispatch(&window->event, window, WINDOWEVENT_MOVED);
 				goto default_proc;
 
 			case WM_SIZE:
 				window = resolve_window(hWnd);
-				window->coords.width = LOWORD(lParam);
-				window->coords.height = HIWORD(lParam);
+				window->rect.width = LOWORD(lParam);
+				window->rect.height = HIWORD(lParam);
 				core::event_dispatch(&window->event, window, WINDOWEVENT_RESIZED);
 				goto default_proc;
 
@@ -78,24 +78,24 @@ namespace ca
 			return 0;
 		}
 
-		static void adjust_coords_accomodate_style(windowcoords_t * coords, DWORD style)
+		static void adjust_coords_accomodate_style(windowrect_t * rect, DWORD style)
 		{
-			RECT rect;
-			rect.left = coords->x;
-			rect.top = coords->y;
-			rect.right = coords->x + coords->width;
-			rect.bottom = coords->y + coords->height;
+			RECT winrect;
+			winrect.left = rect->x;
+			winrect.top = rect->y;
+			winrect.right = rect->x + rect->width;
+			winrect.bottom = rect->y + rect->height;
 
-			BOOL ret = AdjustWindowRect(&rect, style, FALSE);
+			BOOL ret = AdjustWindowRect(&winrect, style, FALSE);
 			CA_ASSERT(ret == TRUE);
 
-			coords->x = rect.left;
-			coords->y = rect.top;
-			coords->width = rect.right - rect.left;
-			coords->height = rect.bottom - rect.top;
+			rect->x = winrect.left;
+			rect->y = winrect.top;
+			rect->width = winrect.right - winrect.left;
+			rect->height = winrect.bottom - winrect.top;
 		}
 
-		void create_window(window_t * window, char const * title, windowcoords_t coords)
+		void create_window(window_t * window, char const * title, windowrect_t rect)
 		{
 			WNDCLASS wc = {};
 			wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
@@ -107,10 +107,10 @@ namespace ca
 			CA_ASSERT_MSG(ret != 0, "RegisterClass (%s) FAILED", title);
 
 			DWORD const style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
-			adjust_coords_accomodate_style(&coords, style);
+			adjust_coords_accomodate_style(&rect, style);
 
 			window->handle = nullptr;
-			window->coords = coords;
+			window->rect = rect;
 			window->system_requested_close = false;
 
 			core::create_event(&window->event);
@@ -119,10 +119,10 @@ namespace ca
 				window_name,				// window class
 				title,						// window title
 				style,						// style
-				coords.x,					// pos x
-				coords.y,					// pos y
-				coords.width,				// dim x
-				coords.height,				// dim y
+				rect.x,						// pos x
+				rect.y,						// pos y
+				rect.width,					// dim x
+				rect.height,				// dim y
 				NULL,						// hwnd parent
 				NULL,						// hmenu
 				GetModuleHandle(nullptr),	// hinstance process
@@ -137,7 +137,7 @@ namespace ca
 			DestroyWindow(hWnd);
 
 			window->handle = nullptr;
-			window->coords = { 0, 0, 0, 0 };
+			window->rect = { 0, 0, 0, 0 };
 			window->system_requested_close = false;
 
 			core::destroy_event(&window->event);
@@ -172,10 +172,10 @@ namespace ca
 			ShowWindow(hWnd, SW_SHOW);
 		}
 
-		void window_move(window_t * window, windowcoords_t coords)
+		void window_move(window_t * window, windowrect_t rect)
 		{
 			HWND hWnd = resolve_handle(window);
-			SetWindowPos(hWnd, NULL, coords.x, coords.y, coords.width, coords.height, 0);
+			SetWindowPos(hWnd, NULL, rect.x, rect.y, rect.width, rect.height, 0);
 		}
 
 		void window_sync_compositor()
