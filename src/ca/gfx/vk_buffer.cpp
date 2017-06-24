@@ -45,8 +45,8 @@ namespace ca
 			buffer_create_info.size = size;
 			buffer_create_info.usage = buffer_usage_flags;
 			buffer_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			buffer_create_info.queueFamilyIndexCount = 0;
-			buffer_create_info.pQueueFamilyIndices = nullptr;
+			buffer_create_info.queueFamilyIndexCount = 0;// ignored due to VK_SHARING_MODE_EXCLUSIVE
+			buffer_create_info.pQueueFamilyIndices = nullptr;// ignored due to VK_SHARING_MODE_EXCLUSIVE
 
 			VkResult ret = vkCreateBuffer(vk_device->device, &buffer_create_info, &vk_device->allocator, &vk_buffer->buffer);
 			CA_ASSERT(ret == VK_SUCCESS);
@@ -54,11 +54,24 @@ namespace ca
 			VkMemoryRequirements memory_requirements;
 			vkGetBufferMemoryRequirements(vk_device->device, vk_buffer->buffer, &memory_requirements);
 
+			//TODO cache these on vk_device
+			u32 memory_type_index = 0;
+			VkPhysicalDeviceMemoryProperties memory_properties;
+			vkGetPhysicalDeviceMemoryProperties(vk_device->physical_device, &memory_properties);
+			for (u32 i = 0; i != memory_properties.memoryTypeCount; i++)
+			{
+				if (memory_properties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+				{
+					memory_type_index = i;
+					break;
+				}
+			}
+
 			VkMemoryAllocateInfo memory_allocate_info;
 			memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 			memory_allocate_info.pNext = nullptr;
 			memory_allocate_info.allocationSize = memory_requirements.size;
-			memory_allocate_info.memoryTypeIndex = 0;//TODO device memory indices!
+			memory_allocate_info.memoryTypeIndex = memory_type_index;
 
 			ret = vkAllocateMemory(vk_device->device, &memory_allocate_info, &vk_device->allocator, &vk_buffer->memory);
 			CA_ASSERT(ret == VK_SUCCESS);

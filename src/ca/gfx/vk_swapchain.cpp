@@ -165,8 +165,8 @@ namespace ca
 			swapchain_create_info.imageArrayLayers = 1;
 			swapchain_create_info.imageUsage = desired_image_usage;
 			swapchain_create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			swapchain_create_info.queueFamilyIndexCount = 0;// only for VK_SHARING_MODE_CONCURRENT
-			swapchain_create_info.pQueueFamilyIndices = nullptr;// only for VK_SHARING_MODE_CONCURRENT
+			swapchain_create_info.queueFamilyIndexCount = 0;// ignored due to VK_SHARING_MODE_EXCLUSIVE
+			swapchain_create_info.pQueueFamilyIndices = nullptr;// ignored due to VK_SHARING_MODE_EXCLUSIVE
 			swapchain_create_info.preTransform = desired_transform;
 			swapchain_create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 			swapchain_create_info.presentMode = surface_present_mode;

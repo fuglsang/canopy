@@ -200,13 +200,15 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\gfx_cmdbuffer.h" />
     <ClInclude Include="src\ca\gfx_cmdpool.h" />
     <ClInclude Include="src\ca\gfx_fence.h" />
+    <ClInclude Include="src\ca\gfx_framebuffer.h" />
     <ClInclude Include="src\ca\gfx_pipeline.h" />
     <ClInclude Include="src\ca\gfx_renderpass.h" />
     <ClInclude Include="src\ca\gfx_semaphore.h" />
     <ClInclude Include="src\ca\gfx_swapchain.h" />
+    <ClInclude Include="src\ca\gfx_vertexdecl.h" />
     <ClInclude Include="src\ca\math.h" />
     <ClInclude Include="src\ca\math_bezier.h" />
-    <ClInclude Include="src\ca\math_const.h" />
+    <ClInclude Include="src\ca\math_constants.h" />
     <ClInclude Include="src\ca\math_quat.h" />
     <ClInclude Include="src\ca\mem.h" />
     <ClInclude Include="src\ca\mem_chunkarena.h" />

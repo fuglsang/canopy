@@ -5,6 +5,7 @@
 #include "ca/core_assert.h"
 #include "ca/core_log.h"
 #include "ca/gfx/vk.h"
+#include "ca/gfx_vertexdecl.h"
 #include "ca/mem.h"
 
 namespace ca
@@ -33,7 +34,48 @@ namespace ca
 			}
 		}
 
-		void create_pipeline(pipeline_t * pipeline, framebuffer_t * framebuffer, shader_t * stages, u32 stage_count)
+		VkFormat resolve_format(vertexdecl_t::attribdecl_t * decl)
+		{
+		#define __TRY_SELECT(BITS, SUFFIX)											\
+			switch (decl->component_count)											\
+			{																		\
+				case 1: return VK_FORMAT_R##BITS##SUFFIX;							\
+				case 2: return VK_FORMAT_R##BITS##G##BITS##SUFFIX;					\
+				case 3: return VK_FORMAT_R##BITS##G##BITS##B##BITS##SUFFIX;			\
+				case 4: return VK_FORMAT_R##BITS##G##BITS##B##BITS##A##BITS##SUFFIX;\
+			}
+
+			switch (decl->component_type)
+			{
+			case VERTEXATTRIBTYPE_F32:
+				__TRY_SELECT(32, _SFLOAT);
+				break;
+
+			case VERTEXATTRIBTYPE_I32:
+				__TRY_SELECT(32, _SINT);
+				break;
+
+			case VERTEXATTRIBTYPE_U32:
+				__TRY_SELECT(32, _UINT);
+				break;
+
+			case VERTEXATTRIBTYPE_F64:
+				__TRY_SELECT(64, _SFLOAT);
+				break;
+
+			case VERTEXATTRIBTYPE_I64:
+				__TRY_SELECT(64, _SINT);
+				break;
+
+			case VERTEXATTRIBTYPE_U64:
+				__TRY_SELECT(64, _UINT);
+				break;
+			}
+
+			CA_FATAL("unsupported format");
+		}
+
+		void create_pipeline(pipeline_t * pipeline, framebuffer_t * framebuffer, shader_t * stages, u32 stage_count, vertexdecl_t * vdecl)
 		{
 			device_t * device = framebuffer->device;
 			vk_device_t * vk_device = resolve_type(device);
@@ -64,20 +106,37 @@ namespace ca
 			VkResult ret = vkCreatePipelineLayout(vk_device->device, &pipelinelayout_create_info, &vk_device->allocator, &vk_pipeline->layout);
 			CA_ASSERT(ret == VK_SUCCESS);
 
+			VkVertexInputBindingDescription * pipeline_vertexbindings = mem::arena_alloc<VkVertexInputBindingDescription>(CA_APP_STACK, vdecl->buffer_count);
+			for (u32 i = 0; i != vdecl->buffer_count; i++)
+			{
+				pipeline_vertexbindings[i].binding = vdecl->buffers[i].binding;
+				pipeline_vertexbindings[i].stride = vdecl->buffers[i].stride;
+				pipeline_vertexbindings[i].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+			}
+
+			VkVertexInputAttributeDescription * pipeline_vertexattribs = mem::arena_alloc<VkVertexInputAttributeDescription>(CA_APP_STACK, vdecl->attrib_count);
+			for (u32 i = 0; i != vdecl->attrib_count; i++)
+			{
+				pipeline_vertexattribs[i].location = vdecl->attribs[i].location;
+				pipeline_vertexattribs[i].binding = vdecl->buffers[vdecl->attribs[i].binding_index].binding;
+				pipeline_vertexattribs[i].format = resolve_format(&vdecl->attribs[i]);
+				pipeline_vertexattribs[i].offset = vdecl->attribs[i].offset;
+			}
+
 			VkPipelineVertexInputStateCreateInfo pipeline_vertexinputstate;
 			pipeline_vertexinputstate.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 			pipeline_vertexinputstate.pNext = nullptr;
 			pipeline_vertexinputstate.flags = 0;
-			pipeline_vertexinputstate.vertexBindingDescriptionCount = 0;//TODO
-			pipeline_vertexinputstate.pVertexBindingDescriptions = nullptr;//TODO
-			pipeline_vertexinputstate.vertexAttributeDescriptionCount = 0;//TODO
-			pipeline_vertexinputstate.pVertexAttributeDescriptions = nullptr;//TODO
+			pipeline_vertexinputstate.vertexBindingDescriptionCount = vdecl->buffer_count;
+			pipeline_vertexinputstate.pVertexBindingDescriptions = pipeline_vertexbindings;
+			pipeline_vertexinputstate.vertexAttributeDescriptionCount = vdecl->attrib_count;
+			pipeline_vertexinputstate.pVertexAttributeDescriptions = pipeline_vertexattribs;
 
 			VkPipelineInputAssemblyStateCreateInfo pipeline_inputassemblystate;
 			pipeline_inputassemblystate.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 			pipeline_inputassemblystate.pNext = nullptr;
 			pipeline_inputassemblystate.flags = 0;
-			pipeline_inputassemblystate.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;//TODO
+			pipeline_inputassemblystate.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;//TODO topology
 			pipeline_inputassemblystate.primitiveRestartEnable = VK_FALSE;
 
 			VkPipelineViewportStateCreateInfo pipeline_viewportstate;
@@ -85,9 +144,9 @@ namespace ca
 			pipeline_viewportstate.pNext = nullptr;
 			pipeline_viewportstate.flags = 0;
 			pipeline_viewportstate.viewportCount = 1;
-			pipeline_viewportstate.pViewports = nullptr;// ignored because of dynamic state
+			pipeline_viewportstate.pViewports = nullptr;// ignored due to dynamic state
 			pipeline_viewportstate.scissorCount = 1;
-			pipeline_viewportstate.pScissors = nullptr;// ignored because of dynamic state
+			pipeline_viewportstate.pScissors = nullptr;// ignored due to dynamic state
 
 			VkPipelineRasterizationStateCreateInfo pipeline_rasterizationstate;
 			pipeline_rasterizationstate.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -134,13 +193,13 @@ namespace ca
 			pipeline_colorblendstate.pNext = nullptr;
 			pipeline_colorblendstate.flags = 0;
 			pipeline_colorblendstate.logicOpEnable = VK_FALSE;
-			pipeline_colorblendstate.logicOp = VK_LOGIC_OP_MAX_ENUM;
+			pipeline_colorblendstate.logicOp = VK_LOGIC_OP_NO_OP;
 			pipeline_colorblendstate.attachmentCount = vk_framebuffer->attachment_count;//TODO depth stencil (attachment_count)
 			pipeline_colorblendstate.pAttachments = pipeline_colorblendattachments;
-			pipeline_colorblendstate.blendConstants[0] = 1.0f;
-			pipeline_colorblendstate.blendConstants[1] = 1.0f;
-			pipeline_colorblendstate.blendConstants[2] = 1.0f;
-			pipeline_colorblendstate.blendConstants[3] = 1.0f;
+			pipeline_colorblendstate.blendConstants[0] = 0.0f;
+			pipeline_colorblendstate.blendConstants[1] = 0.0f;
+			pipeline_colorblendstate.blendConstants[2] = 0.0f;
+			pipeline_colorblendstate.blendConstants[3] = 0.0f;
 
 			u32 const pipeline_dynamic_count = 2;
 			VkDynamicState pipeline_dynamic[pipeline_dynamic_count] = {
@@ -180,6 +239,8 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 
 			mem::arena_free(CA_APP_STACK, pipeline_colorblendattachments);
+			mem::arena_free(CA_APP_STACK, pipeline_vertexattribs);
+			mem::arena_free(CA_APP_STACK, pipeline_vertexbindings);
 			mem::arena_free(CA_APP_STACK, pipeline_shaderstages);
 
 			pipeline->handle = vk_pipeline;

@@ -92,8 +92,8 @@ namespace ca
 			image_create_info.tiling = VK_IMAGE_TILING_OPTIMAL;
 			image_create_info.usage = resolve_usage_flags(format);
 			image_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			image_create_info.queueFamilyIndexCount = 0;// only for VK_SHARING_MODE_CONCURRENT;
-			image_create_info.pQueueFamilyIndices = nullptr;// only for VK_SHARING_MODE_CONCURRENT
+			image_create_info.queueFamilyIndexCount = 0;// ignored due to VK_SHARING_MODE_EXCLUSIVE
+			image_create_info.pQueueFamilyIndices = nullptr;// ignored due to VK_SHARING_MODE_EXCLUSIVE
 			image_create_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
 			VkResult ret = vkCreateImage(vk_device->device, &image_create_info, &vk_device->allocator, &vk_texture->texture);

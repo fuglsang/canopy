@@ -7,6 +7,8 @@ namespace ca
 {
 	namespace mem
 	{
+		//TODO split into mem_align.h and mem_ptr.h
+
 		inline bool align_ispow2(size_t alignment)
 		{
 			return !(alignment & (alignment - 1));
@@ -58,6 +60,15 @@ namespace ca
 			uintptr_t a0 = reinterpret_cast<uintptr_t>(block0);
 			uintptr_t a1 = reinterpret_cast<uintptr_t>(block1);
 			return (a1 == a0);
+		}
+
+		template <typename T1, typename T2>
+		inline size_t ptr_offsetof(T1 T2::*member)
+		{
+			T2 x;
+			size_t a0 = reinterpret_cast<size_t>(&x);
+			size_t a1 = reinterpret_cast<size_t>(&(x.*member));
+			return (a1 - a0);
 		}
 	}
 }

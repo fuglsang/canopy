@@ -4,6 +4,7 @@
 #include "ca/mem_chunkarena.h"
 #include "ca/gfx.h"
 #include "ca/sys.h"
+#include "ca/gfx_vertexdecl.h"
 
 using namespace ca;
 using namespace ca::core;
@@ -70,8 +71,6 @@ void main(int argc, char** argv)
 	resolve_arg(&test2);
 	resolve_arg(&fobj);
 
-
-
 	auto f = CA_DELEGATE(&test2);
 	auto g = CA_DELEGATE(&blah_t::test3, bla);
 	auto h = CA_DELEGATE(&test4);
@@ -113,7 +112,7 @@ void main(int argc, char** argv)
 		sys::thread_sleep(60);
 	}
 
-	size_t reserved_heap = 1024 * 1024 * 128;
+	size_t reserved_heap = 1024 * 1024 * 4;
 	size_t reserved_stack_per_thread = 1024 * 1024 * 1;
 
 	mem::initialize(reserved_heap, reserved_stack_per_thread);
@@ -138,7 +137,7 @@ void main(int argc, char** argv)
 	}
 
 	sys::window_t window;
-	sys::create_window(&window, "hello win32", { 1000, 50, 320, 200 });
+	sys::create_window(&window, "hello win32", { 1000, 50, 500, 500 });
 	sys::window_show(&window);
 	{
 		sys::windoweventhandler_t eventhandler;
@@ -149,27 +148,35 @@ void main(int argc, char** argv)
 		core::create_eventhandler(&eventhandler, &window.event, CA_DELEGATE_ANON(&eventhandler_anon));
 
 		mem::heaparena_t gfx_heap;
-		mem::create_arena(&gfx_heap, CA_APP_HEAP, 1024 * 1024 * 32);
+		mem::create_arena(&gfx_heap, CA_APP_HEAP, 1024 * 1024 * 2);
 
 		gfx::device_t device;
 		gfx::create_device(&device, &gfx_heap);
 
 		char const vs_glsl[] =
-			"#version 400\n"
+			"#version 410\n"
+			""
+			"layout(location = 0) in vec2 in_position;"
+			"layout(location = 1) in vec3 in_color;"
+			"layout(location = 0) out vec3 out_color;"
+			""
 			"void main() {"
-			"	vec2 pos[3] = vec2[3](vec2(-0.4, 0.4), vec2(0.4, 0.4), vec2(0.0, -0.4));"
-			"	gl_Position = vec4(pos[gl_VertexIndex], 0.0, 1.0);"
+			"	gl_Position = vec4(in_position, 0.0, 1.0);"
+			"	out_color = in_color;"
 			"}";
 
 		gfx::shader_t vs;
 		gfx::create_shader(&vs, &device, gfx::SHADERSTAGE_VERTEX, vs_glsl, sizeof(vs_glsl));
 
 		char const fs_glsl[] =
-			"#version 400\n"
-			"layout(location = 0) out vec4 out_Color;"
+			"#version 410\n"
+			""
+			"layout(location = 0) in vec3 in_color;"
+			"layout(location = 0) out vec4 out_color;"
+			""
 			"void main()"
 			"{"
-			"	out_Color = vec4(0.0, 0.4, 1.0, 1.0);"
+			"	out_color = vec4(in_color, 1.0);"
 			"}";
 
 		gfx::shader_t fs;
@@ -198,8 +205,8 @@ void main(int argc, char** argv)
 			gfx::create_fence(&framedata[i].submitted, &device, true);
 			gfx::create_cmdbuffer(&framedata[i].cmdbuffer, &cmdpool);
 			gfx::rendertarget_t attachments[1] = {
-				&swapchain.textures[i], gfx::RENDERTARGETLOADOP_CLEAR, gfx::RENDERTARGETSTOREOP_STORE, { 1.0f, 0.0f, 0.5f, 1.0f }, 1.0f, 0,
-			};			
+				&swapchain.textures[i], gfx::RENDERTARGETLOADOP_CLEAR, gfx::RENDERTARGETSTOREOP_STORE, { 0.1f, 0.0f, 0.1f, 1.0f }, 1.0f, 0,
+			};
 			gfx::create_framebuffer(&framedata[i].framebuffer, &device, attachments, 1);			
 			gfx::create_semaphore(&frame_acquired[i], &device);
 			gfx::create_semaphore(&frame_presentable[i], &device);
@@ -212,16 +219,31 @@ void main(int argc, char** argv)
 			{
 				gfx::destroy_framebuffer(&framedata[i].framebuffer);
 				gfx::rendertarget_t attachments[1] = {
-					&swapchain->textures[i], gfx::RENDERTARGETLOADOP_CLEAR, gfx::RENDERTARGETSTOREOP_STORE,{ 1.0f, 0.0f, 0.5f, 1.0f }, 1.0f, 0,
+					&swapchain->textures[i], gfx::RENDERTARGETLOADOP_CLEAR, gfx::RENDERTARGETSTOREOP_STORE, { 0.1f, 0.0f, 0.1f, 1.0f }, 1.0f, 0,
 				};
 				gfx::create_framebuffer(&framedata[i].framebuffer, swapchain->device, attachments, 1);
 			}
 		};
 		core::create_eventhandler(&handle_swapchain_recreated, &swapchain.recreated, CA_DELEGATE_ANON(&anon_recreate_framedata));
 
+		struct vertex_t
+		{
+			fvec2_t position;
+			fvec3_t color;
+		};
+
+		gfx::buffer_t vbuf;
+		gfx::create_buffer(&vbuf, &device, gfx::BUFFERTYPE_VERTEX, sizeof(vertex_t) * 3 * 25);
+
+		gfx::shader_t shaders[2] = { vs, fs };
+
+		gfx::vertexdecl_t vdecl;
+		gfx::declare_vertexbuffer(&vdecl, 0, sizeof(vertex_t));
+		gfx::declare_vertexattrib(&vdecl, 0, &vertex_t::position);
+		gfx::declare_vertexattrib(&vdecl, 1, &vertex_t::color);
+
 		gfx::pipeline_t pipeline;
-		gfx::shader_t pipeline_shaders[2] = { vs, fs };
-		gfx::create_pipeline(&pipeline, &framedata[0].framebuffer, pipeline_shaders, 2);
+		gfx::create_pipeline(&pipeline, &framedata[0].framebuffer, shaders, 2, &vdecl);
 
 		u32 acquired_count = 0;
 		u32 acquired_index;
@@ -237,7 +259,7 @@ void main(int argc, char** argv)
 
 			framedata_t * frame = &framedata[acquired_index];
 			{
-				f32 s = math::tau * sys::clockf();
+				f32 s = math::tau * sys::clockf() * 0.1f;
 				f32 k = math::sin(s) * 0.5f + 0.5f;
 
 				gfx::fence_wait_signaled(&frame->submitted);
@@ -245,14 +267,48 @@ void main(int argc, char** argv)
 
 				gfx::cmdbuffer_reset(&frame->cmdbuffer);
 				gfx::cmdbuffer_begin(&frame->cmdbuffer);
-
 				gfx::cmdbuffer_begin_renderpass(&frame->cmdbuffer, &frame->framebuffer);
 
 				gfx::cmdbuffer_bind_pipeline(&frame->cmdbuffer, &pipeline);
-				gfx::cmdbuffer_set_viewport(&frame->cmdbuffer, 0.1f * math::cos(0.2f * s) * swapchain.width, 0.1f * math::sin(0.2f * s) * swapchain.height, swapchain.width, swapchain.height);
+				gfx::cmdbuffer_set_viewport(&frame->cmdbuffer, 0, 0, swapchain.width, swapchain.height);
 				gfx::cmdbuffer_set_scissor(&frame->cmdbuffer, 0, 0, swapchain.width, swapchain.height);
+				
+				gfx::cmdbuffer_bind_vertexbuffer(&frame->cmdbuffer, &vbuf, 0);
+				{
+					vertex_t * v = static_cast<vertex_t *>(gfx::buffer_map(&vbuf, 0, sizeof(vertex_t) * 3 * 25));
 
-				gfx::cmdbuffer_draw(&frame->cmdbuffer, 0, 3);
+					fmat2_t rot;// TODO hm.. not rhs?
+					set_rotation_by_angle(rot, s);
+
+					fvec2_t stepx = { 2.0f / 6.0f, 0.0f };
+					fvec2_t stepy = { 0.0f, 2.0f / 6.0f };
+					fvec2_t step0 = fvec2_t{ -1.0f, -1.0f } + stepx + stepy;
+
+					for (u32 y = 0; y != 5; y++)
+					{
+						for (u32 x = 0; x != 5; x++)
+						{
+							f32 scale = 2.0f / 10.0f + 0.05f * math::sin(f32(x + y) + s * 5.0f);
+
+							fvec2_t offset = f32(x) * stepx + f32(y) * stepy + step0;
+
+							v->position = rot * scale * fvec2_t{ -0.6f, -0.4f } + offset;
+							v->color = { k * 1.0f, (1.0f - k) * 1.0f, 0.0f };
+							v++;
+
+							v->position = rot * scale * fvec2_t{ 0.6f, -0.4f } + offset;
+							v->color = { 0.0f, k * 1.0f, (1.0f - k) * 1.0f };
+							v++;
+
+							v->position = rot * scale * fvec2_t{ 0.0f, 0.7f } + offset;
+							v->color = { (1.0f - k) * 1.0f, 0.0f, k * 1.0f };
+							v++;
+						}
+					}
+
+					gfx::buffer_unmap(&vbuf);
+				}
+				gfx::cmdbuffer_draw(&frame->cmdbuffer, 0, 3 * 25);
 				
 				// ...
 				
@@ -270,6 +326,7 @@ void main(int argc, char** argv)
 		gfx::device_flush(&device);
 
 		gfx::destroy_pipeline(&pipeline);
+		gfx::destroy_buffer(&vbuf);
 
 		for (u32 i = 0; i != swapchain.length; i++)
 		{

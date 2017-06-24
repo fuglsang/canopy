@@ -12,8 +12,8 @@ namespace ca
 {
 	namespace sys
 	{
-		char const * window_name = "ca_window";
-		char const * window_data = "ca_window_data";
+		char const * WINDOW_NAME = "ca_window";
+		char const * WINDOW_DATA = "ca_window_data";
 
 		static HWND resolve_handle(window_t * window)
 		{
@@ -22,7 +22,7 @@ namespace ca
 
 		static window_t * resolve_window(HWND hWnd)
 		{
-			return reinterpret_cast<window_t *>(GetProp(hWnd, window_data));
+			return reinterpret_cast<window_t *>(GetProp(hWnd, WINDOW_DATA));
 		}
 
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -43,7 +43,7 @@ namespace ca
 					CREATESTRUCT * info = reinterpret_cast<CREATESTRUCT *>(lParam);
 					window = reinterpret_cast<window_t *>(info->lpCreateParams);
 					window->handle = hWnd;
-					SetProp(hWnd, window_data, window);
+					SetProp(hWnd, WINDOW_DATA, window);
 					core::event_dispatch(&window->event, window, WINDOWEVENT_CREATED);
 				}
 				goto default_proc;
@@ -101,7 +101,7 @@ namespace ca
 			wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 			wc.lpfnWndProc = WndProc;
 			wc.hInstance = GetModuleHandle(nullptr);
-			wc.lpszClassName = window_name;
+			wc.lpszClassName = WINDOW_NAME;
 
 			ATOM ret = RegisterClass(&wc);
 			CA_ASSERT_MSG(ret != 0, "RegisterClass (%s) FAILED", title);
@@ -116,7 +116,7 @@ namespace ca
 			core::create_event(&window->event);
 
 			HWND hWnd = CreateWindow(
-				window_name,				// window class
+				WINDOW_NAME,				// window class
 				title,						// window title
 				style,						// style
 				rect.x,						// pos x

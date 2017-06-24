@@ -4,6 +4,8 @@
 #include "ca/mem_stackarena.h"
 #include "ca/sys_process.h"
 
+#include <memory.h>
+
 namespace ca
 {
 	namespace mem
@@ -22,6 +24,7 @@ namespace ca
 
 			app_heap_base = sys::process_alloc(heap_size);
 			app_heap_size = heap_size;
+			memset(app_heap_base, 0xdeadbeef, app_heap_size);
 			create_arena(&app_heap, app_heap_base, app_heap_size);
 
 			app_stack_size = stack_size_per_thread;
