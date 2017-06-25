@@ -115,7 +115,7 @@ namespace ca
 
 			struct attribdecl_t
 			{
-				u32 binding_index;
+				u32 buffer_index;
 				u32 location;
 				size_t offset;
 				vertexattribtype component_type;
@@ -127,6 +127,7 @@ namespace ca
 
 			u32 buffer_count = 0;
 			u32 attrib_count = 0;
+			u32 location_mask = 0;
 		};
 
 		inline void declare_vertexbuffer(vertexdecl_t * vertexdecl, u32 binding, size_t stride)
@@ -143,22 +144,46 @@ namespace ca
 			CA_ASSERT(vertexdecl->buffer_count > 0);
 			CA_ASSERT(location < vertexdecl_t::MAX_ATTRIBS);
 
+			u32 location_count = 0;
+			switch (component_type)
+			{
+			case VERTEXATTRIBTYPE_F32:
+			case VERTEXATTRIBTYPE_I32:
+			case VERTEXATTRIBTYPE_U32:
+				location_count = mem::align_up(4 * component_count, 16) / 16;
+				break;
+
+			case VERTEXATTRIBTYPE_F64:
+			case VERTEXATTRIBTYPE_I64:
+			case VERTEXATTRIBTYPE_U64:
+				location_count = mem::align_up(8 * component_count, 16) / 16;
+				break;
+			}
+
+			u32 location_mask = vertexdecl->location_mask;
+			CA_LOG("trying location %u, component_count %u, location_count %u", location, component_count, location_count);
+			for (u32 i = location; i != location_count; i++)
+			{
+				CA_ASSERT_MSG((location_mask & (1 << i)) == 0, "attribute location overlap");
+				location_mask |= (1 << i);
+			}
+
 			vertexdecl_t::attribdecl_t * attribdecl = &vertexdecl->attribs[vertexdecl->attrib_count++];
-			attribdecl->binding_index = vertexdecl->buffer_count - 1;
+			attribdecl->buffer_index = vertexdecl->buffer_count - 1;
 			attribdecl->location = location;
 			attribdecl->offset = offset;
 			attribdecl->component_type = component_type;
 			attribdecl->component_count = component_count;
+			vertexdecl->location_mask = location_mask;
 		}
 
 		template <typename T1, typename T2>
 		inline void declare_vertexattrib(vertexdecl_t * vertexdecl, u32 location, T1 T2::*member)
 		{
-			auto offset = mem::ptr_offsetof(member);
-			auto type = resolve_vertexattribtype_t<T1>::type;
-			auto size = resolve_vertexattribtype_t<T1>::size;
-
-			declare_vertexattrib(vertexdecl, location, offset, (vertexattribtype)type, size);
+			size_t offset = mem::ptr_offsetof(member);
+			u32 component_type = resolve_vertexattribtype_t<T1>::type;
+			u32 component_count = resolve_vertexattribtype_t<T1>::size;
+			declare_vertexattrib(vertexdecl, location, offset, (vertexattribtype)component_type, component_count);
 		}
 	}
 }

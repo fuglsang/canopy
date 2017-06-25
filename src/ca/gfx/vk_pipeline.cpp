@@ -72,7 +72,7 @@ namespace ca
 				break;
 			}
 
-			CA_FATAL("unsupported format");
+			CA_FATAL("unsupported vertex attribute");
 		}
 
 		void create_pipeline(pipeline_t * pipeline, framebuffer_t * framebuffer, shader_t * stages, u32 stage_count, vertexdecl_t * vdecl)
@@ -118,7 +118,7 @@ namespace ca
 			for (u32 i = 0; i != vdecl->attrib_count; i++)
 			{
 				pipeline_vertexattribs[i].location = vdecl->attribs[i].location;
-				pipeline_vertexattribs[i].binding = vdecl->buffers[vdecl->attribs[i].binding_index].binding;
+				pipeline_vertexattribs[i].binding = vdecl->buffers[vdecl->attribs[i].buffer_index].binding;
 				pipeline_vertexattribs[i].format = resolve_format(&vdecl->attribs[i]);
 				pipeline_vertexattribs[i].offset = vdecl->attribs[i].offset;
 			}
