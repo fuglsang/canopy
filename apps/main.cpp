@@ -233,7 +233,7 @@ void main(int argc, char** argv)
 		};
 
 		gfx::buffer_t vbuf;
-		gfx::create_buffer(&vbuf, &device, gfx::BUFFERTYPE_VERTEX, sizeof(vertex_t) * 3 * 25);
+		gfx::create_buffer(&vbuf, &device, gfx::BUFFERTYPE_VERTEX, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(vertex_t) * 3 * 25);
 
 		gfx::shader_t shaders[2] = { vs, fs };
 

@@ -18,16 +18,16 @@ namespace ca
 			{
 			case SHADERSTAGE_COMPUTE:
 				return VK_SHADER_STAGE_COMPUTE_BIT;
-			
+
 			case SHADERSTAGE_FRAGMENT:
 				return VK_SHADER_STAGE_FRAGMENT_BIT;
-			
+
 			case SHADERSTAGE_GEOMETRY:
 				return VK_SHADER_STAGE_GEOMETRY_BIT;
-			
+
 			case SHADERSTAGE_VERTEX:
 				return VK_SHADER_STAGE_VERTEX_BIT;
-			
+
 			default:
 				CA_FATAL("unsupported shaderstage");
 				return VK_SHADER_STAGE_ALL;
@@ -36,7 +36,7 @@ namespace ca
 
 		VkFormat resolve_format(vertexdecl_t::attribdecl_t * decl)
 		{
-		#define __TRY_SELECT(BITS, SUFFIX)											\
+			#define __TRY_SELECT(BITS, SUFFIX)										\
 			switch (decl->component_count)											\
 			{																		\
 				case 1: return VK_FORMAT_R##BITS##SUFFIX;							\
@@ -72,6 +72,7 @@ namespace ca
 				break;
 			}
 
+			#undef __TRY_SELECT
 			CA_FATAL("unsupported vertex attribute");
 		}
 

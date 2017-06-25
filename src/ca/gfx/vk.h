@@ -51,6 +51,10 @@ namespace ca
 			VkInstance instance;
 
 			VkPhysicalDevice physical_device;
+			VkPhysicalDeviceFeatures device_features;
+			VkPhysicalDeviceMemoryProperties device_memory_props;
+			VkPhysicalDeviceProperties device_props;
+
 			VkDevice device;
 			u32 queue_family;
 			VkQueue queue;

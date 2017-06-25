@@ -9,10 +9,18 @@ namespace ca
 		enum buffertype
 		{
 			BUFFERTYPE_INDEX,
-			BUFFERTYPE_VERTEX,
 			BUFFERTYPE_STORAGE,
 			BUFFERTYPE_UNIFORM,
+			BUFFERTYPE_VERTEX,
 			NUM_BUFFERTYPES,
+		};
+
+		enum buffermemorytype
+		{
+			BUFFERMEMORYTYPE_MAPPABLE,
+			BUFFERMEMORYTYPE_MAPPABLE_COHERENT,
+			BUFFERMEMORYTYPE_STAGED,
+			NUM_BUFFERMEMORYTYPES,
 		};
 
 		struct buffer_t
@@ -20,15 +28,16 @@ namespace ca
 			void * handle;
 			device_t * device;
 			buffertype type;
+			buffermemorytype memory_type;
 			size_t size;
 		};
 
-		void create_buffer(buffer_t * buffer, device_t * device, buffertype type, size_t size);
+		void create_buffer(buffer_t * buffer, device_t * device, buffertype type, buffermemorytype memory_type, size_t size);
 		void destroy_buffer(buffer_t * buffer);
 
 		void * buffer_map(buffer_t * buffer, size_t offset, size_t size);
-		void buffer_mapped_flush(buffer_t * buffer, size_t offset, size_t size);
-		void buffer_mapped_invalidate(buffer_t * buffer, size_t offset, size_t size);
+		void buffer_flush_range(buffer_t * buffer, size_t offset, size_t size);
+		void buffer_invalidate_range(buffer_t * buffer, size_t offset, size_t size);
 		void buffer_unmap(buffer_t * buffer);
 	}
 }

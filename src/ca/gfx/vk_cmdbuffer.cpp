@@ -148,7 +148,7 @@ namespace ca
 				index_type = VK_INDEX_TYPE_UINT32;
 				break;
 			default:
-				CA_FATAL("unsupported stride");
+				CA_FATAL("unsupported index buffer stride");
 			}
 
 			vkCmdBindIndexBuffer(vk_cmdbuffer->cmdbuffer, vk_buffer->buffer, offset, index_type);
@@ -164,13 +164,13 @@ namespace ca
 			vkCmdBindVertexBuffers(vk_cmdbuffer->cmdbuffer, 0, 1, &vk_buffer->buffer, &vk_offset);
 		}
 
-		void cmdbuffer_set_viewport(cmdbuffer_t * cmdbuffer, f32 x, f32 y, f32 width, f32 height)
+		void cmdbuffer_set_viewport(cmdbuffer_t * cmdbuffer, i32 x, i32 y, u32 width, u32 height)
 		{
 			VkViewport viewport;
-			viewport.x = x;
-			viewport.y = y;
-			viewport.width = width;
-			viewport.height = height;
+			viewport.x = static_cast<f32>(x);
+			viewport.y = static_cast<f32>(y);
+			viewport.width = static_cast<f32>(width);
+			viewport.height = static_cast<f32>(height);
 			viewport.minDepth = 0.0f;
 			viewport.maxDepth = 1.0f;
 			vkCmdSetViewport(resolve_handle(cmdbuffer), 0, 1, &viewport);

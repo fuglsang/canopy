@@ -86,11 +86,9 @@ namespace ca
 					case VK_PRESENT_MODE_FIFO_RELAXED_KHR:
 						selected = (preferred_swapmode == SWAPMODE_FREE);
 						break;
-
 					case VK_PRESENT_MODE_FIFO_KHR:
 						selected = (preferred_swapmode == SWAPMODE_VSYNC);
 						break;
-
 					case VK_PRESENT_MODE_MAILBOX_KHR:
 						selected = (preferred_swapmode == SWAPMODE_VSYNC_SKIP);
 						break;

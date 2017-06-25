@@ -210,7 +210,7 @@ namespace ca
 				}
 				else
 				{
-					CA_LOG("vulkan_device: no suitable devices");
+					CA_ERROR("vulkan_device: no suitable physical device!");
 					*selected_device = VK_NULL_HANDLE;
 					*selected_queue_family = 0;
 				}
@@ -283,13 +283,17 @@ namespace ca
 			select_physical_device(&vk_device->physical_device, &vk_device->queue_family, vk_device->instance);
 			CA_ASSERT(vk_device->physical_device != VK_NULL_HANDLE);
 
+			vkGetPhysicalDeviceFeatures(vk_device->physical_device, &vk_device->device_features);
+			vkGetPhysicalDeviceMemoryProperties(vk_device->physical_device, &vk_device->device_memory_props);
+			vkGetPhysicalDeviceProperties(vk_device->physical_device, &vk_device->device_props);
+
 			CA_LOG("vulkan_device: create logical device ... ");
 			create_logical_device(&vk_device->device, &vk_device->queue, vk_device->physical_device, vk_device->queue_family, &vk_device->allocator);
 			CA_ASSERT(vk_device->device != VK_NULL_HANDLE);
 			CA_ASSERT(vk_device->queue != VK_NULL_HANDLE);
 
 			device->handle = vk_device;
-			device->arena = arena;			
+			device->arena = arena;
 			CA_LOG("vulkan_device: READY");
 		}
 
@@ -315,9 +319,7 @@ namespace ca
 
 		void device_flush(device_t * device)
 		{
-			vk_device_t * vk_device = resolve_type(device);
-
-			VkResult ret = vkDeviceWaitIdle(vk_device->device);
+			VkResult ret = vkDeviceWaitIdle(resolve_handle(device));
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
