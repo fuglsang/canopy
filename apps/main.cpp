@@ -5,6 +5,7 @@
 #include "ca/gfx.h"
 #include "ca/sys.h"
 #include "ca/gfx_vertexdecl.h"
+#include "ca/gfx_shaderdecl.h"
 
 using namespace ca;
 using namespace ca::core;
@@ -154,7 +155,7 @@ void main(int argc, char** argv)
 		gfx::create_device(&device, &gfx_heap);
 
 		char const vs_glsl[] =
-			"#version 410\n"
+			"#version 420\n"
 			""
 			"layout(location = 0) in vec2 in_position;"
 			"layout(location = 1) in vec3 in_color;"
@@ -165,22 +166,30 @@ void main(int argc, char** argv)
 			"	out_color = in_color;"
 			"}";
 
-		gfx::shader_t vs;
-		gfx::create_shader(&vs, &device, gfx::SHADERSTAGE_VERTEX, vs_glsl, sizeof(vs_glsl));
-
 		char const fs_glsl[] =
-			"#version 410\n"
+			"#version 420\n"
 			""
 			"layout(location = 0) in vec3 in_color;"
 			"layout(location = 0) out vec4 out_color;"
 			""
+			"layout(set = 0, binding = 0) uniform UBO"
+			"{"
+			"	vec3 cb_color;"
+			"};"
+			""
 			"void main()"
 			"{"
-			"	out_color = vec4(in_color, 1.0);"
+			"	out_color = vec4(cb_color, 1.0);"
 			"}";
+
+		gfx::shader_t vs;
+		gfx::create_shader(&vs, &device, gfx::SHADERSTAGE_VERTEX, vs_glsl, sizeof(vs_glsl));
 
 		gfx::shader_t fs;
 		gfx::create_shader(&fs, &device, gfx::SHADERSTAGE_FRAGMENT, fs_glsl, sizeof(fs_glsl));
+
+		gfx::shaderdecl_t xdecl;
+		gfx::declare_property(&xdecl, 0, gfx::SHADERPROP_UNIFORM_BUFFER, gfx::SHADERSTAGE_FRAGMENT);
 
 		gfx::swapchain_t swapchain;
 		gfx::create_swapchain(&swapchain, &device, &window, gfx::SWAPMODE_VSYNC);
@@ -226,6 +235,14 @@ void main(int argc, char** argv)
 		};
 		core::create_eventhandler(&handle_swapchain_recreated, &swapchain.recreated, CA_DELEGATE_ANON(&anon_recreate_framedata));
 
+		struct global_t
+		{
+			fvec3_t color;
+		};
+
+		gfx::buffer_t gbuf;
+		gfx::create_buffer(&gbuf, &device, gfx::BUFFERTYPE_UNIFORM, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(global_t));
+
 		struct vertex_t
 		{
 			fvec2_t position;
@@ -243,7 +260,7 @@ void main(int argc, char** argv)
 		gfx::declare_vertexattrib(&vdecl, 1, &vertex_t::color);
 
 		gfx::pipeline_t pipeline;
-		gfx::create_pipeline(&pipeline, &framedata[0].framebuffer, shaders, 2, &vdecl);
+		gfx::create_pipeline(&pipeline, &framedata[0].framebuffer, shaders, 2, &xdecl, &vdecl);
 
 		u32 acquired_count = 0;
 		u32 acquired_index;
@@ -273,11 +290,18 @@ void main(int argc, char** argv)
 				gfx::cmdbuffer_set_viewport(&frame->cmdbuffer, 0, 0, swapchain.width, swapchain.height);
 				gfx::cmdbuffer_set_scissor(&frame->cmdbuffer, 0, 0, swapchain.width, swapchain.height);
 				
+				//gfx::cmdbuffer_bind_property()
+				{
+					global_t * g = static_cast<global_t *>(gfx::buffer_map(&gbuf, 0, sizeof(global_t)));
+					g->color = { k, 1.0f - k, 0.0f };
+					gfx::buffer_unmap(&gbuf);
+				}
+
 				gfx::cmdbuffer_bind_vertexbuffer(&frame->cmdbuffer, &vbuf, 0);
 				{
 					vertex_t * v = static_cast<vertex_t *>(gfx::buffer_map(&vbuf, 0, sizeof(vertex_t) * 3 * 25));
 
-					fmat2_t rot;// TODO hm.. not rhs?
+					fmat2_t rot;
 					set_rotation_by_angle(rot, s);
 
 					fvec2_t stepx = { 2.0f / 6.0f, 0.0f };
@@ -309,8 +333,6 @@ void main(int argc, char** argv)
 					gfx::buffer_unmap(&vbuf);
 				}
 				gfx::cmdbuffer_draw(&frame->cmdbuffer, 0, 3 * 25);
-				
-				// ...
 				
 				gfx::cmdbuffer_end_renderpass(&frame->cmdbuffer);
 				gfx::cmdbuffer_end(&frame->cmdbuffer);

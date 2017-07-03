@@ -250,6 +250,7 @@ namespace ca
 			device_create_info.pEnabledFeatures = &device_features;
 
 			VkResult ret = vkCreateDevice(physical_device, &device_create_info, allocator, logical_device);
+			CA_LOG("ret = %d", ret);
 			CA_ASSERT(ret == VK_SUCCESS);
 
 			vkGetDeviceQueue(*logical_device, physical_device_queue_family, 0, logical_device_queue);

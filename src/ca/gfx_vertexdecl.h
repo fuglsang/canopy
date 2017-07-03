@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ca/types.h"
+#include "ca/core_assert.h"
 #include "ca/mem_util.h"
 
 namespace ca
@@ -92,7 +93,7 @@ namespace ca
 		struct resolve_vertexattribtype_t<math::mat_t<T, N>>
 		{
 			static u32 const type = resolve_vertexattribtype_t<T>::type;
-			static u32 const size = N;
+			static u32 const size = N * N;
 		};
 
 		template <typename T>
@@ -100,6 +101,13 @@ namespace ca
 		{
 			static u32 const type = resolve_vertexattribtype_t<T>::type;
 			static u32 const size = 4;
+		};
+
+		template <typename T, u32 N>
+		struct resolve_vertexattribtype_t<T[N]>
+		{
+			static u32 const type = resolve_vertexattribtype_t<T>::type;
+			static u32 const size = resolve_vertexattribtype_t<T>::size * N;
 		};
 
 		struct vertexdecl_t
@@ -161,11 +169,13 @@ namespace ca
 			}
 
 			u32 location_mask = vertexdecl->location_mask;
+			u32 location_bit = (1 << location);
 			CA_LOG("trying location %u, component_count %u, location_count %u", location, component_count, location_count);
-			for (u32 i = location; i != location_count; i++)
+			for (u32 i = 0; i != location_count; i++)
 			{
-				CA_ASSERT_MSG((location_mask & (1 << i)) == 0, "attribute location overlap");
-				location_mask |= (1 << i);
+				CA_ASSERT_MSG((location_mask & location_bit) == 0, "vertex attribute location overlap");
+				location_mask |= location_bit;
+				location_bit <<= 1;
 			}
 
 			vertexdecl_t::attribdecl_t * attribdecl = &vertexdecl->attribs[vertexdecl->attrib_count++];

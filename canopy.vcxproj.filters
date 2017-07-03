@@ -186,6 +186,9 @@
     <ClInclude Include="src\ca\math_constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ca\gfx_shaderdecl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ca\math_bezier.inl">

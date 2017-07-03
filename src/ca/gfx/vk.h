@@ -76,6 +76,7 @@ namespace ca
 		struct vk_pipeline_t
 		{
 			VkPipeline pipeline;
+			VkDescriptorSetLayout desclayout;
 			VkPipelineLayout layout;
 		};
 
