@@ -53,8 +53,9 @@ namespace ca
 			return VK_FALSE;
 		}
 
-		static PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT = VK_NULL_HANDLE;
-		static PFN_vkDestroyDebugReportCallbackEXT vkDestroyDebugReportCallbackEXT = VK_NULL_HANDLE;
+		PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT = VK_NULL_HANDLE;
+		PFN_vkDestroyDebugReportCallbackEXT vkDestroyDebugReportCallbackEXT = VK_NULL_HANDLE;
+		PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR = VK_NULL_HANDLE;
 
 		static void create_instance(VkInstance * instance, VkAllocationCallbacks * allocator)
 		{
@@ -63,9 +64,10 @@ namespace ca
 				"VK_LAYER_LUNARG_standard_validation",
 			};
 
-			u8 const num_instance_extensions = 3;
+			u8 const num_instance_extensions = 4;
 			char const * instance_extensions[num_instance_extensions] = {
 				VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
+				VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
 				VK_KHR_SURFACE_EXTENSION_NAME,
 			#if CA_PLATFORM_WIN32
 				VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
@@ -98,6 +100,7 @@ namespace ca
 
 			vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(*instance, "vkCreateDebugReportCallbackEXT");
 			vkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(*instance, "vkDestroyDebugReportCallbackEXT");
+			vkCmdPushDescriptorSetKHR = (PFN_vkCmdPushDescriptorSetKHR)vkGetInstanceProcAddr(*instance, "vkCmdPushDescriptorSetKHR");
 		}
 
 		static void create_debug_callback(VkDebugReportCallbackEXT * debug_callback, VkInstance instance, VkAllocationCallbacks * allocator)
@@ -220,9 +223,10 @@ namespace ca
 
 		static void create_logical_device(VkDevice * logical_device, VkQueue * logical_device_queue, VkPhysicalDevice physical_device, u32 physical_device_queue_family, VkAllocationCallbacks * allocator)
 		{
-			u8 const num_device_extensions = 2;
+			u8 const num_device_extensions = 3;
 			char const * device_extensions[num_device_extensions] = {
 				VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+				VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME, 
 				VK_NV_GLSL_SHADER_EXTENSION_NAME,
 			};
 

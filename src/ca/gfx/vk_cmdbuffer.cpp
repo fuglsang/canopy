@@ -10,6 +10,8 @@ namespace ca
 {
 	namespace gfx
 	{
+		extern PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR;
+
 		void create_cmdbuffer(cmdbuffer_t * cmdbuffer, cmdpool_t * cmdpool)
 		{
 			vk_device_t * vk_device = resolve_type(cmdpool->device);
@@ -131,6 +133,28 @@ namespace ca
 
 			CA_ASSERT(pipeline->type == PIPELINETYPE_GRAPHICS);
 			vkCmdBindPipeline(vk_cmdbuffer->cmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline->pipeline);
+		}
+
+		void cmdbuffer_bind_property(cmdbuffer_t * cmdbuffer, pipeline_t * pipeline, u32 index, buffer_t * buffer)
+		{
+			VkDescriptorBufferInfo descriptor_buffer_info;
+			descriptor_buffer_info.buffer = resolve_handle(buffer);
+			descriptor_buffer_info.offset = 0;
+			descriptor_buffer_info.range = buffer->size;
+
+			VkWriteDescriptorSet write_descriptor_set;
+			write_descriptor_set.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			write_descriptor_set.pNext = nullptr;
+			write_descriptor_set.dstSet = VK_NULL_HANDLE;// not set for push
+			write_descriptor_set.dstBinding = index;
+			write_descriptor_set.dstArrayElement = 0;
+			write_descriptor_set.descriptorCount = 1;
+			write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			write_descriptor_set.pImageInfo = nullptr;
+			write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
+			write_descriptor_set.pTexelBufferView = nullptr;
+
+			vkCmdPushDescriptorSetKHR(resolve_handle(cmdbuffer), VK_PIPELINE_BIND_POINT_GRAPHICS, resolve_type(pipeline)->layout, 0, 1, &write_descriptor_set);
 		}
 
 		void cmdbuffer_bind_indexbuffer(cmdbuffer_t * cmdbuffer, buffer_t * buffer, size_t offset, size_t stride)

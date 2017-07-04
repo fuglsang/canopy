@@ -179,7 +179,7 @@ void main(int argc, char** argv)
 			""
 			"void main()"
 			"{"
-			"	out_color = vec4(cb_color, 1.0);"
+			"	out_color = vec4(in_color * cb_color, 1.0);"
 			"}";
 
 		gfx::shader_t vs;
@@ -240,8 +240,8 @@ void main(int argc, char** argv)
 			fvec3_t color;
 		};
 
-		gfx::buffer_t gbuf;
-		gfx::create_buffer(&gbuf, &device, gfx::BUFFERTYPE_UNIFORM, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(global_t));
+		gfx::buffer_t ubuf;
+		gfx::create_buffer(&ubuf, &device, gfx::BUFFERTYPE_UNIFORM, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(global_t));
 
 		struct vertex_t
 		{
@@ -290,11 +290,13 @@ void main(int argc, char** argv)
 				gfx::cmdbuffer_set_viewport(&frame->cmdbuffer, 0, 0, swapchain.width, swapchain.height);
 				gfx::cmdbuffer_set_scissor(&frame->cmdbuffer, 0, 0, swapchain.width, swapchain.height);
 				
-				//gfx::cmdbuffer_bind_property()
+				gfx::cmdbuffer_bind_property(&frame->cmdbuffer, &pipeline, 0, &ubuf);
 				{
-					global_t * g = static_cast<global_t *>(gfx::buffer_map(&gbuf, 0, sizeof(global_t)));
-					g->color = { k, 1.0f - k, 0.0f };
-					gfx::buffer_unmap(&gbuf);
+					global_t * g = static_cast<global_t *>(gfx::buffer_map(&ubuf, 0, sizeof(global_t)));
+					
+					g->color = { k, 1.0f - k, 1.0f };
+					
+					gfx::buffer_unmap(&ubuf);
 				}
 
 				gfx::cmdbuffer_bind_vertexbuffer(&frame->cmdbuffer, &vbuf, 0);
@@ -349,6 +351,7 @@ void main(int argc, char** argv)
 
 		gfx::destroy_pipeline(&pipeline);
 		gfx::destroy_buffer(&vbuf);
+		gfx::destroy_buffer(&ubuf);
 
 		for (u32 i = 0; i != swapchain.length; i++)
 		{
@@ -364,7 +367,7 @@ void main(int argc, char** argv)
 		gfx::destroy_shader(&fs);
 		gfx::destroy_shader(&vs);
 		gfx::destroy_device(&device);
-	}	
+	}
 	sys::destroy_window(&window);
 	
 	mem::finalize();

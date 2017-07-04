@@ -25,7 +25,7 @@ namespace ca
 		void cmdbuffer_begin_renderpass(cmdbuffer_t * cmdbuffer, framebuffer_t * framebuffer);
 		void cmdbuffer_clear_color(cmdbuffer_t * cmdbuffer, texture_t * texture, math::fvec4_t const & color);
 		void cmdbuffer_bind_pipeline(cmdbuffer_t * cmdbuffer, pipeline_t * pipeline);
-		//void cmdbuffer_bind_property(cmdbuffer_t * cmdbuffer, u32 binding_index, buffer_t * buffer);
+		void cmdbuffer_bind_property(cmdbuffer_t * cmdbuffer, pipeline_t * pipeline, u32 index, buffer_t * buffer);
 		void cmdbuffer_bind_indexbuffer(cmdbuffer_t * cmdbuffer, buffer_t * buffer, size_t offset, size_t stride);
 		void cmdbuffer_bind_vertexbuffer(cmdbuffer_t * cmdbuffer, buffer_t * buffer, size_t offset);
 		void cmdbuffer_set_viewport(cmdbuffer_t * cmdbuffer, i32 x, i32 y, u32 width, u32 height);
