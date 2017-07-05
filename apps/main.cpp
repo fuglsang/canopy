@@ -104,6 +104,18 @@ void main(int argc, char** argv)
 
 	M += B;
 
+	{
+		fvec3_t axis1 = { 0.0f, 0.0f, 1.0f };
+		fvec3_t axis2 = normalize_copy_of(fvec3_t{ 1.0f, 0.0f, 0.0f });
+
+		fquat_t rotation_around_axis1;
+		set_rotation_by_axis_angle(rotation_around_axis1, axis1, pi_4);
+
+		axis2 = rotation_around_axis1 * axis2;
+
+		CA_LOG("axis1 %f,%f,%f rot(axis2) %f,%f,%f", axis1.x, axis1.y, axis1.z, axis2.x, axis2.y, axis2.z);
+	}
+
 	sys::reset_clock();
 
 	int x = 0;

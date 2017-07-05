@@ -21,7 +21,7 @@ namespace ca
 		{
 			// method by fabian giesen
 			// see: http://mollyrocket.com/forums/viewtopic.php?t=833
-			return (v + (T(2) * cross(q.xyz, cross(q.xyz, v) + q.w * v)));
+			return (b + (T(2) * cross(a.xyz, cross(a.xyz, b) + a.w * b)));
 		}
 
 		//-------------------
