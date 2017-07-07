@@ -78,7 +78,6 @@ namespace ca
 		struct vk_pipeline_t
 		{
 			VkPipeline pipeline;
-			VkDescriptorSetLayout desclayout;
 			VkPipelineLayout layout;
 		};
 
@@ -106,6 +105,11 @@ namespace ca
 			VkImage texture;
 			VkFormat format;
 			VkImageView view;
+		};
+
+		struct vk_uniformlayout_t
+		{
+			VkDescriptorSetLayout uniformlayout;
 		};
 
 		struct vk_uniformpool_t
@@ -148,6 +152,7 @@ namespace ca
 		CA_DEFINE_RESOLVE_VK(semaphore);
 		CA_DEFINE_RESOLVE_VK(shader);
 		CA_DEFINE_RESOLVE_VK(swapchain);
+		CA_DEFINE_RESOLVE_VK(uniformlayout);
 		CA_DEFINE_RESOLVE_VK(uniformpool);
 		CA_DEFINE_RESOLVE_VK(uniformset);
 

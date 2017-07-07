@@ -7,8 +7,6 @@ namespace ca
 {
 	namespace gfx
 	{
-		struct device_t;
-
 		struct uniformpool_t
 		{
 			void * handle;

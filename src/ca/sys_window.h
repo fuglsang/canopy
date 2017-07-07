@@ -32,8 +32,6 @@ namespace ca
 			core::event_t<window_t *, windowevent> event;
 		};
 
-		typedef core::eventhandler_t<window_t *, windowevent> windoweventhandler_t;
-
 		void create_window(window_t * window, char const * title, windowrect_t rect);
 		void destroy_window(window_t * window);
 

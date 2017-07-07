@@ -153,12 +153,12 @@ void main(int argc, char** argv)
 	sys::create_window(&window, "hello win32", { 1000, 50, 500, 500 });
 	sys::window_show(&window);
 	{
-		sys::windoweventhandler_t eventhandler;
-		auto eventhandler_anon = [](sys::window_t * window, sys::windowevent msg)
+		auto fn_log_windowevent = [](sys::window_t * window, sys::windowevent msg)
 		{
 			CA_LOG("window %p sends %d", window, msg);
 		};
-		core::create_eventhandler(&eventhandler, &window.event, CA_DELEGATE_ANON(&eventhandler_anon));
+		core::eventhandler_t<sys::window_t *, sys::windowevent> on_windowevent;
+		core::create_eventhandler(&on_windowevent, &window.event, CA_DELEGATE_ANON(&fn_log_windowevent));
 
 		mem::heaparena_t gfx_heap;
 		mem::create_arena(&gfx_heap, CA_APP_HEAP, 1024 * 1024 * 2);
@@ -166,57 +166,82 @@ void main(int argc, char** argv)
 		gfx::device_t device;
 		gfx::create_device(&device, &gfx_heap);
 
-		char const vs_glsl[] =
-			"#version 420\n"
-			""
-			"layout(location = 0) in vec2 in_position;"
-			"layout(location = 1) in vec3 in_color;"
-			"layout(location = 0) out vec3 out_color;"
-			""
-			"void main() {"
-			"	gl_Position = vec4(in_position, 0.0, 1.0);"
-			"	out_color = in_color;"
-			"}";
+		gfx::swapchain_t swapchain;
+		gfx::create_swapchain(&swapchain, &device, &window, gfx::SWAPMODE_VSYNC);
 
-		char const fs_glsl[] =
-			"#version 420\n"
-			""
-			"layout(location = 0) in vec3 in_color;"
-			"layout(location = 0) out vec4 out_color;"
-			""
-			"layout(set = 0, binding = 0) uniform UBO"
-			"{"
-			"	vec3 cb_color;"
-			"};"
-			""
-			"void main()"
-			"{"
-			"	out_color = vec4(in_color * cb_color, 1.0);"
-			"}";
+		char const vs_glsl[] =
+		R"glsl(
+
+			#version 420
+
+			layout(location = 0) in vec2 in_position;
+			layout(location = 1) in vec3 in_color;
+			layout(location = 0) out vec3 out_color;
+			
+			void main() {
+				gl_Position = vec4(in_position, 0.0, 1.0);
+				out_color = in_color;
+			}
+
+		)glsl";
+
+		char const fs_glsl[] = 
+		R"glsl(
+			#version 420
+
+			layout(location = 0) in vec3 in_color;
+			layout(location = 0) out vec4 out_color;
+
+			layout(set = 0, binding = 0) uniform UBO
+			{
+				vec3 cb_color;
+			};
+			
+			void main()
+			{
+				out_color = vec4(in_color * cb_color, 1.0);
+			}
+		)glsl";
 
 		gfx::shader_t vs;
 		gfx::create_shader(&vs, &device, gfx::SHADERSTAGE_VERTEX, vs_glsl, sizeof(vs_glsl));
 
 		gfx::shader_t fs;
 		gfx::create_shader(&fs, &device, gfx::SHADERSTAGE_FRAGMENT, fs_glsl, sizeof(fs_glsl));
+		
+		gfx::shaderdecl_t shaderdecl;
+		gfx::declare_property(&shaderdecl, 0, gfx::SHADERPROP_UNIFORM_BUFFER, gfx::SHADERSTAGE_FRAGMENT);
 
-		gfx::shaderdecl_t xdecl;
-		gfx::declare_property(&xdecl, 0, gfx::SHADERPROP_UNIFORM_BUFFER, gfx::SHADERSTAGE_FRAGMENT);
-
-		gfx::swapchain_t swapchain;
-		gfx::create_swapchain(&swapchain, &device, &window, gfx::SWAPMODE_VSYNC);
+		gfx::uniformlayout_t uniformlayout;
+		gfx::create_uniformlayout(&uniformlayout, &device, &shaderdecl);
+		
+		gfx::uniformpool_t uniformpool;
+		gfx::create_uniformpool(&uniformpool, &device, 3, 3);
 
 		gfx::cmdpool_t cmdpool;
 		gfx::create_cmdpool(&cmdpool, &device);
+
+		struct vertex_t
+		{
+			fvec2_t position;
+			fvec3_t color;
+		};
+
+		struct camera_t
+		{
+			fvec3_t color;
+		};
 
 		struct framedata_t
 		{
 			gfx::fence_t submitted;
 			gfx::cmdbuffer_t cmdbuffer;
+			gfx::buffer_t vertexbuffer;
+			gfx::buffer_t uniformbuffer;
+			gfx::uniformset_t uniformset;
 			gfx::framebuffer_t framebuffer;
 		};
 
-		u32 frame_index = 0;
 		framedata_t * framedata = mem::arena_alloc<framedata_t>(CA_APP_HEAP, swapchain.length);
 		gfx::semaphore_t * frame_acquired = mem::arena_alloc<gfx::semaphore_t>(CA_APP_HEAP, swapchain.length);
 		gfx::semaphore_t * frame_presentable = mem::arena_alloc<gfx::semaphore_t>(CA_APP_HEAP, swapchain.length);
@@ -225,57 +250,47 @@ void main(int argc, char** argv)
 		{
 			gfx::create_fence(&framedata[i].submitted, &device, true);
 			gfx::create_cmdbuffer(&framedata[i].cmdbuffer, &cmdpool);
+			gfx::create_buffer(&framedata[i].vertexbuffer, &device, gfx::BUFFERTYPE_VERTEX, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(vertex_t) * 3 * 25);
+			gfx::create_buffer(&framedata[i].uniformbuffer, &device, gfx::BUFFERTYPE_UNIFORM, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(camera_t));
+			gfx::create_uniformset(&framedata[i].uniformset, &uniformpool, &uniformlayout);
+
 			gfx::rendertarget_t attachments[1] = {
 				&swapchain.textures[i], gfx::RENDERTARGETLOADOP_CLEAR, gfx::RENDERTARGETSTOREOP_STORE, { 0.1f, 0.0f, 0.1f, 1.0f }, 1.0f, 0,
 			};
-			gfx::create_framebuffer(&framedata[i].framebuffer, &device, attachments, 1);			
+
+			gfx::create_framebuffer(&framedata[i].framebuffer, &device, attachments, 1);
 			gfx::create_semaphore(&frame_acquired[i], &device);
 			gfx::create_semaphore(&frame_presentable[i], &device);
 		}
 
-		core::eventhandler_t<gfx::swapchain_t *> handle_swapchain_recreated;
-		auto anon_recreate_framedata = [&framedata](gfx::swapchain_t * swapchain)
+		auto fn_recreate_framedata = [&framedata](gfx::swapchain_t * swapchain)
 		{
 			for (u32 i = 0; i != swapchain->length; i++)
 			{
-				gfx::destroy_framebuffer(&framedata[i].framebuffer);
 				gfx::rendertarget_t attachments[1] = {
 					&swapchain->textures[i], gfx::RENDERTARGETLOADOP_CLEAR, gfx::RENDERTARGETSTOREOP_STORE, { 0.1f, 0.0f, 0.1f, 1.0f }, 1.0f, 0,
 				};
+				
+				gfx::destroy_framebuffer(&framedata[i].framebuffer);
 				gfx::create_framebuffer(&framedata[i].framebuffer, swapchain->device, attachments, 1);
 			}
 		};
-		core::create_eventhandler(&handle_swapchain_recreated, &swapchain.recreated, CA_DELEGATE_ANON(&anon_recreate_framedata));
-
-		struct global_t
-		{
-			fvec3_t color;
-		};
-
-		gfx::buffer_t ubuf;
-		gfx::create_buffer(&ubuf, &device, gfx::BUFFERTYPE_UNIFORM, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(global_t));
-
-		struct vertex_t
-		{
-			fvec2_t position;
-			fvec3_t color;
-		};
-
-		gfx::buffer_t vbuf;
-		gfx::create_buffer(&vbuf, &device, gfx::BUFFERTYPE_VERTEX, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(vertex_t) * 3 * 25);
-
-		gfx::shader_t shaders[2] = { vs, fs };
+		core::eventhandler_t<gfx::swapchain_t *> on_swapchain_recreated;
+		core::create_eventhandler(&on_swapchain_recreated, &swapchain.recreated, CA_DELEGATE_ANON(&fn_recreate_framedata));
 
 		gfx::vertexdecl_t vdecl;
 		gfx::declare_vertexbuffer(&vdecl, 0, sizeof(vertex_t));
 		gfx::declare_vertexattrib(&vdecl, 0, &vertex_t::position);
 		gfx::declare_vertexattrib(&vdecl, 1, &vertex_t::color);
 
+		gfx::shader_t shaders[2] = { vs, fs };
+
 		gfx::pipeline_t pipeline;
-		gfx::create_pipeline(&pipeline, &framedata[0].framebuffer, shaders, 2, &xdecl, &vdecl);
+		gfx::create_pipeline(&pipeline, &framedata[0].framebuffer, shaders, 2, &uniformlayout, &vdecl);
 
 		u32 acquired_count = 0;
-		u32 acquired_index;
+		u32 acquired_index = 0;
+		u32 frame_index = 0;
 
 		while (sys::window_poll(&window))
 		{
@@ -302,18 +317,19 @@ void main(int argc, char** argv)
 				gfx::cmdbuffer_set_viewport(&frame->cmdbuffer, 0, 0, swapchain.width, swapchain.height);
 				gfx::cmdbuffer_set_scissor(&frame->cmdbuffer, 0, 0, swapchain.width, swapchain.height);
 				
-				gfx::cmdbuffer_bind_property(&frame->cmdbuffer, &pipeline, 0, &ubuf);
+				gfx::uniformset_update_index(&frame->uniformset, 0, &frame->uniformbuffer);
+				gfx::cmdbuffer_bind_uniformset(&frame->cmdbuffer, &pipeline, 0, &frame->uniformset);
 				{
-					global_t * g = static_cast<global_t *>(gfx::buffer_map(&ubuf, 0, sizeof(global_t)));
+					camera_t * g = static_cast<camera_t *>(gfx::buffer_map(&frame->uniformbuffer, 0, sizeof(camera_t)));
 					
 					g->color = { k, 1.0f - k, 1.0f };
 					
-					gfx::buffer_unmap(&ubuf);
+					gfx::buffer_unmap(&frame->uniformbuffer);
 				}
 
-				gfx::cmdbuffer_bind_vertexbuffer(&frame->cmdbuffer, &vbuf, 0);
+				gfx::cmdbuffer_bind_vertexbuffer(&frame->cmdbuffer, &frame->vertexbuffer, 0);
 				{
-					vertex_t * v = static_cast<vertex_t *>(gfx::buffer_map(&vbuf, 0, sizeof(vertex_t) * 3 * 25));
+					vertex_t * v = static_cast<vertex_t *>(gfx::buffer_map(&frame->vertexbuffer, 0, sizeof(vertex_t) * 3 * 25));
 
 					fmat2_t rot;
 					set_rotation_by_angle(rot, s);
@@ -344,7 +360,7 @@ void main(int argc, char** argv)
 						}
 					}
 
-					gfx::buffer_unmap(&vbuf);
+					gfx::buffer_unmap(&frame->vertexbuffer);
 				}
 				gfx::cmdbuffer_draw(&frame->cmdbuffer, 0, 3 * 25);
 				
@@ -362,20 +378,23 @@ void main(int argc, char** argv)
 		gfx::device_flush(&device);
 
 		gfx::destroy_pipeline(&pipeline);
-		gfx::destroy_buffer(&vbuf);
-		gfx::destroy_buffer(&ubuf);
 
 		for (u32 i = 0; i != swapchain.length; i++)
 		{
 			gfx::destroy_semaphore(&frame_presentable[i]);
 			gfx::destroy_semaphore(&frame_acquired[i]);
 			gfx::destroy_framebuffer(&framedata[i].framebuffer);
+			gfx::destroy_uniformset(&framedata[i].uniformset);
+			gfx::destroy_buffer(&framedata[i].uniformbuffer);
+			gfx::destroy_buffer(&framedata[i].vertexbuffer);
 			gfx::destroy_cmdbuffer(&framedata[i].cmdbuffer);
 			gfx::destroy_fence(&framedata[i].submitted);
 		}
 		
 		gfx::destroy_cmdpool(&cmdpool);
 		gfx::destroy_swapchain(&swapchain);
+		gfx::destroy_uniformlayout(&uniformlayout);
+		gfx::destroy_uniformpool(&uniformpool);
 		gfx::destroy_shader(&fs);
 		gfx::destroy_shader(&vs);
 		gfx::destroy_device(&device);

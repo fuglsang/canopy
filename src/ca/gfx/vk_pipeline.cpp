@@ -99,7 +99,7 @@ namespace ca
 			return VK_FORMAT_UNDEFINED;
 		}
 
-		void create_pipeline(pipeline_t * pipeline, framebuffer_t * framebuffer, shader_t * stages, u32 stage_count, shaderdecl_t * shaderdecl, vertexdecl_t * vdecl)
+		void create_pipeline(pipeline_t * pipeline, framebuffer_t * framebuffer, shader_t * stages, u32 stage_count, uniformlayout_t * uniformlayout, vertexdecl_t * vdecl)
 		{
 			device_t * device = framebuffer->device;
 			vk_device_t * vk_device = resolve_type(device);
@@ -118,37 +118,16 @@ namespace ca
 				pipeline_shaderstages[i].pSpecializationInfo = nullptr;
 			}
 
-			VkDescriptorSetLayoutBinding * pipelinedesclayout_bindings = mem::arena_alloc<VkDescriptorSetLayoutBinding>(CA_APP_STACK, shaderdecl->property_count);
-			for (u32 i = 0; i != shaderdecl->property_count; i++)
-			{
-				pipelinedesclayout_bindings[i].binding = shaderdecl->properties[i].binding;
-				pipelinedesclayout_bindings[i].descriptorType = resolve_property(shaderdecl->properties[i].type);
-				pipelinedesclayout_bindings[i].descriptorCount = 1;
-				pipelinedesclayout_bindings[i].stageFlags = resolve_stage(shaderdecl->properties[i].stage);;
-				pipelinedesclayout_bindings[i].pImmutableSamplers = nullptr;
-			}
-
-			VkDescriptorSetLayoutCreateInfo pipelinedesclayout_create_info;
-			pipelinedesclayout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			pipelinedesclayout_create_info.pNext = nullptr;
-			pipelinedesclayout_create_info.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
-			pipelinedesclayout_create_info.bindingCount = 1;
-			pipelinedesclayout_create_info.pBindings = pipelinedesclayout_bindings;
-
-			//TODO move out of pipeline?
-			VkResult ret = vkCreateDescriptorSetLayout(vk_device->device, &pipelinedesclayout_create_info, &vk_device->allocator, &vk_pipeline->desclayout);
-			CA_ASSERT(ret == VK_SUCCESS);
-
 			VkPipelineLayoutCreateInfo pipelinelayout_create_info;
 			pipelinelayout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 			pipelinelayout_create_info.pNext = nullptr;
 			pipelinelayout_create_info.flags = 0;
 			pipelinelayout_create_info.setLayoutCount = 1;
-			pipelinelayout_create_info.pSetLayouts = &vk_pipeline->desclayout;
+			pipelinelayout_create_info.pSetLayouts = &resolve_type(uniformlayout)->uniformlayout;
 			pipelinelayout_create_info.pushConstantRangeCount = 0;//TODO late
 			pipelinelayout_create_info.pPushConstantRanges = nullptr;//TODO late
 
-			ret = vkCreatePipelineLayout(vk_device->device, &pipelinelayout_create_info, &vk_device->allocator, &vk_pipeline->layout);
+			VkResult ret = vkCreatePipelineLayout(vk_device->device, &pipelinelayout_create_info, &vk_device->allocator, &vk_pipeline->layout);
 			CA_ASSERT(ret == VK_SUCCESS);
 
 			VkVertexInputBindingDescription * pipeline_vertexbindings = mem::arena_alloc<VkVertexInputBindingDescription>(CA_APP_STACK, vdecl->buffer_count);
@@ -286,7 +265,6 @@ namespace ca
 			mem::arena_free(CA_APP_STACK, pipeline_colorblendattachments);
 			mem::arena_free(CA_APP_STACK, pipeline_vertexattribs);
 			mem::arena_free(CA_APP_STACK, pipeline_vertexbindings);
-			mem::arena_free(CA_APP_STACK, pipelinedesclayout_bindings);
 			mem::arena_free(CA_APP_STACK, pipeline_shaderstages);
 
 			pipeline->handle = vk_pipeline;
@@ -300,7 +278,6 @@ namespace ca
 			vk_pipeline_t * vk_pipeline = resolve_type(pipeline);
 
 			vkDestroyPipelineLayout(vk_device->device, vk_pipeline->layout, &vk_device->allocator);
-			vkDestroyDescriptorSetLayout(vk_device->device, vk_pipeline->desclayout, &vk_device->allocator);
 			vkDestroyPipeline(vk_device->device, vk_pipeline->pipeline, &vk_device->allocator);
 
 			pipeline->handle = nullptr;

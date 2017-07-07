@@ -31,7 +31,7 @@ namespace ca
 			uniformpool_create_info.poolSizeCount = uniformpool_size_count;
 			uniformpool_create_info.pPoolSizes = uniformpool_sizes;
 
-			VkResult ret = vkCreateDescriptorPool(vk_device->device, nullptr, &vk_device->allocator, &vk_uniformpool->uniformpool);
+			VkResult ret = vkCreateDescriptorPool(vk_device->device, &uniformpool_create_info, &vk_device->allocator, &vk_uniformpool->uniformpool);
 			CA_ASSERT(ret == VK_SUCCESS);
 
 			mem::arena_free(CA_APP_STACK, uniformpool_sizes);

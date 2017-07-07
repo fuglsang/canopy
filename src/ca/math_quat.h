@@ -28,7 +28,7 @@ namespace ca
 		inline quat_t<T> operator* (quat_t<T> const & a, quat_t<T> const & b);
 		
 		template <typename T>
-		inline vec_t<T, 3> operator* (quat_t<T> const & a, vec_t<T, 3> const & b);
+		inline vec_t<T, 3> operator* (quat_t<T> const & q, vec_t<T, 3> const & v);
 
 		//-------------------
 		// library functions
