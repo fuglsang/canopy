@@ -27,6 +27,8 @@ namespace ca
 		struct vk_shader_t;
 		struct vk_swapchain_t;
 		struct vk_texture_t;
+		struct vk_uniformpool_t;
+		struct vk_uniformset_t;
 
 		struct vk_buffer_t
 		{
@@ -106,6 +108,16 @@ namespace ca
 			VkImageView view;
 		};
 
+		struct vk_uniformpool_t
+		{
+			VkDescriptorPool uniformpool;
+		};
+
+		struct vk_uniformset_t
+		{
+			VkDescriptorSet uniformset;
+		};
+
 		// resolve_type(), resolve_handle()
 
 		#define CA_DEFINE_RESOLVE_VK_TYPE(ID)							\
@@ -136,6 +148,8 @@ namespace ca
 		CA_DEFINE_RESOLVE_VK(semaphore);
 		CA_DEFINE_RESOLVE_VK(shader);
 		CA_DEFINE_RESOLVE_VK(swapchain);
+		CA_DEFINE_RESOLVE_VK(uniformpool);
+		CA_DEFINE_RESOLVE_VK(uniformset);
 
 		#undef CA_DEFINE_RESOLVE_VK
 		#undef CA_DEFINE_RESOLVE_VK_HANDLE

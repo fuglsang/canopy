@@ -2,7 +2,6 @@
 
 #include "ca/gfx_device.h"
 #include "ca/gfx_texture.h"
-#include "ca/core_array.h"
 
 namespace ca
 {

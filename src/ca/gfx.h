@@ -11,3 +11,5 @@
 #include "ca/gfx_shader.h"
 #include "ca/gfx_swapchain.h"
 #include "ca/gfx_texture.h"
+#include "ca/gfx_uniformpool.h"
+#include "ca/gfx_uniformset.h"

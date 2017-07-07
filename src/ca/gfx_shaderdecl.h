@@ -2,7 +2,6 @@
 
 #include "ca/types.h"
 #include "ca/core_assert.h"
-#include "ca/gfx_shader.h"
 
 namespace ca
 {

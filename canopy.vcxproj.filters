@@ -189,6 +189,12 @@
     <ClInclude Include="src\ca\gfx_shaderdecl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ca\gfx_uniformpool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\gfx_uniformset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ca\math_bezier.inl">
@@ -281,6 +287,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="apps\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\gfx\vk_uniformpool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\gfx\vk_uniformset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
