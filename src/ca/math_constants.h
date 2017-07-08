@@ -14,5 +14,8 @@ namespace ca
 
 		const f32 rcp_pi = 1.0f / pi;
 		const f32 rcp_tau = 1.0f / tau;
+
+		const f32 rad_deg = tau / 360.0f;
+		const f32 deg_rad = 360.0f / tau;
 	}
 }

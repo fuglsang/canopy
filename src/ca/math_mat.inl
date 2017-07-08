@@ -16,7 +16,7 @@ namespace ca
 				for (u32 j = 0; j != N; j++)
 				{
 					M.row[i].e[j] = A.row[i].e[0] * B.row[0].e[j];
-					for (u32 k = 0; k != N; k++)
+					for (u32 k = 1; k != N; k++)
 					{
 						M.row[i].e[j] += A.row[i].e[k] * B.row[k].e[j];
 					}
@@ -225,7 +225,7 @@ namespace ca
 			// calc determinant
 			for (u32 j = 0; j != N; j++)
 			{
-				det_val += det_sgn * M.row[0].e[j] * M_minors[0].e[j];
+				det_val += det_sgn * M.row[0].e[j] * M_minors.row[0].e[j];
 				det_sgn *= T(-1);
 			}
 
@@ -271,41 +271,44 @@ namespace ca
 			subvector<0, 2>(M.row[1]) = { s, c };
 		}
 
-		template <typename T>
-		inline void set_rotation_by_angle_x(mat_t<T, 3> & M, T theta)
+		template <typename T, u32 N>
+		inline void set_rotation_by_angle_x(mat_t<T, N> & M, T theta)
 		{
 			T const c = cos(theta);
 			T const s = sin(theta);
 
-			subvector<0, 3>(M.row[0]) = { T(0), T(0), T(0) };
+			set_identity(M);
+			subvector<0, 3>(M.row[0]) = { T(1), T(0), T(0) };
 			subvector<0, 3>(M.row[1]) = { T(0), c, -s };
 			subvector<0, 3>(M.row[2]) = { T(0), s, c };
 		}
 
-		template <typename T>
-		inline void set_rotation_by_angle_y(mat_t<T, 3> & M, T theta)
+		template <typename T, u32 N>
+		inline void set_rotation_by_angle_y(mat_t<T, N> & M, T theta)
 		{
 			T const c = cos(theta);
 			T const s = sin(theta);
 
+			set_identity(M);
 			subvector<0, 3>(M.row[0]) = { c, T(0), s };
-			subvector<0, 3>(M.row[1]) = { T(0), T(0), T(0) };
+			subvector<0, 3>(M.row[1]) = { T(0), T(1), T(0) };
 			subvector<0, 3>(M.row[2]) = { -s, T(0), c };
 		}
 
-		template <typename T>
-		inline void set_rotation_by_angle_z(mat_t<T, 3> & M, T theta)
+		template <typename T, u32 N>
+		inline void set_rotation_by_angle_z(mat_t<T, N> & M, T theta)
 		{
 			T const c = cos(theta);
 			T const s = sin(theta);
 
+			set_identity(M);
 			subvector<0, 3>(M.row[0]) = { c, -s, T(0) };
 			subvector<0, 3>(M.row[1]) = { s, c, T(0) };
-			subvector<0, 3>(M.row[2]) = { T(0), T(0), T(0) };
+			subvector<0, 3>(M.row[2]) = { T(0), T(0), T(1) };
 		}
 
-		template <typename T>
-		inline void set_rotation_by_axis_angle(mat_t<T, 3> & M, vec_t<T, 3> const & axis, T theta)
+		template <typename T, u32 N>
+		inline void set_rotation_by_axis_angle(mat_t<T, N> & M, vec_t<T, 3> const & axis, T theta)
 		{
 			T const c = cos(theta);
 			T const s = sin(theta);
@@ -317,13 +320,14 @@ namespace ca
 
 			vec_t<T, 3> const s_axis = s * axis;
 
+			set_identity(M);
 			subvector<0, 3>(M.row[0]) = { k * axis.x * axis.x + c, k_xy - s_axis.z, k_xz + s_axis.y };
 			subvector<0, 3>(M.row[1]) = { k_xy + s_axis.z, k * axis.y * axis.y + c, k_yz - s_axis.x };
 			subvector<0, 3>(M.row[2]) = { k_xz - s_axis.y, k_yz + s_axis.x, k * axis.z * axis.z + c };
 		}
 
-		template <typename T>
-		inline void set_rotation_by_quaternion(mat_t<T, 3> & M, quat_t<T> const & q)
+		template <typename T, u32 N>
+		inline void set_rotation_by_quaternion(mat_t<T, N> & M, quat_t<T> const & q)
 		{
 			vec_t<T, 3> const v = q.xyz * T(2);
 			vec_t<T, 3> const w = q.w * v;
@@ -335,23 +339,37 @@ namespace ca
 			T const yz = v.y * q.xyz.z;
 			T const zz = v.z * q.xyz.z;
 
+			set_identity(M);
 			subvector<0, 3>(M.row[0]) = { T(1) - yy - zz, xy - w.z, xz + w.y };
 			subvector<0, 3>(M.row[1]) = { xy + w.z, T(1) - xx - zz, yz - w.x };
 			subvector<0, 3>(M.row[2]) = { xz - w.y, yz + w.x, T(1) - xx - yy };
 		}
 
-		template <typename T>
-		inline void set_rotation_by_look_direction(mat_t<T, 3> & M, vec_t<T, 3> const & forward, vec_t<T, 3> const & up)
+		template <typename T, u32 N>
+		inline void set_rotation_by_look_direction(mat_t<T, N> & M, vec_t<T, 3> const & forward, vec_t<T, 3> const & up)
 		{
 			vec_t<T, 3> const axis_z = -forward;
 			vec_t<T, 3> const axis_x = cross(up, axis_z);;
 			vec_t<T, 3> const axis_y = cross(axis_z, axis_x);
 
-			M.row[0] = axis_x;
-			M.row[1] = axis_y;
-			M.row[2] = axis_z;
-			
-			transpose(M);
+			//CA_LOG("axis_x = %f,%f,%f", axis_x.x, axis_x.y, axis_x.z);
+			//CA_LOG("axis_y = %f,%f,%f", axis_y.x, axis_y.y, axis_y.z);
+			//CA_LOG("axis_z = %f,%f,%f", axis_z.x, axis_z.y, axis_z.z);
+
+			set_identity(M);
+			subvector<0, 3>(M.row[0]) = { axis_x.e[0], axis_y.e[0], axis_z.e[0] };
+			subvector<0, 3>(M.row[1]) = { axis_x.e[1], axis_y.e[1], axis_z.e[1] };
+			subvector<0, 3>(M.row[2]) = { axis_x.e[2], axis_y.e[2], axis_z.e[2] };
+		}
+
+		template <typename T, u32 N>
+		inline void set_translation(mat_t<T, N> & M, vec_t<T, N - 1> const & v)
+		{
+			set_identity(M);
+			for (u32 i = 0; i != N - 1; i++)
+			{
+				M.row[i].e[N - 1] = v.e[i];
+			}
 		}
 
 		template <typename T>

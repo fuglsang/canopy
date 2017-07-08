@@ -122,23 +122,26 @@ namespace ca
 		template <typename T>
 		inline void set_rotation_by_angle(mat_t<T, 2> & M, T theta);
 
-		template <typename T>
-		inline void set_rotation_by_angle_x(mat_t<T, 3> & M, T theta);
+		template <typename T, u32 N>
+		inline void set_rotation_by_angle_x(mat_t<T, N> & M, T theta);
 
-		template <typename T>
-		inline void set_rotation_by_angle_y(mat_t<T, 3> & M, T theta);
+		template <typename T, u32 N>
+		inline void set_rotation_by_angle_y(mat_t<T, N> & M, T theta);
 
-		template <typename T>
-		inline void set_rotation_by_angle_z(mat_t<T, 3> & M, T theta);
+		template <typename T, u32 N>
+		inline void set_rotation_by_angle_z(mat_t<T, N> & M, T theta);
 
-		template <typename T>
-		inline void set_rotation_by_axis_angle(mat_t<T, 3> & M, vec_t<T, 3> const & axis, T theta);
+		template <typename T, u32 N>
+		inline void set_rotation_by_axis_angle(mat_t<T, N> & M, vec_t<T, 3> const & axis, T theta);
 
-		template <typename T>
-		inline void set_rotation_by_quaternion(mat_t<T, 3> & M, quat_t<T> const & q);
+		template <typename T, u32 N>
+		inline void set_rotation_by_quaternion(mat_t<T, N> & M, quat_t<T> const & q);
 
-		template <typename T>
-		inline void set_rotation_by_look_direction(mat_t<T, 3> & M, vec_t<T, 3> const & forward, vec_t<T, 3> const & up);
+		template <typename T, u32 N>
+		inline void set_rotation_by_look_direction(mat_t<T, N> & M, vec_t<T, 3> const & forward, vec_t<T, 3> const & up);
+
+		template <typename T, u32 N>
+		inline void set_translation(mat_t<T, N> & M, vec_t<T, N - 1> const & v);
 
 		template <typename T>
 		inline void set_parallel_projection(mat_t<T, 4> & M, T left, T right, T bottom, T top, T near, T far);

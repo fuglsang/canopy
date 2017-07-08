@@ -144,6 +144,7 @@ namespace ca
 			VkImageUsageFlags desired_image_usage = 0;
 			desired_image_usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 			desired_image_usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+			desired_image_usage |= VK_IMAGE_USAGE_STORAGE_BIT;
 
 			VkSurfaceTransformFlagBitsKHR desired_transform;
 			if (surface_capabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)

@@ -87,7 +87,7 @@ void main(int argc, char** argv)
 	fmat4_t M = A + B;
 	fvec4_t r;
 
-	fmat3_t rot;
+	fmat4_t rot;
 	fquat_t q;
 	set_identity(q);
 	set_rotation_by_direction_change(q, { 1.0f,0.0f,0.0f }, { 0.0f,1.0f,0.0f });
@@ -171,35 +171,35 @@ void main(int argc, char** argv)
 
 		char const vs_glsl[] =
 		R"glsl(
-
 			#version 420
 
 			layout(location = 0) in vec2 in_position;
 			layout(location = 1) in vec3 in_color;
 			layout(location = 0) out vec3 out_color;
 			
-			void main() {
-				gl_Position = vec4(in_position, 0.0, 1.0);
-				out_color = in_color;
-			}
+			layout(set = 0, binding = 0) uniform cb
+			{
+				mat4 cb_view_projection;
+				vec3 cb_color_tint;
+			};
 
+			void main()
+			{
+				gl_Position = cb_view_projection * vec4(in_position, 0.0, 1.0);
+				out_color = in_color * cb_color_tint;
+			}
 		)glsl";
 
-		char const fs_glsl[] = 
+		char const fs_glsl[] =
 		R"glsl(
 			#version 420
 
 			layout(location = 0) in vec3 in_color;
 			layout(location = 0) out vec4 out_color;
-
-			layout(set = 0, binding = 0) uniform UBO
-			{
-				vec3 cb_color;
-			};
 			
 			void main()
 			{
-				out_color = vec4(in_color * cb_color, 1.0);
+				out_color = vec4(in_color, 1.0);
 			}
 		)glsl";
 
@@ -210,7 +210,7 @@ void main(int argc, char** argv)
 		gfx::create_shader(&fs, &device, gfx::SHADERSTAGE_FRAGMENT, fs_glsl, sizeof(fs_glsl));
 		
 		gfx::shaderdecl_t shaderdecl;
-		gfx::declare_property(&shaderdecl, 0, gfx::SHADERPROP_UNIFORM_BUFFER, gfx::SHADERSTAGE_FRAGMENT);
+		gfx::declare_property(&shaderdecl, 0, gfx::SHADERPROP_UNIFORM_BUFFER, gfx::SHADERSTAGE_VERTEX);
 
 		gfx::uniformlayout_t uniformlayout;
 		gfx::create_uniformlayout(&uniformlayout, &device, &shaderdecl);
@@ -229,7 +229,8 @@ void main(int argc, char** argv)
 
 		struct camera_t
 		{
-			fvec3_t color;
+			fmat4_t view_projection;
+			fvec3_t color_tint;
 		};
 
 		struct framedata_t
@@ -322,8 +323,26 @@ void main(int argc, char** argv)
 				{
 					camera_t * g = static_cast<camera_t *>(gfx::buffer_map(&frame->uniformbuffer, 0, sizeof(camera_t)));
 					
-					g->color = { k, 1.0f - k, 1.0f };
-					
+					fvec3_t obj_position = { 0.0f, 0.0f, 0.0f };
+					fvec3_t cam_position = { 1.0f * cos(s), 0.0f, 1.0f * sin(s) };
+					fvec3_t cam_forward = normalize_copy_of(obj_position - cam_position);
+					fvec3_t cam_up = normalize_copy_of(fvec3_t{ sin(s), cos(s), 0.0f });
+					f32 cam_aspect = f32(swapchain.width) / f32(swapchain.height);
+
+					fmat4_t M_projection;
+					fmat4_t M_cam_t;
+					fmat4_t M_cam_r;
+
+					set_translation(M_cam_t, cam_position);					
+					set_rotation_by_look_direction(M_cam_r, cam_forward, cam_up);
+					set_perspective_projection(M_projection, rad_deg * 90.0f, cam_aspect, 0.01f, 1000.0f);
+
+					fmat4_t M_view = M_cam_t * M_cam_r;
+					fmat4_t M_view_inv = invert_copy_of(M_view);
+
+					g->view_projection = transpose_copy_of(M_projection * M_view_inv);
+					g->color_tint = { k, 1.0f - k, 1.0f };
+
 					gfx::buffer_unmap(&frame->uniformbuffer);
 				}
 
