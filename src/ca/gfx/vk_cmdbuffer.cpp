@@ -177,9 +177,9 @@ namespace ca
 		{
 			VkViewport viewport;
 			viewport.x = static_cast<f32>(x);
-			viewport.y = static_cast<f32>(y);
+			viewport.y = static_cast<f32>(y);// TODO find out best way to flip viewport
 			viewport.width = static_cast<f32>(width);
-			viewport.height = static_cast<f32>(height);
+			viewport.height = static_cast<f32>(height);// maybe rely on VK_KHR_maintenance1 ?
 			viewport.minDepth = 0.0f;
 			viewport.maxDepth = 1.0f;
 			vkCmdSetViewport(resolve_handle(cmdbuffer), 0, 1, &viewport);

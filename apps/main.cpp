@@ -150,7 +150,7 @@ void main(int argc, char** argv)
 	}
 
 	sys::window_t window;
-	sys::create_window(&window, "hello win32", { 1000, 50, 500, 500 });
+	sys::create_window(&window, "hello vulkan", { 1000, 50, 400, 225 });
 	sys::window_show(&window);
 	{
 		auto fn_log_windowevent = [](sys::window_t * window, sys::windowevent msg)
@@ -326,7 +326,7 @@ void main(int argc, char** argv)
 					fvec3_t obj_position = { 0.0f, 0.0f, 0.0f };
 					fvec3_t cam_position = { 1.0f * cos(s), 0.0f, 1.0f * sin(s) };
 					fvec3_t cam_forward = normalize_copy_of(obj_position - cam_position);
-					fvec3_t cam_up = normalize_copy_of(fvec3_t{ sin(s), cos(s), 0.0f });
+					fvec3_t cam_up = normalize_copy_of(fvec3_t{ sin(s * 0.3f), cos(s * 0.3f), 0.0f });
 					f32 cam_aspect = f32(swapchain.width) / f32(swapchain.height);
 
 					fmat4_t M_projection;
@@ -350,8 +350,9 @@ void main(int argc, char** argv)
 				{
 					vertex_t * v = static_cast<vertex_t *>(gfx::buffer_map(&frame->vertexbuffer, 0, sizeof(vertex_t) * 3 * 25));
 
-					fmat2_t rot;
+					fmat2_t rot, rot_inc;
 					set_rotation_by_angle(rot, s);
+					set_rotation_by_angle(rot_inc, rad_deg * 2.0f);
 
 					fvec2_t stepx = { 2.0f / 6.0f, 0.0f };
 					fvec2_t stepy = { 0.0f, 2.0f / 6.0f };
@@ -376,6 +377,8 @@ void main(int argc, char** argv)
 							v->position = rot * scale * fvec2_t{ 0.0f, 0.7f } + offset;
 							v->color = { (1.0f - k) * 1.0f, 0.0f, k * 1.0f };
 							v++;
+
+							rot = rot_inc * rot;
 						}
 					}
 

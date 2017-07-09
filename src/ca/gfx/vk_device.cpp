@@ -223,6 +223,7 @@ namespace ca
 			u8 const num_device_extensions = 2;
 			char const * device_extensions[num_device_extensions] = {
 				VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+				//VK_KHR_MAINTENANCE1_EXTENSION_NAME,
 				VK_NV_GLSL_SHADER_EXTENSION_NAME,
 			};
 
