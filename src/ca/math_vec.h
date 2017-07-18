@@ -15,7 +15,7 @@ namespace ca
 			};
 		};
 
-		template<typename T>
+		template <typename T>
 		struct vec_t<T, 2>
 		{
 			union
@@ -25,7 +25,7 @@ namespace ca
 			};
 		};
 
-		template<typename T>
+		template <typename T>
 		struct vec_t<T, 3>
 		{
 			union
@@ -35,7 +35,7 @@ namespace ca
 			};
 		};
 
-		template<typename T>
+		template <typename T>
 		struct vec_t<T, 4>
 		{
 			union
@@ -45,21 +45,25 @@ namespace ca
 			};
 		};
 
-		typedef vec_t<f32, 2> fvec2_t;
-		typedef vec_t<f32, 3> fvec3_t;
-		typedef vec_t<f32, 4> fvec4_t;
+		template <typename T> using vec2_t = vec_t<T, 2>;
+		template <typename T> using vec3_t = vec_t<T, 3>;
+		template <typename T> using vec4_t = vec_t<T, 4>;
 
-		typedef vec_t<f64, 2> dvec2_t;
-		typedef vec_t<f64, 3> dvec3_t;
-		typedef vec_t<f64, 4> dvec4_t;
+		typedef vec2_t<f32> fvec2_t;
+		typedef vec3_t<f32> fvec3_t;
+		typedef vec4_t<f32> fvec4_t;
 
-		typedef vec_t<i32, 2> ivec2_t;
-		typedef vec_t<i32, 3> ivec3_t;
-		typedef vec_t<i32, 4> ivec4_t;
+		typedef vec2_t<f64> dvec2_t;
+		typedef vec3_t<f64> dvec3_t;
+		typedef vec4_t<f64> dvec4_t;
 
-		typedef vec_t<u32, 2> uvec2_t;
-		typedef vec_t<u32, 3> uvec3_t;
-		typedef vec_t<u32, 4> uvec4_t;
+		typedef vec2_t<i32> ivec2_t;
+		typedef vec3_t<i32> ivec3_t;
+		typedef vec4_t<i32> ivec4_t;
+
+		typedef vec2_t<u32> uvec2_t;
+		typedef vec3_t<u32> uvec3_t;
+		typedef vec4_t<u32> uvec4_t;
 
 		//--------------------
 		// operator overloads
@@ -70,28 +74,34 @@ namespace ca
 		// library functions
 
 		template <typename T>
-		inline T cross(vec_t<T, 2> const & a, vec_t<T, 2> const & b);
+		inline T cross(vec2_t<T> const & a, vec2_t<T> const & b);
 
 		template <typename T>
-		inline vec_t<T, 3> cross(vec_t<T, 3> const & a, vec_t<T, 3> const & b);
+		inline vec3_t<T> cross(vec3_t<T> const & a, vec3_t<T> const & b);
 
 		template <typename T, u32 N>
 		inline T dot(vec_t<T, N> const & a, vec_t<T, N> const & b);
 
 		template <typename T, u32 N>
-		inline void homogenize(vec_t<T, N> & v);
+		inline vec_t<T, N> homogenize(vec_t<T, N> const & v);
 
 		template <typename T, u32 N>
-		inline vec_t<T, N> homogenize_copy_of(vec_t<T, N> const & v);
+		inline vec_t<T, N> & homogenize_in_place(vec_t<T, N> & v);
 
 		template <typename T, u32 N>
 		inline T norm(vec_t<T, N> const & v);
 
 		template <typename T, u32 N>
-		inline void normalize(vec_t<T, N> & v);
+		inline T norm_sq(vec_t<T, N> const & v);
 
 		template <typename T, u32 N>
-		inline vec_t<T, N> normalize_copy_of(vec_t<T, N> const & v);
+		inline vec_t<T, N> normalize(vec_t<T, N> const & v);
+
+		template <typename T, u32 N>
+		inline vec_t<T, N> & normalize_in_place(vec_t<T, N> & v);
+
+		template <typename T, u32 N>
+		inline T rcp_norm(vec_t<T, N> const & v);
 
 		template <u32 I, u32 C, typename T, u32 N>
 		inline vec_t<T, C> & subvector(vec_t<T, N> & v);

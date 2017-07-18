@@ -90,7 +90,7 @@ void main(int argc, char** argv)
 	fmat4_t rot;
 	fquat_t q;
 	set_identity(q);
-	set_rotation_by_direction_change(q, { 1.0f,0.0f,0.0f }, { 0.0f,1.0f,0.0f });
+	set_rotation_by_from_to_direction(q, { 1.0f,0.0f,0.0f }, { 0.0f,1.0f,0.0f });
 	set_rotation_by_euler_angles(q, { 0.0f,math::pi,math::tau });
 
 	set_rotation_by_angle_x(rot, math::pi_2);
@@ -98,7 +98,7 @@ void main(int argc, char** argv)
 	set_rotation_by_angle_z(rot, math::pi_2);
 	set_rotation_by_axis_angle(rot, { 1.0f,0.0f,0.0f }, math::pi_2);
 	set_rotation_by_quaternion(rot, q);
-	set_rotation_by_look_direction(rot, { 0.0f,0.0f,-1.0f }, { 0.0f,1.0f,0.0f });
+	set_rotation_by_forward_up(rot, { 0.0f,0.0f,-1.0f }, { 0.0f,1.0f,0.0f });
 	
 	r = M * r;
 
@@ -106,7 +106,7 @@ void main(int argc, char** argv)
 
 	{
 		fvec3_t axis1 = { 0.0f, 0.0f, 1.0f };
-		fvec3_t axis2 = normalize_copy_of(fvec3_t{ 1.0f, 0.0f, 0.0f });
+		fvec3_t axis2 = normalize(fvec3_t{ 1.0f, 0.0f, 0.0f });
 
 		fquat_t rotation_around_axis1;
 		set_rotation_by_axis_angle(rotation_around_axis1, axis1, pi_4);
@@ -325,22 +325,15 @@ void main(int argc, char** argv)
 					
 					fvec3_t obj_position = { 0.0f, 0.0f, 0.0f };
 					fvec3_t cam_position = { 1.0f * cos(s), 0.0f, 1.0f * sin(s) };
-					fvec3_t cam_forward = normalize_copy_of(obj_position - cam_position);
-					fvec3_t cam_up = normalize_copy_of(fvec3_t{ sin(s * 0.3f), cos(s * 0.3f), 0.0f });
+					fvec3_t cam_forward = normalize(obj_position - cam_position);
+					fvec3_t cam_up = normalize(fvec3_t{ sin(s * 0.3f), cos(s * 0.3f), 0.0f });
 					f32 cam_aspect = f32(swapchain.width) / f32(swapchain.height);
 
-					fmat4_t M_projection;
-					fmat4_t M_cam_t;
-					fmat4_t M_cam_r;
+					fmat4_t M_projection = mat4_perspective(rad_deg * 90.0f, cam_aspect, 0.01f, 1000.0f);
+					fmat4_t M_view = mat4_look_at(cam_position, obj_position, cam_up);
+					fmat4_t M_view_inv = inverse(M_view);
 
-					set_translation(M_cam_t, cam_position);					
-					set_rotation_by_look_direction(M_cam_r, cam_forward, cam_up);
-					set_perspective_projection(M_projection, rad_deg * 90.0f, cam_aspect, 0.01f, 1000.0f);
-
-					fmat4_t M_view = M_cam_t * M_cam_r;
-					fmat4_t M_view_inv = invert_copy_of(M_view);
-
-					g->view_projection = transpose_copy_of(M_projection * M_view_inv);
+					g->view_projection = transpose(M_projection * M_view_inv);
 					g->color_tint = { k, 1.0f - k, 1.0f };
 
 					gfx::buffer_unmap(&frame->uniformbuffer);
@@ -350,9 +343,8 @@ void main(int argc, char** argv)
 				{
 					vertex_t * v = static_cast<vertex_t *>(gfx::buffer_map(&frame->vertexbuffer, 0, sizeof(vertex_t) * 3 * 25));
 
-					fmat2_t rot, rot_inc;
-					set_rotation_by_angle(rot, s);
-					set_rotation_by_angle(rot_inc, rad_deg * 2.0f);
+					fmat2_t rot = mat2_rotation(s);
+					fmat2_t inc = mat2_rotation(rad_deg * 2.0f);
 
 					fvec2_t stepx = { 2.0f / 6.0f, 0.0f };
 					fvec2_t stepy = { 0.0f, 2.0f / 6.0f };
@@ -378,7 +370,7 @@ void main(int argc, char** argv)
 							v->color = { (1.0f - k) * 1.0f, 0.0f, k * 1.0f };
 							v++;
 
-							rot = rot_inc * rot;
+							rot = inc * rot;
 						}
 					}
 

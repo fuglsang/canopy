@@ -87,7 +87,7 @@ namespace ca
 		}
 
 		template <typename T>
-		inline T rsqrt(T const & a)
+		inline T rcp_sqrt(T const & a)
 		{
 			return rcp(sqrt(a));
 		}

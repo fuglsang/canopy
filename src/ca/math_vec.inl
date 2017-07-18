@@ -85,13 +85,13 @@ namespace ca
 		// library functions
 
 		template <typename T>
-		inline T cross(vec_t<T, 2> const & a, vec_t<T, 2> const & b)
+		inline T cross(vec2_t<T> const & a, vec2_t<T> const & b)
 		{
 			return (a.x * b.y - a.y * b.x);
 		}
 
 		template <typename T>
-		inline vec_t<T, 3> cross(vec_t<T, 3> const & a, vec_t<T, 3> const & b)
+		inline vec3_t<T> cross(vec3_t<T> const & a, vec3_t<T> const & b)
 		{
 			return { a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x };
 		}
@@ -108,21 +108,15 @@ namespace ca
 		}
 
 		template <typename T, u32 N>
-		inline void homogenize(vec_t<T, N> & v)
+		inline vec_t<T, N> homogenize(vec_t<T, N> const & v)
 		{
-			T w = v.e[N - 1];
-			for (u32 i = 0; i != N; i++)
-			{
-				v.e[i] /= w;
-			}
+			return (v / v.e[N - 1]);
 		}
 
 		template <typename T, u32 N>
-		inline vec_t<T, N> homogenize_copy_of(vec_t<T, N> const & v)
+		inline vec_t<T, N> & homogenize_in_place(vec_t<T, N> & v)
 		{
-			vec_t<T, N> copy = v;
-			homogenize(copy);
-			return copy;
+			return (v /= v.e[N - 1]);
 		}
 
 		template <typename T, u32 N>
@@ -132,23 +126,33 @@ namespace ca
 		}
 
 		template <typename T, u32 N>
-		inline void normalize(vec_t<T, N> & v)
+		inline T norm_sq(vec_t<T, N> const & v)
 		{
-			v = v / norm(v);
+			return dot(v, v);
 		}
 
 		template <typename T, u32 N>
-		inline vec_t<T, N> normalize_copy_of(vec_t<T, N> const & v)
+		inline vec_t<T, N> normalize(vec_t<T, N> const & v)
 		{
-			vec_t<T, N> copy = v;
-			normalize(copy);
-			return copy;
+			return (v * rcp_norm(v));
+		}
+
+		template <typename T, u32 N>
+		inline vec_t<T, N> & normalize_in_place(vec_t<T, N> & v)
+		{
+			return (v *= rcp_norm(v));
+		}
+
+		template <typename T, u32 N>
+		inline T rcp_norm(vec_t<T, N> const & v)
+		{
+			return rcp_sqrt(dot(v, v));
 		}
 
 		template <u32 I, u32 C, typename T, u32 N>
 		inline vec_t<T, C> & subvector(vec_t<T, N> & v)
 		{
-			CA_ASSERT(I + C <= N);
+			static_assert(I + C <= N, "out of bounds");
 			return *reinterpret_cast<vec_t<T, C> *>(v.e + I);
 		}
 	}
