@@ -52,10 +52,24 @@ namespace ca
 		inline void set_rotation_by_axis_angle(quat_t<T> & q, vec3_t<T> const & axis, T theta);
 
 		template <typename T>
-		inline void set_rotation_by_euler_angles(quat_t<T> & q, vec3_t<T> theta_xyz);
+		inline void set_rotation_by_euler_angles(quat_t<T> & q, vec3_t<T> euler_xyz);
 
 		template <typename T, u32 N>
 		inline void set_rotation_by_from_to_direction(quat_t<T> & q, vec3_t<T> const & v0, vec3_t<T> const & v1);
+
+		// - - - -
+
+		template <typename T>
+		inline quat_t<T> quat_identity();
+
+		template <typename T>
+		inline quat_t<T> quat_rotation(vec3_t<T> const & axis, T theta);
+
+		template <typename T>
+		inline quat_t<T> quat_rotation(vec3_t<T> euler_xyz);
+
+		template <typename T>
+		inline quat_t<T> quat_rotation(vec3_t<T> const & v0, vec3_t<T> const & v1);
 	}
 }
 

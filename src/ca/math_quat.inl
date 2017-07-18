@@ -77,11 +77,11 @@ namespace ca
 		}
 
 		template <typename T>
-		inline void set_rotation_by_euler_angles(quat_t<T> & q, vec3_t<T> theta_xyz)
+		inline void set_rotation_by_euler_angles(quat_t<T> & q, vec3_t<T> euler_xyz)
 		{
-			T hz = theta_xyz.z / T(2);// roll
-			T hx = theta_xyz.x / T(2);// pitch
-			T hy = theta_xyz.y / T(2);// yaw
+			T hz = euler_xyz.z / T(2);// roll
+			T hx = euler_xyz.x / T(2);// pitch
+			T hy = euler_xyz.y / T(2);// yaw
 
 			T c1 = cos(hz); T s1 = sin(hz);
 			T c2 = cos(hx); T s2 = sin(hx);
@@ -112,6 +112,40 @@ namespace ca
 
 				normalize_in_place(q);
 			}
+		}
+
+		// - - - -
+
+		template <typename T>
+		inline quat_t<T> quat_identity()
+		{
+			quat_t<T> q;
+			set_identity(q);
+			return q;
+		}
+
+		template <typename T>
+		inline quat_t<T> quat_rotation(vec3_t<T> const & axis, T theta)
+		{
+			quat_t<T> q;
+			set_rotation_by_axis_angle(q, axis, theta);
+			return q;
+		}
+
+		template <typename T>
+		inline quat_t<T> quat_rotation(vec3_t<T> euler_xyz)
+		{
+			quat_t<T> q;
+			set_rotation_by_euler_angles(q, euler_xyz);
+			return q;
+		}
+
+		template <typename T>
+		inline quat_t<T> quat_rotation(vec3_t<T> const & v0, vec3_t<T> const & v1)
+		{
+			quat_t<T> q;
+			set_rotation_by_from_to_direction(q, v0, v1);
+			return q;
 		}
 	}
 }
