@@ -68,17 +68,17 @@ namespace ca
 				buffer_usage_flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 				break;
 
-			case BUFFERTYPE_VERTEX:
-				buffer_usage_flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
-				buffer_usage_flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+			case BUFFERTYPE_UNIFORM_CONSTANT:
+				buffer_usage_flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 				break;
 
-			case BUFFERTYPE_STORAGE:
+			case BUFFERTYPE_UNIFORM_STORAGE:
 				buffer_usage_flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 				break;
 
-			case BUFFERTYPE_UNIFORM:
-				buffer_usage_flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+			case BUFFERTYPE_VERTEX:
+				buffer_usage_flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+				buffer_usage_flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 				break;
 
 			default:

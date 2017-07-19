@@ -55,6 +55,15 @@ namespace ca
 				*signaled = false;
 		}
 
+		void fence_reset_signaled(fence_t * fence)
+		{
+			vk_device_t * vk_device = resolve_type(fence->device);
+			vk_fence_t * vk_fence = resolve_type(fence);
+
+			VkResult ret = vkResetFences(vk_device->device, 1, &vk_fence->fence);
+			CA_ASSERT(ret == VK_SUCCESS);
+		}
+
 		void fence_wait_signaled(fence_t * fence)
 		{
 			vk_device_t * vk_device = resolve_type(fence->device);
@@ -64,13 +73,10 @@ namespace ca
 			CA_ASSERT(ret == VK_SUCCESS);
 		}
 
-		void fence_reset_signaled(fence_t * fence)
+		void fence_wait_reset_signaled(fence_t * fence)
 		{
-			vk_device_t * vk_device = resolve_type(fence->device);
-			vk_fence_t * vk_fence = resolve_type(fence);
-
-			VkResult ret = vkResetFences(vk_device->device, 1, &vk_fence->fence);
-			CA_ASSERT(ret == VK_SUCCESS);
+			fence_wait_signaled(fence);
+			fence_reset_signaled(fence);
 		}
 	}
 }

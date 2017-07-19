@@ -28,8 +28,7 @@ namespace ca
 			NUM_TEXTUREFORMATS,
 		};
 
-		enum texturelayout		// usage?
-
+		enum texturelayout// usage?
 		{
 /*
 VK_IMAGE_LAYOUT_UNDEFINED = 0,

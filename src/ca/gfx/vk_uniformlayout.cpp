@@ -10,8 +10,29 @@ namespace ca
 {
 	namespace gfx
 	{
-		extern VkDescriptorType resolve_property(shaderprop type);
 		extern VkShaderStageFlagBits resolve_stage(shaderstage stage);
+
+		VkDescriptorType resolve_property(shaderprop type)
+		{
+			switch (type)
+			{
+			case SHADERPROP_SAMPLER:
+				return VK_DESCRIPTOR_TYPE_SAMPLER;
+
+			case SHADERPROP_STORAGE_BUFFER:
+				return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+			case SHADERPROP_TEXTURE:
+				return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+
+			case SHADERPROP_UNIFORM_BUFFER:
+				return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+			default:
+				CA_FATAL("unsupported shader property");
+				return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+			}
+		}
 
 		void create_uniformlayout(uniformlayout_t * uniformlayout, device_t * device, shaderdecl_t * shaderdecl)
 		{

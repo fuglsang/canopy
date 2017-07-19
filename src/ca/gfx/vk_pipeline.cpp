@@ -34,28 +34,6 @@ namespace ca
 			}
 		}
 
-		VkDescriptorType resolve_property(shaderprop type)
-		{
-			switch (type)
-			{
-			case SHADERPROP_SAMPLER:
-				return VK_DESCRIPTOR_TYPE_SAMPLER;
-
-			case SHADERPROP_STORAGE_BUFFER:
-				return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-
-			case SHADERPROP_TEXTURE:
-				return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-
-			case SHADERPROP_UNIFORM_BUFFER:
-				return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-
-			default:
-				CA_FATAL("unsupported shader property");
-				return VK_DESCRIPTOR_TYPE_MAX_ENUM;
-			}
-		}
-
 		VkFormat resolve_format(vertexdecl_t::attribdecl_t * decl)
 		{
 			#define __TRY_SELECT(BITS, SUFFIX)										\

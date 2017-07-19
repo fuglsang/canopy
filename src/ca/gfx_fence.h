@@ -16,7 +16,8 @@ namespace ca
 		void destroy_fence(fence_t * fence);
 
 		void fence_peek_signaled(fence_t * fence, bool * signaled);
-		void fence_wait_signaled(fence_t * fence);
 		void fence_reset_signaled(fence_t * fence);
+		void fence_wait_signaled(fence_t * fence);
+		void fence_wait_reset_signaled(fence_t * fence);
 	}
 }

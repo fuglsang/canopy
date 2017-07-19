@@ -33,7 +33,7 @@ namespace ca
 			u32 binding_mask = 0;
 		};
 
-		inline void declare_property(shaderdecl_t * shaderdecl, u32 binding, shaderprop type, shaderstage stage)
+		inline void shaderdecl_uniform(shaderdecl_t * shaderdecl, u32 binding, shaderprop type, shaderstage stage)
 		{
 			CA_ASSERT(binding < shaderdecl_t::MAX_PROPERTIES);
 

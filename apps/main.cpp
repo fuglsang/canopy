@@ -157,8 +157,8 @@ void main(int argc, char** argv)
 		{
 			CA_LOG("window %p sends %d", window, msg);
 		};
-		core::eventhandler_t<sys::window_t *, sys::windowevent> on_windowevent;
-		core::create_eventhandler(&on_windowevent, &window.event, CA_DELEGATE_ANON(&fn_log_windowevent));
+		core::eventhandler_t<sys::window_t *, sys::windowevent> on_window_event;
+		core::create_eventhandler(&on_window_event, &window.event, CA_DELEGATE_ANON(&fn_log_windowevent));
 
 		mem::heaparena_t gfx_heap;
 		mem::create_arena(&gfx_heap, CA_APP_HEAP, 1024 * 1024 * 2);
@@ -210,13 +210,13 @@ void main(int argc, char** argv)
 		gfx::create_shader(&fs, &device, gfx::SHADERSTAGE_FRAGMENT, fs_glsl, sizeof(fs_glsl));
 		
 		gfx::shaderdecl_t shaderdecl;
-		gfx::declare_property(&shaderdecl, 0, gfx::SHADERPROP_UNIFORM_BUFFER, gfx::SHADERSTAGE_VERTEX);
+		gfx::shaderdecl_uniform(&shaderdecl, 0, gfx::SHADERPROP_UNIFORM_BUFFER, gfx::SHADERSTAGE_VERTEX);
 
 		gfx::uniformlayout_t uniformlayout;
 		gfx::create_uniformlayout(&uniformlayout, &device, &shaderdecl);
 		
 		gfx::uniformpool_t uniformpool;
-		gfx::create_uniformpool(&uniformpool, &device, 3, 3);
+		gfx::create_uniformpool(&uniformpool, &device, swapchain.length, swapchain.length);
 
 		gfx::cmdpool_t cmdpool;
 		gfx::create_cmdpool(&cmdpool, &device);
@@ -252,7 +252,7 @@ void main(int argc, char** argv)
 			gfx::create_fence(&framedata[i].submitted, &device, true);
 			gfx::create_cmdbuffer(&framedata[i].cmdbuffer, &cmdpool);
 			gfx::create_buffer(&framedata[i].vertexbuffer, &device, gfx::BUFFERTYPE_VERTEX, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(vertex_t) * 3 * 25);
-			gfx::create_buffer(&framedata[i].uniformbuffer, &device, gfx::BUFFERTYPE_UNIFORM, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(camera_t));
+			gfx::create_buffer(&framedata[i].uniformbuffer, &device, gfx::BUFFERTYPE_UNIFORM_CONSTANT, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(camera_t));
 			gfx::create_uniformset(&framedata[i].uniformset, &uniformpool, &uniformlayout);
 
 			gfx::rendertarget_t attachments[1] = {
@@ -280,9 +280,9 @@ void main(int argc, char** argv)
 		core::create_eventhandler(&on_swapchain_recreated, &swapchain.recreated, CA_DELEGATE_ANON(&fn_recreate_framedata));
 
 		gfx::vertexdecl_t vdecl;
-		gfx::declare_vertexbuffer(&vdecl, 0, sizeof(vertex_t));
-		gfx::declare_vertexattrib(&vdecl, 0, &vertex_t::position);
-		gfx::declare_vertexattrib(&vdecl, 1, &vertex_t::color);
+		gfx::vertexdecl_buffer(&vdecl, 0, sizeof(vertex_t));
+		gfx::vertexdecl_attrib(&vdecl, 0, &vertex_t::position);
+		gfx::vertexdecl_attrib(&vdecl, 1, &vertex_t::color);
 
 		gfx::shader_t shaders[2] = { vs, fs };
 
@@ -307,8 +307,7 @@ void main(int argc, char** argv)
 				f32 s = math::tau * sys::clockf() * 0.1f;
 				f32 k = math::sin(s) * 0.5f + 0.5f;
 
-				gfx::fence_wait_signaled(&frame->submitted);
-				gfx::fence_reset_signaled(&frame->submitted);
+				gfx::fence_wait_reset_signaled(&frame->submitted);
 
 				gfx::cmdbuffer_reset(&frame->cmdbuffer);
 				gfx::cmdbuffer_begin(&frame->cmdbuffer);

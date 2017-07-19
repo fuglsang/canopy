@@ -138,7 +138,7 @@ namespace ca
 			u32 location_mask = 0;
 		};
 
-		inline void declare_vertexbuffer(vertexdecl_t * vertexdecl, u32 binding, size_t stride)
+		inline void vertexdecl_buffer(vertexdecl_t * vertexdecl, u32 binding, size_t stride)
 		{
 			CA_ASSERT(binding < vertexdecl_t::MAX_BUFFERS);
 			
@@ -147,7 +147,7 @@ namespace ca
 			bufferdecl->stride = stride;
 		}
 
-		inline void declare_vertexattrib(vertexdecl_t * vertexdecl, u32 location, size_t offset, vertexattribtype component_type, u32 component_count)
+		inline void vertexdecl_attrib(vertexdecl_t * vertexdecl, u32 location, size_t offset, vertexattribtype component_type, u32 component_count)
 		{
 			CA_ASSERT(vertexdecl->buffer_count > 0);
 			CA_ASSERT(location < vertexdecl_t::MAX_ATTRIBS);
@@ -188,12 +188,12 @@ namespace ca
 		}
 
 		template <typename T1, typename T2>
-		inline void declare_vertexattrib(vertexdecl_t * vertexdecl, u32 location, T1 T2::*member)
+		inline void vertexdecl_attrib(vertexdecl_t * vertexdecl, u32 location, T1 T2::*member)
 		{
 			size_t offset = mem::ptr_offsetof(member);
 			u32 component_type = resolve_vertexattribtype_t<T1>::type;
 			u32 component_count = resolve_vertexattribtype_t<T1>::size;
-			declare_vertexattrib(vertexdecl, location, offset, (vertexattribtype)component_type, component_count);
+			vertexdecl_attrib(vertexdecl, location, offset, (vertexattribtype)component_type, component_count);
 		}
 	}
 }
