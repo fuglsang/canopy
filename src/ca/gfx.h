@@ -13,3 +13,5 @@
 #include "ca/gfx_texture.h"
 #include "ca/gfx_uniformpool.h"
 #include "ca/gfx_uniformset.h"
+#include "ca/gfx_uniformsetdecl.h"
+#include "ca/gfx_uniformsetlayout.h"

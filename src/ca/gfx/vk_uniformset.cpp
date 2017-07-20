@@ -9,7 +9,7 @@ namespace ca
 {
 	namespace gfx
 	{
-		void create_uniformset(uniformset_t * uniformset, uniformpool_t * uniformpool, uniformlayout_t * uniformlayout)
+		void create_uniformset(uniformset_t * uniformset, uniformpool_t * uniformpool, uniformsetlayout_t * uniformsetlayout)
 		{
 			vk_device_t * vk_device = resolve_type(uniformpool->device);
 			vk_uniformpool_t * vk_uniformpool = resolve_type(uniformpool);
@@ -20,7 +20,7 @@ namespace ca
 			uniformset_allocate_info.pNext = nullptr;
 			uniformset_allocate_info.descriptorPool = vk_uniformpool->uniformpool;
 			uniformset_allocate_info.descriptorSetCount = 1;
-			uniformset_allocate_info.pSetLayouts = &resolve_type(uniformlayout)->uniformlayout;
+			uniformset_allocate_info.pSetLayouts = &resolve_type(uniformsetlayout)->uniformsetlayout;
 
 			VkResult ret = vkAllocateDescriptorSets(vk_device->device, &uniformset_allocate_info, &vk_uniformset->uniformset);
 			CA_ASSERT(ret == VK_SUCCESS);

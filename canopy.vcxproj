@@ -205,10 +205,10 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\gfx_renderpass.h" />
     <ClInclude Include="src\ca\gfx_semaphore.h" />
     <ClInclude Include="src\ca\gfx_swapchain.h" />
-    <ClInclude Include="src\ca\gfx_shaderdecl.h" />
-    <ClInclude Include="src\ca\gfx_uniformlayout.h" />
     <ClInclude Include="src\ca\gfx_uniformpool.h" />
     <ClInclude Include="src\ca\gfx_uniformset.h" />
+    <ClInclude Include="src\ca\gfx_uniformsetdecl.h" />
+    <ClInclude Include="src\ca\gfx_uniformsetlayout.h" />
     <ClInclude Include="src\ca\gfx_vertexdecl.h" />
     <ClInclude Include="src\ca\math.h" />
     <ClInclude Include="src\ca\math_bezier.h" />
@@ -262,9 +262,9 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="src\ca\gfx\vk_shader.cpp" />
     <ClCompile Include="src\ca\gfx\vk_swapchain.cpp" />
     <ClCompile Include="src\ca\gfx\vk_texture.cpp" />
-    <ClCompile Include="src\ca\gfx\vk_uniformlayout.cpp" />
     <ClCompile Include="src\ca\gfx\vk_uniformpool.cpp" />
     <ClCompile Include="src\ca\gfx\vk_uniformset.cpp" />
+    <ClCompile Include="src\ca\gfx\vk_uniformsetlayout.cpp" />
     <ClCompile Include="src\ca\mem.cpp" />
     <ClCompile Include="src\ca\mem_heaparena.cpp" />
     <ClCompile Include="src\ca\mem_lineararena.cpp" />

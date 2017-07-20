@@ -186,16 +186,16 @@
     <ClInclude Include="src\ca\math_constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\gfx_shaderdecl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ca\gfx_uniformpool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ca\gfx_uniformset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\gfx_uniformlayout.h">
+    <ClInclude Include="src\ca\gfx_uniformsetdecl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\gfx_uniformsetlayout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -298,7 +298,7 @@
     <ClCompile Include="src\ca\gfx\vk_uniformset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ca\gfx\vk_uniformlayout.cpp">
+    <ClCompile Include="src\ca\gfx\vk_uniformsetlayout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -77,7 +77,7 @@ namespace ca
 			return VK_FORMAT_UNDEFINED;
 		}
 
-		void create_pipeline(pipeline_t * pipeline, framebuffer_t * framebuffer, shader_t * stages, u32 stage_count, uniformlayout_t * uniformlayout, vertexdecl_t * vdecl)
+		void create_pipeline(pipeline_t * pipeline, framebuffer_t * framebuffer, shader_t * stages, u32 stage_count, uniformsetlayout_t * uniformsetlayout, vertexdecl_t * vdecl)
 		{
 			device_t * device = framebuffer->device;
 			vk_device_t * vk_device = resolve_type(device);
@@ -101,7 +101,7 @@ namespace ca
 			pipelinelayout_create_info.pNext = nullptr;
 			pipelinelayout_create_info.flags = 0;
 			pipelinelayout_create_info.setLayoutCount = 1;
-			pipelinelayout_create_info.pSetLayouts = &resolve_type(uniformlayout)->uniformlayout;
+			pipelinelayout_create_info.pSetLayouts = &resolve_type(uniformsetlayout)->uniformsetlayout;
 			pipelinelayout_create_info.pushConstantRangeCount = 0;//TODO late
 			pipelinelayout_create_info.pPushConstantRanges = nullptr;//TODO late
 

@@ -4,8 +4,6 @@
 #include "ca/mem_chunkarena.h"
 #include "ca/gfx.h"
 #include "ca/sys.h"
-#include "ca/gfx_vertexdecl.h"
-#include "ca/gfx_shaderdecl.h"
 
 using namespace ca;
 using namespace ca::core;
@@ -209,11 +207,11 @@ void main(int argc, char** argv)
 		gfx::shader_t fs;
 		gfx::create_shader(&fs, &device, gfx::SHADERSTAGE_FRAGMENT, fs_glsl, sizeof(fs_glsl));
 		
-		gfx::shaderdecl_t shaderdecl;
-		gfx::shaderdecl_uniform(&shaderdecl, 0, gfx::SHADERPROP_UNIFORM_BUFFER, gfx::SHADERSTAGE_VERTEX);
+		gfx::uniformsetdecl_t uniformsetdecl;
+		gfx::uniformsetdecl_binding(&uniformsetdecl, 0, gfx::UNIFORMTYPE_CONSTANT_BUFFER, gfx::SHADERSTAGE_VERTEX);
 
-		gfx::uniformlayout_t uniformlayout;
-		gfx::create_uniformlayout(&uniformlayout, &device, &shaderdecl);
+		gfx::uniformsetlayout_t uniformsetlayout;
+		gfx::create_uniformsetlayout(&uniformsetlayout, &device, &uniformsetdecl);
 		
 		gfx::uniformpool_t uniformpool;
 		gfx::create_uniformpool(&uniformpool, &device, swapchain.length, swapchain.length);
@@ -253,7 +251,7 @@ void main(int argc, char** argv)
 			gfx::create_cmdbuffer(&framedata[i].cmdbuffer, &cmdpool);
 			gfx::create_buffer(&framedata[i].vertexbuffer, &device, gfx::BUFFERTYPE_VERTEX, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(vertex_t) * 3 * 25);
 			gfx::create_buffer(&framedata[i].uniformbuffer, &device, gfx::BUFFERTYPE_UNIFORM_CONSTANT, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(camera_t));
-			gfx::create_uniformset(&framedata[i].uniformset, &uniformpool, &uniformlayout);
+			gfx::create_uniformset(&framedata[i].uniformset, &uniformpool, &uniformsetlayout);
 
 			gfx::rendertarget_t attachments[1] = {
 				&swapchain.textures[i], gfx::RENDERTARGETLOADOP_CLEAR, gfx::RENDERTARGETSTOREOP_STORE, { 0.1f, 0.0f, 0.1f, 1.0f }, 1.0f, 0,
@@ -287,7 +285,7 @@ void main(int argc, char** argv)
 		gfx::shader_t shaders[2] = { vs, fs };
 
 		gfx::pipeline_t pipeline;
-		gfx::create_pipeline(&pipeline, &framedata[0].framebuffer, shaders, 2, &uniformlayout, &vdecl);
+		gfx::create_pipeline(&pipeline, &framedata[0].framebuffer, shaders, 2, &uniformsetlayout, &vdecl);
 
 		u32 acquired_count = 0;
 		u32 acquired_index = 0;
@@ -307,7 +305,7 @@ void main(int argc, char** argv)
 				f32 s = math::tau * sys::clockf() * 0.1f;
 				f32 k = math::sin(s) * 0.5f + 0.5f;
 
-				gfx::fence_wait_reset_signaled(&frame->submitted);
+				gfx::fence_wait_reset(&frame->submitted);
 
 				gfx::cmdbuffer_reset(&frame->cmdbuffer);
 				gfx::cmdbuffer_begin(&frame->cmdbuffer);
@@ -318,6 +316,7 @@ void main(int argc, char** argv)
 				gfx::cmdbuffer_set_scissor(&frame->cmdbuffer, 0, 0, swapchain.width, swapchain.height);
 				
 				gfx::uniformset_update_index(&frame->uniformset, 0, &frame->uniformbuffer);
+				
 				gfx::cmdbuffer_bind_uniformset(&frame->cmdbuffer, &pipeline, 0, &frame->uniformset);
 				{
 					camera_t * g = static_cast<camera_t *>(gfx::buffer_map(&frame->uniformbuffer, 0, sizeof(camera_t)));
@@ -406,7 +405,7 @@ void main(int argc, char** argv)
 		
 		gfx::destroy_cmdpool(&cmdpool);
 		gfx::destroy_swapchain(&swapchain);
-		gfx::destroy_uniformlayout(&uniformlayout);
+		gfx::destroy_uniformsetlayout(&uniformsetlayout);
 		gfx::destroy_uniformpool(&uniformpool);
 		gfx::destroy_shader(&fs);
 		gfx::destroy_shader(&vs);
