@@ -531,7 +531,7 @@ namespace ca
 		inline mat3_t<T> mat3_rotation(T theta)
 		{
 			mat3_t<T> M;
-			set_rotation_by_angle_z(M);
+			set_rotation_by_angle_z(M, theta);
 			return M;
 		}
 
@@ -539,7 +539,7 @@ namespace ca
 		inline mat3_t<T> mat3_rotation(quat_t<T> const & q)
 		{
 			mat3_t<T> M;
-			set_rotation_by_quaternion(M);
+			set_rotation_by_quaternion(M, q);
 			return M;
 		}
 

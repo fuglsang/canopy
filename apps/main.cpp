@@ -2,6 +2,7 @@
 #include "ca/math.h"
 #include "ca/mem.h"
 #include "ca/mem_chunkarena.h"
+#include "ca/mem_stackarena.h"
 #include "ca/gfx.h"
 #include "ca/sys.h"
 
@@ -148,7 +149,8 @@ void main(int argc, char** argv)
 	}
 
 	sys::window_t window;
-	sys::create_window(&window, "hello vulkan", { 1000, 50, 400, 225 });
+	sys::create_window(&window, "hello vulkan", { 1000, 50, 550, 550 });
+	//sys::create_window(&window, "hello vulkan", { 1000, 50, 400, 225 });
 	sys::window_show(&window);
 	{
 		auto fn_log_windowevent = [](sys::window_t * window, sys::windowevent msg)
@@ -171,7 +173,7 @@ void main(int argc, char** argv)
 		R"glsl(
 			#version 420
 
-			layout(location = 0) in vec2 in_position;
+			layout(location = 0) in vec3 in_position;
 			layout(location = 1) in vec3 in_color;
 			layout(location = 0) out vec3 out_color;
 			
@@ -183,7 +185,7 @@ void main(int argc, char** argv)
 
 			void main()
 			{
-				gl_Position = cb_view_projection * vec4(in_position, 0.0, 1.0);
+				gl_Position = cb_view_projection * vec4(in_position, 1.0);
 				out_color = in_color * cb_color_tint;
 			}
 		)glsl";
@@ -221,7 +223,7 @@ void main(int argc, char** argv)
 
 		struct vertex_t
 		{
-			fvec2_t position;
+			fvec3_t position;
 			fvec3_t color;
 		};
 
@@ -245,11 +247,13 @@ void main(int argc, char** argv)
 		gfx::semaphore_t * frame_acquired = mem::arena_alloc<gfx::semaphore_t>(CA_APP_HEAP, swapchain.length);
 		gfx::semaphore_t * frame_presentable = mem::arena_alloc<gfx::semaphore_t>(CA_APP_HEAP, swapchain.length);
 
+		u32 const max_vertices = 50000;
+
 		for (u32 i = 0; i != swapchain.length; i++)
 		{
 			gfx::create_fence(&framedata[i].submitted, &device, true);
 			gfx::create_cmdbuffer(&framedata[i].cmdbuffer, &cmdpool);
-			gfx::create_buffer(&framedata[i].vertexbuffer, &device, gfx::BUFFERTYPE_VERTEX, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(vertex_t) * 3 * 25);
+			gfx::create_buffer(&framedata[i].vertexbuffer, &device, gfx::BUFFERTYPE_VERTEX, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(vertex_t) * max_vertices);
 			gfx::create_buffer(&framedata[i].uniformbuffer, &device, gfx::BUFFERTYPE_UNIFORM_CONSTANT, gfx::BUFFERMEMORYTYPE_MAPPABLE_COHERENT, sizeof(camera_t));
 			gfx::create_uniformset(&framedata[i].uniformset, &uniformpool, &uniformsetlayout);
 
@@ -322,8 +326,10 @@ void main(int argc, char** argv)
 					camera_t * g = static_cast<camera_t *>(gfx::buffer_map(&frame->uniformbuffer, 0, sizeof(camera_t)));
 					
 					fvec3_t obj_position = { 0.0f, 0.0f, 0.0f };
-					fvec3_t cam_position = { 1.0f * cos(s), 0.0f, 1.0f * sin(s) };
+					//fvec3_t cam_position = { 0.0f, -1.0f, 2.5f };
+					fvec3_t cam_position = { 3.0f * cos(0.1f * s), -0.5f, 1.0f * sin(0.1f * s) };
 					fvec3_t cam_forward = normalize(obj_position - cam_position);
+					//fvec3_t cam_up = { 0.0f, 1.0f, 0.0f };
 					fvec3_t cam_up = normalize(fvec3_t{ sin(s * 0.3f), cos(s * 0.3f), 0.0f });
 					f32 cam_aspect = f32(swapchain.width) / f32(swapchain.height);
 
@@ -337,45 +343,135 @@ void main(int argc, char** argv)
 					gfx::buffer_unmap(&frame->uniformbuffer);
 				}
 
+				u32 num_vertices = 0;
+
 				gfx::cmdbuffer_bind_vertexbuffer(&frame->cmdbuffer, &frame->vertexbuffer, 0);
 				{
-					vertex_t * v = static_cast<vertex_t *>(gfx::buffer_map(&frame->vertexbuffer, 0, sizeof(vertex_t) * 3 * 25));
+					vertex_t * v = static_cast<vertex_t *>(gfx::buffer_map(&frame->vertexbuffer, 0, sizeof(vertex_t) * max_vertices));
 
-					fmat2_t rot = mat2_rotation(s);
-					fmat2_t inc = mat2_rotation(rad_deg * 2.0f);
+					f32 bump = 1.0f;
+					f32 sin0 = 0.5f * sin(1.0f * s);
+					f32 sin1 = 0.5f * cos(1.0f * s);
+					f32 sin2 = 0.5f * sin(1.0f * s + pi_4);
+					f32 sin3 = 0.5f * cos(1.0f * s + pi_4);
+					fbezierpatch3_t patch = {
+						fbeziercurve3_t{
+							-1.5f,  bump + sin0, -1.5f,
+							-0.5f,  bump + sin0, -1.5f,
+							 0.5f,  0.0f + sin0, -1.5f,
+							 1.5f,  0.0f + sin0, -1.5f,
+						},
+						fbeziercurve3_t{
+							-1.5f,  bump + sin1, -0.5f,
+							-0.5f,  bump + sin1, -0.5f,
+							 0.5f,  0.0f + sin1, -0.5f,
+							 1.5f,  0.0f + sin1, -0.5f,
+						},
+						fbeziercurve3_t{
+							-1.5f,  bump + sin2,  0.5f,
+							-0.5f,  bump + sin2,  0.5f,
+							 0.5f,  0.0f + sin2,  0.5f,
+							 1.5f,  0.0f + sin2,  0.5f,
+						},
+						fbeziercurve3_t{
+							-1.5f,  bump + sin3,  1.5f,
+							-0.5f,  bump + sin3,  1.5f,
+							 0.5f,  0.0f + sin3,  1.5f,
+							 1.5f,  0.0f + sin3,  1.5f,
+						},
+					};
 
-					fvec2_t stepx = { 2.0f / 6.0f, 0.0f };
-					fvec2_t stepy = { 0.0f, 2.0f / 6.0f };
-					fvec2_t step0 = fvec2_t{ -1.0f, -1.0f } + stepx + stepy;
+					u32 const point_dim = 64;
+					uvec2_t point_count = { point_dim, point_dim };
+					fvec3_t points[point_dim * point_dim];
+
+					//fbezierpatch3_t patch_s0t0, patch_s0t1, patch_s1t0, patch_s1t1;
+					//split(patch, fvec2_t{ 0.5f, 0.5f }, &patch_s0t0, &patch_s0t1, &patch_s1t0, &patch_s1t1);
+					//patch = patch_s1t1;
+
+					sample_lattice(patch, points, point_count);
+
+					fvec3_t curve_color = { 1.0f, 1.0f, 1.0f };
+
+					for (u32 i = 1; i != point_count.y; i++, num_vertices += 2)
+					{
+						v->color = curve_color;
+						v->position = points[point_count.x * (i - 1)];
+						v++;
+						v->color = curve_color;
+						v->position = points[point_count.x * (i)];
+						v++;
+					}
+
+					for (u32 j = 1; j != point_count.x; j++, num_vertices += 2)
+					{
+						v->color = curve_color;
+						v->position = points[j - 1];
+						v++;
+						v->color = curve_color;
+						v->position = points[j];
+						v++;
+					}
+
+					for (u32 i = 1; i != point_count.y; i++)
+					{
+						for (u32 j = 1; j != point_count.x; j++, num_vertices += 4)
+						{
+							v->color = curve_color;
+							v->position = points[j + point_count.x * i - 1];
+							v++;
+							v->color = curve_color;
+							v->position = points[j + point_count.x * i];
+							v++;
+
+							v->color = curve_color;
+							v->position = points[j + point_count.x * (i - 1)];
+							v++;
+							v->color = curve_color;
+							v->position = points[j + point_count.x * i];
+							v++;
+						}
+					}
+
+					//----------
+
+					/*
+					fmat3_t rot = mat3_rotation(s);
+					fmat3_t inc = mat3_rotation(rad_deg * 2.0f);
+
+					fvec3_t stepx = { 2.0f / 6.0f, 0.0f, 0.0f };
+					fvec3_t stepy = { 0.0f, 2.0f / 6.0f, 0.0f };
+					fvec3_t step0 = fvec3_t{ -1.0f, -1.0f, 0.0f } + stepx + stepy;
 
 					for (u32 y = 0; y != 5; y++)
 					{
-						for (u32 x = 0; x != 5; x++)
+						for (u32 x = 0; x != 5; x++, num_vertices += 4)
 						{
 							f32 scale = 2.0f / 10.0f + 0.05f * math::sin(f32(x + y) + s * 5.0f);
 
-							fvec2_t offset = f32(x) * stepx + f32(y) * stepy + step0;
+							fvec3_t offset = f32(x) * stepx + f32(y) * stepy + step0;
 
-							v->position = rot * scale * fvec2_t{ -0.6f, -0.4f } + offset;
+							v->position = rot * scale * fvec3_t{ -0.6f, -0.4f, 0.0f } + offset;
 							v->color = { k * 1.0f, (1.0f - k) * 1.0f, 0.0f };
 							v++;
 
-							v->position = rot * scale * fvec2_t{ 0.6f, -0.4f } + offset;
+							v->position = rot * scale * fvec3_t{ 0.6f, -0.4f, 0.0f } + offset;
 							v->color = { 0.0f, k * 1.0f, (1.0f - k) * 1.0f };
 							v++;
 
-							v->position = rot * scale * fvec2_t{ 0.0f, 0.7f } + offset;
+							v->position = rot * scale * fvec3_t{ 0.0f, 0.7f, 0.0f } + offset;
 							v->color = { (1.0f - k) * 1.0f, 0.0f, k * 1.0f };
 							v++;
 
 							rot = inc * rot;
 						}
 					}
+					*/
 
 					gfx::buffer_unmap(&frame->vertexbuffer);
 				}
-				gfx::cmdbuffer_draw(&frame->cmdbuffer, 0, 3 * 25);
-				
+				gfx::cmdbuffer_draw(&frame->cmdbuffer, 0, num_vertices);
+
 				gfx::cmdbuffer_end_renderpass(&frame->cmdbuffer);
 				gfx::cmdbuffer_end(&frame->cmdbuffer);
 			}

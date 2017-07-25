@@ -39,13 +39,13 @@ namespace ca
 			vk_device_t * vk_device = resolve_type(device);
 			vk_uniformsetlayout_t * vk_uniformsetlayout = mem::arena_alloc<vk_uniformsetlayout_t>(device->arena, 1);
 
-			VkDescriptorSetLayoutBinding * uniformsetlayout_bindings = mem::arena_alloc<VkDescriptorSetLayoutBinding>(CA_APP_STACK, uniformsetdecl->property_count);
-			for (u32 i = 0; i != uniformsetdecl->property_count; i++)
+			VkDescriptorSetLayoutBinding * uniformsetlayout_bindings = mem::arena_alloc<VkDescriptorSetLayoutBinding>(CA_APP_STACK, uniformsetdecl->binding_count);
+			for (u32 i = 0; i != uniformsetdecl->binding_count; i++)
 			{
-				uniformsetlayout_bindings[i].binding = uniformsetdecl->properties[i].binding;
-				uniformsetlayout_bindings[i].descriptorType = resolve_property(uniformsetdecl->properties[i].type);
+				uniformsetlayout_bindings[i].binding = uniformsetdecl->bindings[i].binding;
+				uniformsetlayout_bindings[i].descriptorType = resolve_property(uniformsetdecl->bindings[i].type);
 				uniformsetlayout_bindings[i].descriptorCount = 1;
-				uniformsetlayout_bindings[i].stageFlags = resolve_stage(uniformsetdecl->properties[i].stage);;
+				uniformsetlayout_bindings[i].stageFlags = resolve_stage(uniformsetdecl->bindings[i].stage);;
 				uniformsetlayout_bindings[i].pImmutableSamplers = nullptr;
 			}
 

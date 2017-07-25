@@ -187,12 +187,12 @@ namespace ca
 			vertexdecl->location_mask = location_mask;
 		}
 
-		template <typename T1, typename T2>
-		inline void vertexdecl_attrib(vertexdecl_t * vertexdecl, u32 location, T1 T2::*member)
+		template <typename T, typename C>
+		inline void vertexdecl_attrib(vertexdecl_t * vertexdecl, u32 location, T C::*member)
 		{
 			size_t offset = mem::ptr_offsetof(member);
-			u32 component_type = resolve_vertexattribtype_t<T1>::type;
-			u32 component_count = resolve_vertexattribtype_t<T1>::size;
+			u32 component_type = resolve_vertexattribtype_t<T>::type;
+			u32 component_count = resolve_vertexattribtype_t<T>::size;
 			vertexdecl_attrib(vertexdecl, location, offset, (vertexattribtype)component_type, component_count);
 		}
 	}

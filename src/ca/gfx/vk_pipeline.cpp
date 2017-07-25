@@ -138,7 +138,7 @@ namespace ca
 			pipeline_inputassemblystate.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 			pipeline_inputassemblystate.pNext = nullptr;
 			pipeline_inputassemblystate.flags = 0;
-			pipeline_inputassemblystate.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;//TODO topology
+			pipeline_inputassemblystate.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;//VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;//TODO topology
 			pipeline_inputassemblystate.primitiveRestartEnable = VK_FALSE;
 
 			VkPipelineViewportStateCreateInfo pipeline_viewportstate;

@@ -62,10 +62,10 @@ namespace ca
 			return (a1 == a0);
 		}
 
-		template <typename T1, typename T2>
-		inline size_t ptr_offsetof(T1 T2::*member)
+		template <typename T, typename C>
+		inline size_t ptr_offsetof(T C::*member)
 		{
-			T2 x;
+			C x;
 			size_t a0 = reinterpret_cast<size_t>(&x);
 			size_t a1 = reinterpret_cast<size_t>(&(x.*member));
 			return (a1 - a0);

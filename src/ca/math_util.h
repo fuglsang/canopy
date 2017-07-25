@@ -127,10 +127,10 @@ namespace ca
 			return clamp(a, T(0), T(1));
 		}
 
-		template <typename T>
-		inline T lerp(T const & a0, T const & a1, T t)
+		template <typename T, typename S>
+		inline T lerp(T const & a0, T const & a1, S const & t)
 		{
-			return (T(1) - t) * a0 + t * a1;
+			return (S(1) - t) * a0 + t * a1;
 		}
 
 		template <typename T>
