@@ -43,7 +43,7 @@ namespace ca
 		template <typename T>
 		inline quat_t<T> slerp(quat_t<T> const & q0, quat_t<T> const & q1, T t)
 		{
-			T dot = q0.w * q1.w + dot(q0.xyz, q1.xyz);
+			T dot = dot(q0.xyzw, q1.xyzw);
 			if (dot < 0.99f && dot > -0.99f)
 			{
 				T theta = acos(dot);

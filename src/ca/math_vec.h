@@ -49,21 +49,31 @@ namespace ca
 		template <typename T> using vec3_t = vec_t<T, 3>;
 		template <typename T> using vec4_t = vec_t<T, 4>;
 
-		typedef vec2_t<f32> fvec2_t;
-		typedef vec3_t<f32> fvec3_t;
-		typedef vec4_t<f32> fvec4_t;
+		template <u32 N> using fvec_t = vec_t<f32, N>;
+		template <u32 N> using dvec_t = vec_t<f64, N>;
+		template <u32 N> using ivec_t = vec_t<i32, N>;
+		template <u32 N> using uvec_t = vec_t<u32, N>;
+		template <u32 N> using bvec_t = vec_t<bool, N>;
 
-		typedef vec2_t<f64> dvec2_t;
-		typedef vec3_t<f64> dvec3_t;
-		typedef vec4_t<f64> dvec4_t;
+		typedef fvec_t<2> fvec2_t;
+		typedef fvec_t<3> fvec3_t;
+		typedef fvec_t<4> fvec4_t;
 
-		typedef vec2_t<i32> ivec2_t;
-		typedef vec3_t<i32> ivec3_t;
-		typedef vec4_t<i32> ivec4_t;
+		typedef dvec_t<2> dvec2_t;
+		typedef dvec_t<3> dvec3_t;
+		typedef dvec_t<4> dvec4_t;
+		
+		typedef ivec_t<2> ivec2_t;
+		typedef ivec_t<3> ivec3_t;
+		typedef ivec_t<4> ivec4_t;
 
-		typedef vec2_t<u32> uvec2_t;
-		typedef vec3_t<u32> uvec3_t;
-		typedef vec4_t<u32> uvec4_t;
+		typedef uvec_t<2> uvec2_t;
+		typedef uvec_t<3> uvec3_t;
+		typedef uvec_t<4> uvec4_t;
+
+		typedef bvec_t<2> bvec2_t;
+		typedef bvec_t<3> bvec3_t;
+		typedef bvec_t<4> bvec4_t;
 
 		//--------------------
 		// operator overloads
@@ -72,6 +82,15 @@ namespace ca
 
 		//-------------------
 		// library functions
+
+		template <typename T, u32 N>
+		inline vec_t<T, N> abs(vec_t<T, N> const & v);
+
+		template <u32 N>
+		inline bool all(bvec_t<N> const & v);
+
+		template <u32 N>
+		inline bool any(bvec_t<N> const & v);
 
 		template <typename T>
 		inline T cross(vec2_t<T> const & a, vec2_t<T> const & b);
@@ -89,6 +108,12 @@ namespace ca
 		inline vec_t<T, N> & homogenize_in_place(vec_t<T, N> & v);
 
 		template <typename T, u32 N>
+		inline vec_t<T, N> max(vec_t<T, N> const & a, vec_t<T, N> const & b);
+
+		template <typename T, u32 N>
+		inline vec_t<T, N> min(vec_t<T, N> const & a, vec_t<T, N> const & b);
+
+		template <typename T, u32 N>
 		inline T norm(vec_t<T, N> const & v);
 
 		template <typename T, u32 N>
@@ -101,6 +126,9 @@ namespace ca
 		inline vec_t<T, N> & normalize_in_place(vec_t<T, N> & v);
 
 		template <typename T, u32 N>
+		inline vec_t<T, N> rcp(vec_t<T, N> const & v);
+
+		template <typename T, u32 N>
 		inline T rcp_norm(vec_t<T, N> const & v);
 
 		template <u32 I, u32 C, typename T, u32 N>
@@ -109,3 +137,6 @@ namespace ca
 }
 
 #include "ca/math_vec.inl"
+//TODO split into e.g.
+//#include "ca/math_vec_oper.inl"
+//#include "ca/math_vec_util.inl"

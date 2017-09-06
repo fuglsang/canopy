@@ -10,6 +10,15 @@ namespace ca
 	{
 		//TODO move definitions to .inl
 
+		template <typename T>
+		inline T abs(T const & s)
+		{
+			if (s < T(0))
+				return -s;
+			else
+				return s;
+		}
+
 		inline f32 acos(f32 s)
 		{
 			return ::acosf(s);

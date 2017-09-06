@@ -7,58 +7,60 @@ namespace ca
 		//--------------------
 		// operator overloads
 
-		#define CA_DEFINE_VECTOR_OP_VECTOR(OP)											\
-		template <typename T, u32 N>													\
-		inline vec_t<T, N> operator OP (vec_t<T, N> const & a, vec_t<T, N> const & b)	\
-		{																				\
-			vec_t<T, N> v;																\
-			for (u32 i = 0; i != N; i++)												\
-			{																			\
-				v.e[i] = a.e[i] OP b.e[i];												\
-			}																			\
-			return v;																	\
-		}																				\
-																						\
-		template <typename T, u32 N>													\
-		inline vec_t<T, N> & operator OP##= (vec_t<T, N> & a, vec_t<T, N> const & b)	\
-		{																				\
-			return (a = (a OP b));														\
+		#define CA_DEFINE_VECTOR_OP_VECTOR(OP)									\
+		template <typename T, u32 N>											\
+		inline auto operator OP (vec_t<T, N> const & a, vec_t<T, N> const & b)	\
+		{																		\
+			vec_t<decltype(T() OP T()), N> v;									\
+			for (u32 i = 0; i != N; i++)										\
+			{																	\
+				v.e[i] = a.e[i] OP b.e[i];										\
+			}																	\
+			return v;															\
+		}																		\
+																				\
+		template <typename T, u32 N>											\
+		inline auto & operator OP##= (vec_t<T, N> & a, vec_t<T, N> const & b)	\
+		{																		\
+			return (a = (a OP b));												\
 		}
 
-		#define CA_DEFINE_VECTOR_OP_SCALAR(OP)											\
-		template <typename T, u32 N>													\
-		inline vec_t<T, N> operator OP (vec_t<T, N> const & a, T const b)				\
-		{																				\
-			vec_t<T, N> v;																\
-			for (u32 i = 0; i != N; i++)												\
-			{																			\
-				v.e[i] = a.e[i] OP b;													\
-			}																			\
-			return v;																	\
-		}																				\
-																						\
-		template <typename T, u32 N>													\
-		inline vec_t<T, N> & operator OP##= (vec_t<T, N> & a, T const b)				\
-		{																				\
-			return (a = (a OP b));														\
+		#define CA_DEFINE_VECTOR_OP_SCALAR(OP)									\
+		template <typename T, u32 N>											\
+		inline auto operator OP (vec_t<T, N> const & a, T const b)				\
+		{																		\
+			vec_t<decltype(T() OP T()), N> v;									\
+			for (u32 i = 0; i != N; i++)										\
+			{																	\
+				v.e[i] = a.e[i] OP b;											\
+			}																	\
+			return v;															\
+		}																		\
+																				\
+		template <typename T, u32 N>											\
+		inline auto & operator OP##= (vec_t<T, N> & a, T const b)				\
+		{																		\
+			return (a = (a OP b));												\
 		}
 
-		#define CA_DEFINE_SCALAR_OP_VECTOR(OP)											\
-		template <typename T, u32 N>													\
-		inline vec_t<T, N> operator OP (T const a, vec_t<T, N> const & b)				\
-		{																				\
-			vec_t<T, N> v;																\
-			for (u32 i = 0; i != N; i++)												\
-			{																			\
-				v.e[i] = a OP b.e[i];													\
-			}																			\
-			return v;																	\
+		#define CA_DEFINE_SCALAR_OP_VECTOR(OP)									\
+		template <typename T, u32 N>											\
+		inline auto operator OP (T const a, vec_t<T, N> const & b)				\
+		{																		\
+			vec_t<decltype(T() OP T()), N> v;									\
+			for (u32 i = 0; i != N; i++)										\
+			{																	\
+				v.e[i] = a OP b.e[i];											\
+			}																	\
+			return v;															\
 		}
 
 		CA_DEFINE_VECTOR_OP_VECTOR(*)
 		CA_DEFINE_VECTOR_OP_VECTOR(/)
 		CA_DEFINE_VECTOR_OP_VECTOR(+)
 		CA_DEFINE_VECTOR_OP_VECTOR(-)
+		CA_DEFINE_VECTOR_OP_VECTOR(<)
+		CA_DEFINE_VECTOR_OP_VECTOR(>)
 
 		template <typename T, u32 N>
 		inline vec_t<T, N> operator- (vec_t<T, N> const & a)
@@ -83,6 +85,39 @@ namespace ca
 
 		//-------------------
 		// library functions
+
+		template <typename T, u32 N>
+		inline vec_t<T, N> abs(vec_t<T, N> const & v)
+		{
+			vec_t<T, N> v_abs;
+			for (u32 i = 0; i != N; i++)
+			{
+				v_abs.e[i] = abs(v.e[i]);
+			}
+			return v_abs;
+		}
+
+		template <u32 N>
+		inline bool all(bvec_t<N> const & v)
+		{
+			bool b = true;
+			for (u32 i = 0; i != N; i++)
+			{
+				b &= v.e[i];
+			}
+			return b;
+		}
+
+		template <u32 N>
+		inline bool any(bvec_t<N> const & v)
+		{
+			bool b = false;
+			for (u32 i = 0; i != N; i++)
+			{
+				b |= v.e[i];
+			}
+			return b;
+		}
 
 		template <typename T>
 		inline T cross(vec2_t<T> const & a, vec2_t<T> const & b)
@@ -120,6 +155,28 @@ namespace ca
 		}
 
 		template <typename T, u32 N>
+		inline vec_t<T, N> max(vec_t<T, N> const & a, vec_t<T, N> const & b)
+		{
+			vec_t<T, N> v_max;
+			for (u32 i = 0; i != N; i++)
+			{
+				v_max.e[i] = max(a.e[i], b.e[i]);
+			}
+			return v_max;
+		}
+
+		template <typename T, u32 N>
+		inline vec_t<T, N> min(vec_t<T, N> const & a, vec_t<T, N> const & b)
+		{
+			vec_t<T, N> v_min;
+			for (u32 i = 0; i != N; i++)
+			{
+				v_min.e[i] = min(a.e[i], b.e[i]);
+			}
+			return v_min;
+		}
+
+		template <typename T, u32 N>
 		inline T norm(vec_t<T, N> const & v)
 		{
 			return sqrt(dot(v, v));
@@ -141,6 +198,17 @@ namespace ca
 		inline vec_t<T, N> & normalize_in_place(vec_t<T, N> & v)
 		{
 			return (v *= rcp_norm(v));
+		}
+
+		template <typename T, u32 N>
+		inline vec_t<T, N> rcp(vec_t<T, N> const & v)
+		{
+			vec_t<T, N> v_rcp;
+			for (u32 i = 0; i != N; i++)
+			{
+				v_rcp.e[i] = rcp(v.e[i]);
+			}
+			return v_rcp;
 		}
 
 		template <typename T, u32 N>
