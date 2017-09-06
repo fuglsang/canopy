@@ -72,13 +72,16 @@ namespace ca
 		template <typename T> using mat3_t = mat_t<T, 3>;
 		template <typename T> using mat4_t = mat_t<T, 4>;
 
-		typedef mat2_t<f32> fmat2_t;
-		typedef mat3_t<f32> fmat3_t;
-		typedef mat4_t<f32> fmat4_t;
+		template <u32 N> using fmat_t = mat_t<f32, N>;
+		template <u32 N> using dmat_t = mat_t<f64, N>;
 
-		typedef mat2_t<f64> dmat2_t;
-		typedef mat3_t<f64> dmat3_t;
-		typedef mat4_t<f64> dmat4_t;
+		typedef fmat_t<2> fmat2_t;
+		typedef fmat_t<3> fmat3_t;
+		typedef fmat_t<4> fmat4_t;
+
+		typedef dmat_t<2> dmat2_t;
+		typedef dmat_t<3> dmat3_t;
+		typedef dmat_t<4> dmat4_t;
 
 		//--------------------
 		// operator overloads
