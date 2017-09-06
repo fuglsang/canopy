@@ -211,9 +211,12 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\gfx_uniformsetlayout.h" />
     <ClInclude Include="src\ca\gfx_vertexdecl.h" />
     <ClInclude Include="src\ca\math.h" />
+    <ClInclude Include="src\ca\math_aabb.h" />
     <ClInclude Include="src\ca\math_bezier.h" />
     <ClInclude Include="src\ca\math_constants.h" />
+    <ClInclude Include="src\ca\math_isect.h" />
     <ClInclude Include="src\ca\math_quat.h" />
+    <ClInclude Include="src\ca\math_ray.h" />
     <ClInclude Include="src\ca\mem.h" />
     <ClInclude Include="src\ca\mem_chunkarena.h" />
     <ClInclude Include="src\ca\mem_heaparena.h" />

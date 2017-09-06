@@ -198,6 +198,15 @@
     <ClInclude Include="src\ca\gfx_uniformsetlayout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ca\math_ray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\math_aabb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\math_isect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ca\math_bezier.inl">
