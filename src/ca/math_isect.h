@@ -120,5 +120,75 @@ namespace ca
 			return true;// hit
 		}
 		*/
+
+		template <typename T, u32 N>
+		bool ray_bezierpatch(ray_t<vec_t<T, N>> const & ray, bezierpatch_t<vec_t<T, N>> const & patch, u32 max_depth, vec2_t<T> * st)
+		{
+			vec_t<T, N> const * aabb_inputs = &patch.g[0].p[0];
+			aabb_t<vec_t<T, N>> aabb;
+
+			aabb.min = aabb_inputs[0];
+			aabb.max = aabb_inputs[0];
+			for (u32 i = 1; i != 16; i++)
+			{
+				aabb_include(&aabb, aabb_inputs[i]);
+			}
+
+			T t_ray_aabb;
+			if (ray_aabb(ray, aabb, &t_ray_aabb))
+			{
+				//CA_LOG("ray_aabb (%.3f,%.3f) (%.3f,%.3f) HIT t = %.3f", aabb.min.x, aabb.min.z, aabb.max.x, aabb.max.z, t_ray_aabb);
+				if (max_depth == 0)
+				{
+					*st = { 0.5f, 0.5f };
+					return true;
+				}
+
+				bezierpatch_t<vec_t<T, N>> s0t0;
+				bezierpatch_t<vec_t<T, N>> s0t1;
+				bezierpatch_t<vec_t<T, N>> s1t0;
+				bezierpatch_t<vec_t<T, N>> s1t1;
+				split(patch, vec2_t<T>{ 0.5f, 0.5f }, &s0t0, &s0t1, &s1t0, &s1t1);
+
+				//                                  = t == 0.375
+				// 0--------------.--------------1  ^ t = t * 0.5
+				// 0------.-----/2 /2------------1  ^ t = t * 0.5 + 0.5
+				// 0----/4 /4-.-/2 /2--3/4 3/4---1  ^ t = 0.5
+				//            ?
+
+				//                                  = t == 0.875
+				// 0--------------.--------------1  ^ t = t * 0.5 + 0.5
+				// 0------------/2 /2-----.------1  ^ t = t * 0.5 + 0.5
+				//                         3/4-.-1  ^ t = 0.5
+				//                             ?
+
+				if (ray_bezierpatch(ray, s0t0, max_depth - 1, st))
+				{
+					st->x = st->x * 0.5f;
+					st->y = st->y * 0.5f;
+					return true;
+				}
+				if (ray_bezierpatch(ray, s0t1, max_depth - 1, st))
+				{
+					st->x = st->x * 0.5f;
+					st->y = st->y * 0.5f + 0.5f;
+					return true;
+				}
+				if (ray_bezierpatch(ray, s1t0, max_depth - 1, st))
+				{
+					st->x = st->x * 0.5f + 0.5f;
+					st->y = st->y * 0.5f;
+					return true;
+				}
+				if (ray_bezierpatch(ray, s1t1, max_depth - 1, st))
+				{
+					st->x = st->x * 0.5f + 0.5f;
+					st->y = st->y * 0.5f + 0.5f;
+					return true;
+				}
+			}
+
+			return false;
+		}
 	}
 }

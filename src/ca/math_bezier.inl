@@ -8,7 +8,7 @@ namespace ca
 		// library functions
 
 		template <typename T, u32 N>
-		inline T curvature_t0(beziercurve_t<vec_t<T, N>> const & curve)
+		inline T curvature_at_p0(bezier_t<vec_t<T, N>> const & curve)
 		{
 			// http://cagd.cs.byu.edu/~557/text/ch2.pdf
 			vec_t<T, N> v1 = curve.p1 - curve.p0;
@@ -24,18 +24,18 @@ namespace ca
 		}
 
 		template <typename T, u32 N, typename S>
-		inline T curvature(beziercurve_t<vec_t<T, N>> const & curve, S t)
+		inline T curvature(bezier_t<vec_t<T, N>> const & curve, S t)
 		{
-			beziercurve_t<vec_t<T, N>> curve_t0;
-			beziercurve_t<vec_t<T, N>> curve_t1;
+			bezier_t<vec_t<T, N>> curve_t0;
+			bezier_t<vec_t<T, N>> curve_t1;
 
 			split(curve, t, curve_t0, &curve_t1);
 
-			return curvature_t0(curve_t1);
+			return curvature_at_p0(curve_t1);
 		}
 
 		template <typename T, typename S>
-		inline void sample(beziercurve_t<T> const & curve, S t, T * x, T * v, T * a)
+		inline void eval(bezier_t<T> const & curve, S t, T * x, T * v, T * a)
 		{
 			S tt = t * t;
 			S ttt = t * tt;
@@ -52,7 +52,7 @@ namespace ca
 		}
 
 		template <typename T, typename S>
-		inline void sample(beziercurve_t<T> const & curve, S t, T * x, T * v)
+		inline void eval(bezier_t<T> const & curve, S t, T * x, T * v)
 		{
 			S tt = t * t;
 			S ttt = t * tt;
@@ -68,11 +68,11 @@ namespace ca
 		}
 
 		template <typename T, typename S>
-		inline void sample(beziercurve_t<T> const & curve, S t, T * x)
+		inline void eval(bezier_t<T> const & curve, S t, T * x)
 		{
 			S tt = t * t;
 			S ttt = t * tt;
-			S tt3 = 3.0f * tt;
+			S tt3 = 3 * tt;
 
 			S r = 1.0f - t;
 			S rr = r * r;
@@ -83,42 +83,18 @@ namespace ca
 		}
 
 		template <typename T, typename S>
-		inline void sample(bezierpatch_t<T> const & patch, vec2_t<S> const & st, T * x)
+		inline void eval(bezierpatch_t<T> const & patch, vec2_t<S> const & st, T * x)
 		{
-			beziercurve_t<T> curve_t;
-			sample(patch.g0, st.y, &curve_t.p0);
-			sample(patch.g1, st.y, &curve_t.p1);
-			sample(patch.g2, st.y, &curve_t.p2);
-			sample(patch.g3, st.y, &curve_t.p3);
-			sample(curve_t, st.x, x);
+			bezier_t<T> curve_t;
+			eval(patch.g0, st.y, &curve_t.p0);
+			eval(patch.g1, st.y, &curve_t.p1);
+			eval(patch.g2, st.y, &curve_t.p2);
+			eval(patch.g3, st.y, &curve_t.p3);
+			eval(curve_t, st.x, x);
 		}
 
 		template <typename T>
-		inline void sample_lattice(bezierpatch_t<T> const & patch, T * points, uvec2_t const & point_count)
-		{
-			CA_ASSERT(point_count.x >= 2);
-			CA_ASSERT(point_count.y >= 2);
-			f32 step_s = rcp(static_cast<f32>(point_count.x - 1));
-			f32 step_t = rcp(static_cast<f32>(point_count.y - 1));
-			for (u32 i = 0; i != point_count.y; i++)
-			{
-				beziercurve_t<T> curve_t;
-				sample(patch.g0, i * step_t, &curve_t.p0);
-				sample(patch.g1, i * step_t, &curve_t.p1);
-				sample(patch.g2, i * step_t, &curve_t.p2);
-				sample(patch.g3, i * step_t, &curve_t.p3);
-
-				points[point_count.x * i] = curve_t.p0;
-				points[point_count.x * (i + 1) - 1] = curve_t.p3;
-				for (u32 j = 1, n = point_count.x - 1; j != n; j++)
-				{
-					sample(curve_t, j * step_s, &points[point_count.x * i + j]);
-				}
-			}
-		}
-
-		template <typename T>
-		inline void sample_linestrip(beziercurve_t<T> const & curve, T * points, u32 point_count)
+		inline void sample(bezier_t<T> const & curve, T * points, u32 point_count)
 		{
 			CA_ASSERT(point_count >= 2);
 			f32 step_t = rcp(static_cast<f32>(point_count - 1));
@@ -126,12 +102,36 @@ namespace ca
 			points[point_count - 1] = curve.p3;
 			for (u32 i = 1, n = point_count - 1; i != n; i++)
 			{
-				sample(curve, i * step_t, &points[i]);
+				eval(curve, i * step_t, &points[i]);
+			}
+		}
+
+		template <typename T>
+		inline void sample(bezierpatch_t<T> const & patch, T * points, uvec2_t const & point_count_st)
+		{
+			CA_ASSERT(point_count_st.x >= 2);
+			CA_ASSERT(point_count_st.y >= 2);
+			f32 step_s = rcp(static_cast<f32>(point_count_st.x - 1));
+			f32 step_t = rcp(static_cast<f32>(point_count_st.y - 1));
+			for (u32 i = 0; i != point_count_st.y; i++)
+			{
+				bezier_t<T> curve_t;
+				eval(patch.g0, i * step_t, &curve_t.p0);
+				eval(patch.g1, i * step_t, &curve_t.p1);
+				eval(patch.g2, i * step_t, &curve_t.p2);
+				eval(patch.g3, i * step_t, &curve_t.p3);
+
+				points[point_count_st.x * i] = curve_t.p0;
+				points[point_count_st.x * (i + 1) - 1] = curve_t.p3;
+				for (u32 j = 1, n = point_count_st.x - 1; j != n; j++)
+				{
+					eval(curve_t, j * step_s, &points[point_count_st.x * i + j]);
+				}
 			}
 		}
 
 		template <typename T, typename S>
-		inline void split(beziercurve_t<T> const & curve, S t, beziercurve_t<T> * curve_t0, beziercurve_t<T> * curve_t1)
+		inline void split(bezier_t<T> const & curve, S t, bezier_t<T> * curve_t0, bezier_t<T> * curve_t1)
 		{
 			T a = lerp(curve.p0, curve.p1, t);
 			T b = lerp(curve.p1, curve.p2, t);
@@ -179,14 +179,14 @@ namespace ca
 			//
 			for (u32 i = 0; i != 4; i++)
 			{
-				beziercurve_t<T> h;
+				bezier_t<T> h;
 				h.p0 = patch.g0.p[i];
 				h.p1 = patch.g1.p[i];
 				h.p2 = patch.g2.p[i];
 				h.p3 = patch.g3.p[i];
 
-				beziercurve_t<T> h0;
-				beziercurve_t<T> h1;
+				bezier_t<T> h0;
+				bezier_t<T> h1;
 				split(h, s, &h0, &h1);
 
 				patch_s0->g0.p[i] = h0.p0;
@@ -202,7 +202,7 @@ namespace ca
 		}
 
 		template <typename T, typename S>
-		void split_t(bezierpatch_t<T> const & patch, S t, bezierpatch_t<T> * patch_t0, bezierpatch_t<T> * patch_t1)
+		inline void split_t(bezierpatch_t<T> const & patch, S t, bezierpatch_t<T> * patch_t0, bezierpatch_t<T> * patch_t1)
 		{
 			//
 			//  .---t
@@ -222,10 +222,10 @@ namespace ca
 		}
 
 		template <typename T>
-		inline void subdivide(beziercurve_t<T> const & curve, beziercurve_t<T> * curves, u32 curve_count)
+		inline void subdivide(bezier_t<T> const & curve, bezier_t<T> * curves, u32 curve_count)
 		{
 			CA_ASSERT(curve_count >= 1);
-			beziercurve_t<T> g[2];
+			bezier_t<T> g[2];
 			g[0] = curve;
 			
 			for (u32 i = 0, n = curve_count - 1; i != n; i++)
@@ -242,6 +242,12 @@ namespace ca
 			//	bezier_split_left_pivot_right(remainder, rcp(static_cast<f32>(segment_count - i)), &segments[i]);
 			//}
 			//segments[segment_count - 1] = remainder;
+		}
+
+		template <typename T>
+		inline void subdivide(bezierpatch_t<T> const & patch, bezierpatch_t<T> * patches, uvec2_t const & patch_count)
+		{
+			CA_FATAL("TODO");
 		}
 	}
 }

@@ -5,6 +5,7 @@
 #include "ca/mem_stackarena.h"
 #include "ca/gfx.h"
 #include "ca/sys.h"
+#include "ca/math_isect.h"
 
 using namespace ca;
 using namespace ca::core;
@@ -23,9 +24,9 @@ void test2()
 	CA_LOG("hello from test2");
 }
 
-void test4(int x)
+void test4(int x, char c, int y)
 {
-	CA_LOG("hello from test4: x=%d", x);
+	CA_LOG("hello from test4: x=%d, c=%d, y=%d", x, c, y);
 }
 
 template <typename R, typename C, typename... P>
@@ -48,11 +49,22 @@ void resolve_arg(C *)
 
 void main(int argc, char** argv)
 {
-	vec_t<f32, 2> a = { 1.0f,2.0f };
-	vec_t<f32, 2> b = { 2.0f,2.0f };
+	faabb2_t aabb = { { -1.0f, -1.0f }, { 1.0f, 1.0f } };
+	fray2_t ray = { { -1.1f, 0.0f }, { 1.0f, 0.0f } };
+	
+	f32 ray_t = 0.0f;
+	if (ray_aabb(ray, aabb, &ray_t))
+		CA_LOG("ray hit, t = %.3f", ray_t);
+	else
+		CA_LOG("ray missed");
+
+	//while (true);
+
+	fvec2_t a = { 1.0f,2.0f };
+	fvec2_t b = { 2.0f,2.0f };
 
 	auto v = a + b * b / a - b;
-
+	auto vvvv = a < b;
 	CA_LOG("%f,%f", v.x, v.y);
 
 	blah_t * bla = new blah_t();
@@ -78,9 +90,9 @@ void main(int argc, char** argv)
 
 	f();
 	g();
-	h(2);
+	h(2, 'a', 3);
 	int harg = 77;
-	h(harg);
+	h(harg, 'b', 9);
 
 	fmat4_t A, B;
 	fmat4_t M = A + B;
@@ -326,11 +338,11 @@ void main(int argc, char** argv)
 					camera_t * g = static_cast<camera_t *>(gfx::buffer_map(&frame->uniformbuffer, 0, sizeof(camera_t)));
 					
 					fvec3_t obj_position = { 0.0f, 0.0f, 0.0f };
-					//fvec3_t cam_position = { 0.0f, -1.0f, 2.5f };
-					fvec3_t cam_position = { 3.0f * cos(0.1f * s), -0.5f, 1.0f * sin(0.1f * s) };
+					fvec3_t cam_position = { 0.0f, -2.0f, 2.5f };
+					//fvec3_t cam_position = { 3.0f * cos(0.1f * s), -0.5f, 1.0f * sin(0.1f * s) };
 					fvec3_t cam_forward = normalize(obj_position - cam_position);
-					//fvec3_t cam_up = { 0.0f, 1.0f, 0.0f };
-					fvec3_t cam_up = normalize(fvec3_t{ sin(s * 0.3f), cos(s * 0.3f), 0.0f });
+					fvec3_t cam_up = { 0.0f, 1.0f, 0.0f };
+					//fvec3_t cam_up = normalize(fvec3_t{ sin(s * 0.3f), cos(s * 0.3f), 0.0f });
 					f32 cam_aspect = f32(swapchain.width) / f32(swapchain.height);
 
 					fmat4_t M_projection = mat4_perspective(rad_deg * 90.0f, cam_aspect, 0.01f, 1000.0f);
@@ -349,49 +361,123 @@ void main(int argc, char** argv)
 				{
 					vertex_t * v = static_cast<vertex_t *>(gfx::buffer_map(&frame->vertexbuffer, 0, sizeof(vertex_t) * max_vertices));
 
-					f32 bump = 1.0f;
-					f32 sin0 = 0.5f * sin(1.0f * s);
-					f32 sin1 = 0.5f * cos(1.0f * s);
-					f32 sin2 = 0.5f * sin(1.0f * s + pi_4);
-					f32 sin3 = 0.5f * cos(1.0f * s + pi_4);
+					fvec3_t curve_color = { 1.0f, 1.0f, 1.0f };
+
+					f32 bump = 0.5f;
+					f32 sin0 = 0.5f * sin(1.0f);// *s);
+					f32 sin1 = 0.5f * cos(1.0f);// * s);
+					f32 sin2 = 0.5f * sin(1.0f + pi_4);// * s + pi_4);
+					f32 sin3 = 0.5f * cos(1.0f + pi_4);// * s + pi_4);
+
+					///*
 					fbezierpatch3_t patch = {
-						fbeziercurve3_t{
+						fbezier3_t{
 							-1.5f,  bump + sin0, -1.5f,
 							-0.5f,  bump + sin0, -1.5f,
 							 0.5f,  0.0f + sin0, -1.5f,
 							 1.5f,  0.0f + sin0, -1.5f,
 						},
-						fbeziercurve3_t{
+						fbezier3_t{
 							-1.5f,  bump + sin1, -0.5f,
 							-0.5f,  bump + sin1, -0.5f,
 							 0.5f,  0.0f + sin1, -0.5f,
 							 1.5f,  0.0f + sin1, -0.5f,
 						},
-						fbeziercurve3_t{
+						fbezier3_t{
 							-1.5f,  bump + sin2,  0.5f,
 							-0.5f,  bump + sin2,  0.5f,
 							 0.5f,  0.0f + sin2,  0.5f,
 							 1.5f,  0.0f + sin2,  0.5f,
 						},
-						fbeziercurve3_t{
+						fbezier3_t{
 							-1.5f,  bump + sin3,  1.5f,
 							-0.5f,  bump + sin3,  1.5f,
 							 0.5f,  0.0f + sin3,  1.5f,
 							 1.5f,  0.0f + sin3,  1.5f,
 						},
 					};
+					//*/
 
-					u32 const point_dim = 64;
+					/*
+					fbezierpatch3_t patch = {
+						fbezier3_t{
+							-1.5f,  0.0f, -1.5f,
+							-0.5f,  0.0f, -1.5f,
+							 0.5f,  0.0f, -1.5f,
+							 1.5f,  0.0f, -1.5f,
+						},
+						fbezier3_t{
+							-1.5f,  0.0f, -0.5f,
+							-0.5f,  0.0f, -0.5f,
+							 0.5f,  0.0f, -0.5f,
+							 1.5f,  0.0f, -0.5f,
+						},
+						fbezier3_t{
+							-1.5f,  0.0f,  0.5f,
+							-0.5f,  0.0f,  0.5f,
+							 0.5f,  0.0f,  0.5f,
+							 1.5f,  0.0f,  0.5f,
+						},
+						fbezier3_t{
+							-1.5f,  0.0f,  1.5f,
+							-0.5f,  0.0f,  1.5f,
+							 0.5f,  0.0f,  1.5f,
+							 1.5f,  0.0f,  1.5f,
+						},
+					};
+					//*/
+
+					fvec3_t ray_col = { 5.0f, 5.0f, 5.0f };
+					fray3_t ray = {
+						{ cos(s), 1.0f, cos(s) },// origin
+						{ 0.0f, -1.0f, 0.0f },// direction
+					};
+
+					{
+						v->color = ray_col;
+						v->position = ray.origin;
+						v++;
+						v->color = ray_col;
+						v->position = ray.origin + ray.direction * 0.1f;
+						v++;
+						num_vertices += 2;
+					}
+
+					//f32 isect_t;
+					fvec2_t isect_st;
+					faabb3_t isect_aabb = { { -1.5f, 0.0f, -1.5f }, { 1.5f, 0.0f, 1.5f } };
+					
+					if (ray_bezierpatch(ray, patch, 10, &isect_st))
+					{
+						fvec3_t isect_pos;
+						eval(patch, isect_st, &isect_pos);
+						
+						//CA_LOG("ray.origin %.3f, %.3f HIT t = %.3f", ray.origin.x, ray.origin.z, isect_t);
+
+						v->color = ray_col;
+						v->position = isect_pos - fvec3_t{ 0.1f, 0.0f, 0.1f };
+						v++;
+						v->color = ray_col;
+						v->position = isect_pos + fvec3_t{ 0.1f, 0.0f, 0.1f };
+						v++;
+						v->color = ray_col;
+						v->position = isect_pos - fvec3_t{ 0.1f, 0.0f, -0.1f };
+						v++;
+						v->color = ray_col;
+						v->position = isect_pos + fvec3_t{ 0.1f, 0.0f, -0.1f };
+						v++;
+						num_vertices += 4;
+					}
+
+					u32 point_dim = 40;// +(u32)fabs(12.0f * (0.5f * sin(0.2f * s) + 0.5f));
 					uvec2_t point_count = { point_dim, point_dim };
-					fvec3_t points[point_dim * point_dim];
+					fvec3_t * points = mem::arena_alloc<fvec3_t>(CA_APP_STACK, point_dim * point_dim);
 
 					//fbezierpatch3_t patch_s0t0, patch_s0t1, patch_s1t0, patch_s1t1;
 					//split(patch, fvec2_t{ 0.5f, 0.5f }, &patch_s0t0, &patch_s0t1, &patch_s1t0, &patch_s1t1);
 					//patch = patch_s1t1;
 
-					sample_lattice(patch, points, point_count);
-
-					fvec3_t curve_color = { 1.0f, 1.0f, 1.0f };
+					sample(patch, points, point_count);
 
 					for (u32 i = 1; i != point_count.y; i++, num_vertices += 2)
 					{
@@ -432,6 +518,8 @@ void main(int argc, char** argv)
 							v++;
 						}
 					}
+
+					mem::arena_free(CA_APP_STACK, points);
 
 					//----------
 

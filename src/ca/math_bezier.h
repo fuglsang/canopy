@@ -26,7 +26,7 @@ namespace ca
 		*/
 
 		template <typename T>
-		struct beziercurve_t
+		struct bezier_t
 		{
 			union
 			{
@@ -51,14 +51,14 @@ namespace ca
 			//
 			union
 			{
-				beziercurve_t<T> g[4];
-				struct { beziercurve_t<T> g0, g1, g2, g3; };
+				bezier_t<T> g[4];
+				struct { bezier_t<T> g0, g1, g2, g3; };
 			};
 		};
 
-		typedef beziercurve_t<fvec2_t> fbeziercurve2_t;
-		typedef beziercurve_t<fvec3_t> fbeziercurve3_t;
-		typedef beziercurve_t<fvec4_t> fbeziercurve4_t;
+		typedef bezier_t<fvec2_t> fbezier2_t;
+		typedef bezier_t<fvec3_t> fbezier3_t;
+		typedef bezier_t<fvec4_t> fbezier4_t;
 
 		typedef bezierpatch_t<fvec2_t> fbezierpatch2_t;
 		typedef bezierpatch_t<fvec3_t> fbezierpatch3_t;
@@ -68,31 +68,31 @@ namespace ca
 		// library functions
 
 		template <typename T, u32 N>
-		inline T curvature_t0(beziercurve_t<vec_t<T, N>> const & curve);
+		inline T curvature_at_p0(bezier_t<vec_t<T, N>> const & curve);
 
 		template <typename T, u32 N, typename S>
-		inline T curvature(beziercurve_t<vec_t<T, N>> const & curve, S t);
+		inline T curvature(bezier_t<vec_t<T, N>> const & curve, S t);
 
 		template <typename T, typename S>
-		inline void sample(beziercurve_t<T> const & curve, S t, T * x, T * v, T * a);
+		inline void eval(bezier_t<T> const & curve, S t, T * x, T * v, T * a);
 
 		template <typename T, typename S>
-		inline void sample(beziercurve_t<T> const & curve, S t, T * x, T * v);
+		inline void eval(bezier_t<T> const & curve, S t, T * x, T * v);
 
 		template <typename T, typename S>
-		inline void sample(beziercurve_t<T> const & curve, S t, T * x);
+		inline void eval(bezier_t<T> const & curve, S t, T * x);
 
 		template <typename T, typename S>
-		inline void sample(bezierpatch_t<T> const & patch, vec2_t<S> const & st, T * x);
+		inline void eval(bezierpatch_t<T> const & patch, vec2_t<S> const & st, T * x);
 
 		template <typename T>
-		inline void sample_lattice(bezierpatch_t<T> const & patch, T * points, uvec2_t const & point_count);
+		inline void sample(bezier_t<T> const & curve, T * points, u32 point_count);
 
 		template <typename T>
-		inline void sample_linestrip(beziercurve_t<T> const & curve, T * points, u32 point_count);
+		inline void sample(bezierpatch_t<T> const & patch, T * points, uvec2_t const & point_count);
 
 		template <typename T, typename S>
-		inline void split(beziercurve_t<T> const & curve, S t, beziercurve_t<T> * curve_t0, beziercurve_t<T> * curve_t1);
+		inline void split(bezier_t<T> const & curve, S t, bezier_t<T> * curve_t0, bezier_t<T> * curve_t1);
 
 		template <typename T, typename S>
 		inline void split(bezierpatch_t<T> const & patch, vec2_t<S> const & st, bezierpatch_t<T> * patch_s0t0, bezierpatch_t<T> * patch_s0t1, bezierpatch_t<T> * patch_s1t0, bezierpatch_t<T> * patch_s1t1);
@@ -104,7 +104,10 @@ namespace ca
 		inline void split_t(bezierpatch_t<T> const & patch, S t, bezierpatch_t<T> * patch_t0, bezierpatch_t<T> * patch_t1);
 
 		template <typename T>
-		inline void subdivide(beziercurve_t<T> const & curve, beziercurve_t<T> * curves, u32 curve_count);
+		inline void subdivide(bezier_t<T> const & curve, bezier_t<T> * curves, u32 curve_count);
+
+		template <typename T>
+		inline void subdivide(bezierpatch_t<T> const & patch, bezierpatch_t<T> * patches, uvec2_t const & patch_count);
 	}
 }
 
