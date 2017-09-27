@@ -53,7 +53,7 @@ void main(int argc, char** argv)
 	fray2_t ray = { { -1.1f, 0.0f }, { 1.0f, 0.0f } };
 	
 	f32 ray_t = 0.0f;
-	if (ray_aabb(ray, aabb, &ray_t))
+	if (isect_ray_aabb(ray, aabb, &ray_t))
 		CA_LOG("ray hit, t = %.3f", ray_t);
 	else
 		CA_LOG("ray missed");
@@ -338,14 +338,13 @@ void main(int argc, char** argv)
 					camera_t * g = static_cast<camera_t *>(gfx::buffer_map(&frame->uniformbuffer, 0, sizeof(camera_t)));
 					
 					fvec3_t obj_position = { 0.0f, 0.0f, 0.0f };
-					fvec3_t cam_position = { 0.0f, -2.0f, 2.5f };
-					//fvec3_t cam_position = { 3.0f * cos(0.1f * s), -0.5f, 1.0f * sin(0.1f * s) };
+					//fvec3_t cam_position = { 0.0f, -2.0f, 2.5f };
+					fvec3_t cam_position = { 2.0f * cos(0.3f * s), 0.75f, 2.0f * sin(0.3f * s) };
 					fvec3_t cam_forward = normalize(obj_position - cam_position);
-					fvec3_t cam_up = { 0.0f, 1.0f, 0.0f };
-					//fvec3_t cam_up = normalize(fvec3_t{ sin(s * 0.3f), cos(s * 0.3f), 0.0f });
+					fvec3_t cam_up = { 0.0f, 0.7f, 0.0f };
 					f32 cam_aspect = f32(swapchain.width) / f32(swapchain.height);
 
-					fmat4_t M_projection = mat4_perspective(rad_deg * 90.0f, cam_aspect, 0.01f, 1000.0f);
+					fmat4_t M_projection = mat4_scaling(fvec3_t{ 1.0f, -1.0f, 1.0f }) * mat4_perspective(rad_deg * 90.0f, cam_aspect, 0.01f, 1000.0f);
 					fmat4_t M_view = mat4_look_at(cam_position, obj_position, cam_up);
 					fmat4_t M_view_inv = inverse(M_view);
 
@@ -361,44 +360,6 @@ void main(int argc, char** argv)
 				{
 					vertex_t * v = static_cast<vertex_t *>(gfx::buffer_map(&frame->vertexbuffer, 0, sizeof(vertex_t) * max_vertices));
 
-					fvec3_t curve_color = { 1.0f, 1.0f, 1.0f };
-
-					f32 bump = 0.5f;
-					f32 sin0 = 0.5f * sin(1.0f);// *s);
-					f32 sin1 = 0.5f * cos(1.0f);// * s);
-					f32 sin2 = 0.5f * sin(1.0f + pi_4);// * s + pi_4);
-					f32 sin3 = 0.5f * cos(1.0f + pi_4);// * s + pi_4);
-
-					///*
-					fbezierpatch3_t patch = {
-						fbezier3_t{
-							-1.5f,  bump + sin0, -1.5f,
-							-0.5f,  bump + sin0, -1.5f,
-							 0.5f,  0.0f + sin0, -1.5f,
-							 1.5f,  0.0f + sin0, -1.5f,
-						},
-						fbezier3_t{
-							-1.5f,  bump + sin1, -0.5f,
-							-0.5f,  bump + sin1, -0.5f,
-							 0.5f,  0.0f + sin1, -0.5f,
-							 1.5f,  0.0f + sin1, -0.5f,
-						},
-						fbezier3_t{
-							-1.5f,  bump + sin2,  0.5f,
-							-0.5f,  bump + sin2,  0.5f,
-							 0.5f,  0.0f + sin2,  0.5f,
-							 1.5f,  0.0f + sin2,  0.5f,
-						},
-						fbezier3_t{
-							-1.5f,  bump + sin3,  1.5f,
-							-0.5f,  bump + sin3,  1.5f,
-							 0.5f,  0.0f + sin3,  1.5f,
-							 1.5f,  0.0f + sin3,  1.5f,
-						},
-					};
-					//*/
-
-					/*
 					fbezierpatch3_t patch = {
 						fbezier3_t{
 							-1.5f,  0.0f, -1.5f,
@@ -408,14 +369,14 @@ void main(int argc, char** argv)
 						},
 						fbezier3_t{
 							-1.5f,  0.0f, -0.5f,
-							-0.5f,  0.0f, -0.5f,
-							 0.5f,  0.0f, -0.5f,
+							-0.5f,  1.0f, -0.5f,
+							 0.5f, -1.0f, -0.5f,
 							 1.5f,  0.0f, -0.5f,
 						},
 						fbezier3_t{
 							-1.5f,  0.0f,  0.5f,
-							-0.5f,  0.0f,  0.5f,
-							 0.5f,  0.0f,  0.5f,
+							-0.5f,  1.0f,  0.5f,
+							 0.5f, -1.0f,  0.5f,
 							 1.5f,  0.0f,  0.5f,
 						},
 						fbezier3_t{
@@ -425,11 +386,10 @@ void main(int argc, char** argv)
 							 1.5f,  0.0f,  1.5f,
 						},
 					};
-					//*/
 
 					fvec3_t ray_col = { 5.0f, 5.0f, 5.0f };
 					fray3_t ray = {
-						{ cos(s), 1.0f, cos(s) },// origin
+						{ cos(s), 1.0f, sin(s) },// origin
 						{ 0.0f, -1.0f, 0.0f },// direction
 					};
 
@@ -438,46 +398,56 @@ void main(int argc, char** argv)
 						v->position = ray.origin;
 						v++;
 						v->color = ray_col;
-						v->position = ray.origin + ray.direction * 0.1f;
+						v->position = ray.origin + ray.direction * 0.3f;
 						v++;
 						num_vertices += 2;
 					}
 
 					//f32 isect_t;
 					fvec2_t isect_st;
-					faabb3_t isect_aabb = { { -1.5f, 0.0f, -1.5f }, { 1.5f, 0.0f, 1.5f } };
 					
-					if (ray_bezierpatch(ray, patch, 10, &isect_st))
+					if (isect_ray_bezierpatch(ray, patch, 15, &isect_st))
 					{
-						fvec3_t isect_pos;
-						eval(patch, isect_st, &isect_pos);
+						fvec3_t isect_x;
+						fvec3_t isect_n;
+						fvec3_t isect_vs;
+						fvec3_t isect_vt;
+
+						eval(patch, isect_st, &isect_x, &isect_vs, &isect_vt);
+						isect_vs = normalize(isect_vs);
+						isect_vt = normalize(isect_vt);
+						isect_n = cross(isect_vs, isect_vt);
 						
 						//CA_LOG("ray.origin %.3f, %.3f HIT t = %.3f", ray.origin.x, ray.origin.z, isect_t);
 
 						v->color = ray_col;
-						v->position = isect_pos - fvec3_t{ 0.1f, 0.0f, 0.1f };
+						v->position = isect_x;
 						v++;
 						v->color = ray_col;
-						v->position = isect_pos + fvec3_t{ 0.1f, 0.0f, 0.1f };
+						v->position = isect_x + 0.1f * isect_n;
 						v++;
 						v->color = ray_col;
-						v->position = isect_pos - fvec3_t{ 0.1f, 0.0f, -0.1f };
+						v->position = isect_x - 0.1f * isect_vs;
 						v++;
 						v->color = ray_col;
-						v->position = isect_pos + fvec3_t{ 0.1f, 0.0f, -0.1f };
+						v->position = isect_x + 0.1f * isect_vs;
 						v++;
-						num_vertices += 4;
+						v->color = ray_col;
+						v->position = isect_x - 0.1f * isect_vt;
+						v++;
+						v->color = ray_col;
+						v->position = isect_x + 0.1f * isect_vt;
+						v++;
+						num_vertices += 6;
 					}
 
-					u32 point_dim = 40;// +(u32)fabs(12.0f * (0.5f * sin(0.2f * s) + 0.5f));
+					u32 point_dim = 16;
 					uvec2_t point_count = { point_dim, point_dim };
 					fvec3_t * points = mem::arena_alloc<fvec3_t>(CA_APP_STACK, point_dim * point_dim);
 
-					//fbezierpatch3_t patch_s0t0, patch_s0t1, patch_s1t0, patch_s1t1;
-					//split(patch, fvec2_t{ 0.5f, 0.5f }, &patch_s0t0, &patch_s0t1, &patch_s1t0, &patch_s1t1);
-					//patch = patch_s1t1;
-
 					sample(patch, points, point_count);
+
+					fvec3_t curve_color = { 1.0f, 1.0f, 1.0f };
 
 					for (u32 i = 1; i != point_count.y; i++, num_vertices += 2)
 					{

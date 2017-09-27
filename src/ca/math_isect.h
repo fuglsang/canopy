@@ -8,7 +8,7 @@ namespace ca
 	namespace math
 	{
 		template <typename T, u32 N>
-		bool ray_aabb(ray_t<vec_t<T, N>> const & ray, aabb_t<vec_t<T, N>> const & aabb, T * t)
+		bool isect_ray_aabb(ray_t<vec_t<T, N>> const & ray, aabb_t<vec_t<T, N>> const & aabb, T * t)
 		{
 			// based on method by williams et al.
 			// see: http://www.cs.utah.edu/~awilliam/box/box.pdf
@@ -57,7 +57,7 @@ namespace ca
 
 		/* non-generic version
 		template <typename T>
-		bool ray3_aabb3(ray_t<vec3_t<T>> const & ray, aabb_t<vec3_t<T>> const & aabb, T * t)
+		bool isect_ray3_aabb3(ray_t<vec3_t<T>> const & ray, aabb_t<vec3_t<T>> const & aabb, T * t)
 		{
 			// based on method by williams et al.
 			// see: http://www.cs.utah.edu/~awilliam/box/box.pdf
@@ -122,20 +122,18 @@ namespace ca
 		*/
 
 		template <typename T, u32 N>
-		bool ray_bezierpatch(ray_t<vec_t<T, N>> const & ray, bezierpatch_t<vec_t<T, N>> const & patch, u32 max_depth, vec2_t<T> * st)
+		bool isect_ray_bezierpatch(ray_t<vec_t<T, N>> const & ray, bezierpatch_t<vec_t<T, N>> const & patch, u32 max_depth, vec2_t<T> * st)
 		{
-			vec_t<T, N> const * aabb_inputs = &patch.g[0].p[0];
 			aabb_t<vec_t<T, N>> aabb;
-
-			aabb.min = aabb_inputs[0];
-			aabb.max = aabb_inputs[0];
+			aabb.min = patch.p[0];
+			aabb.max = patch.p[0];
 			for (u32 i = 1; i != 16; i++)
 			{
-				aabb_include(&aabb, aabb_inputs[i]);
+				aabb_include(&aabb, patch.p[i]);
 			}
 
 			T t_ray_aabb;
-			if (ray_aabb(ray, aabb, &t_ray_aabb))
+			if (isect_ray_aabb(ray, aabb, &t_ray_aabb))
 			{
 				//CA_LOG("ray_aabb (%.3f,%.3f) (%.3f,%.3f) HIT t = %.3f", aabb.min.x, aabb.min.z, aabb.max.x, aabb.max.z, t_ray_aabb);
 				if (max_depth == 0)
@@ -162,25 +160,25 @@ namespace ca
 				//                         3/4-.-1  ^ t = 0.5
 				//                             ?
 
-				if (ray_bezierpatch(ray, s0t0, max_depth - 1, st))
+				if (isect_ray_bezierpatch(ray, s0t0, max_depth - 1, st))
 				{
 					st->x = st->x * 0.5f;
 					st->y = st->y * 0.5f;
 					return true;
 				}
-				if (ray_bezierpatch(ray, s0t1, max_depth - 1, st))
+				if (isect_ray_bezierpatch(ray, s0t1, max_depth - 1, st))
 				{
 					st->x = st->x * 0.5f;
 					st->y = st->y * 0.5f + 0.5f;
 					return true;
 				}
-				if (ray_bezierpatch(ray, s1t0, max_depth - 1, st))
+				if (isect_ray_bezierpatch(ray, s1t0, max_depth - 1, st))
 				{
 					st->x = st->x * 0.5f + 0.5f;
 					st->y = st->y * 0.5f;
 					return true;
 				}
-				if (ray_bezierpatch(ray, s1t1, max_depth - 1, st))
+				if (isect_ray_bezierpatch(ray, s1t1, max_depth - 1, st))
 				{
 					st->x = st->x * 0.5f + 0.5f;
 					st->y = st->y * 0.5f + 0.5f;

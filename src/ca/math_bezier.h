@@ -53,6 +53,14 @@ namespace ca
 			{
 				bezier_t<T> g[4];
 				struct { bezier_t<T> g0, g1, g2, g3; };
+				T p[16];
+				struct
+				{
+					T p00, p01, p02, p03;
+					T p10, p11, p12, p13;
+					T p20, p21, p22, p23;
+					T p30, p31, p32, p33;
+				};
 			};
 		};
 
@@ -84,6 +92,12 @@ namespace ca
 
 		template <typename T, typename S>
 		inline void eval(bezierpatch_t<T> const & patch, vec2_t<S> const & st, T * x);
+
+		template <typename T, typename S>
+		inline void eval(bezierpatch_t<T> const & patch, vec2_t<S> const & st, T * x, T * vs, T * vt);
+
+		template <typename T, typename S>
+		inline void eval(bezierpatch_t<T> const & patch, vec2_t<S> const & st, T * x, T * n);
 
 		template <typename T>
 		inline void sample(bezier_t<T> const & curve, T * points, u32 point_count);

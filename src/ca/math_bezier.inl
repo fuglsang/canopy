@@ -93,6 +93,36 @@ namespace ca
 			eval(curve_t, st.x, x);
 		}
 
+		template <typename T, typename S>
+		inline void eval(bezierpatch_t<T> const & patch, vec2_t<S> const & st, T * x, T * vs, T * vt)
+		{
+			bezier_t<T> curve_s;
+			eval({ patch.p00, patch.p10, patch.p20, patch.p30 }, st.x, &curve_s.p0);
+			eval({ patch.p01, patch.p11, patch.p21, patch.p31 }, st.y, &curve_s.p1);
+			eval({ patch.p02, patch.p12, patch.p22, patch.p32 }, st.y, &curve_s.p2);
+			eval({ patch.p03, patch.p13, patch.p23, patch.p33 }, st.y, &curve_s.p3);
+
+			bezier_t<T> curve_t;
+			eval(patch.g0, st.y, &curve_t.p0);
+			eval(patch.g1, st.y, &curve_t.p1);
+			eval(patch.g2, st.y, &curve_t.p2);
+			eval(patch.g3, st.y, &curve_t.p3);
+
+			eval(curve_s, st.y, x, vt);
+			eval(curve_t, st.x, x, vs);
+		}
+
+		template <typename T, typename S>
+		inline void eval(bezierpatch_t<T> const & patch, vec2_t<S> const & st, T * x, T * n)
+		{
+			T vs;
+			T vt;
+
+			eval(patch, st, x, &vs, &vt);
+			
+			*n = normalize(cross(vs, vt));
+		}
+
 		template <typename T>
 		inline void sample(bezier_t<T> const & curve, T * points, u32 point_count)
 		{
