@@ -259,7 +259,7 @@ void main(int argc, char** argv)
 		gfx::semaphore_t * frame_acquired = mem::arena_alloc<gfx::semaphore_t>(CA_APP_HEAP, swapchain.length);
 		gfx::semaphore_t * frame_presentable = mem::arena_alloc<gfx::semaphore_t>(CA_APP_HEAP, swapchain.length);
 
-		u32 const max_vertices = 50000;
+		u32 const max_vertices = 100000;
 
 		for (u32 i = 0; i != swapchain.length; i++)
 		{
@@ -334,25 +334,10 @@ void main(int argc, char** argv)
 				gfx::uniformset_update_index(&frame->uniformset, 0, &frame->uniformbuffer);
 				
 				gfx::cmdbuffer_bind_uniformset(&frame->cmdbuffer, &pipeline, 0, &frame->uniformset);
-				{
-					camera_t * g = static_cast<camera_t *>(gfx::buffer_map(&frame->uniformbuffer, 0, sizeof(camera_t)));
-					
-					fvec3_t obj_position = { 0.0f, 0.0f, 0.0f };
-					//fvec3_t cam_position = { 0.0f, -2.0f, 2.5f };
-					fvec3_t cam_position = { 2.0f * cos(0.3f * s), 0.75f, 2.0f * sin(0.3f * s) };
-					fvec3_t cam_forward = normalize(obj_position - cam_position);
-					fvec3_t cam_up = { 0.0f, 0.7f, 0.0f };
-					f32 cam_aspect = f32(swapchain.width) / f32(swapchain.height);
 
-					fmat4_t M_projection = mat4_scaling(fvec3_t{ 1.0f, -1.0f, 1.0f }) * mat4_perspective(rad_deg * 90.0f, cam_aspect, 0.01f, 1000.0f);
-					fmat4_t M_view = mat4_look_at(cam_position, obj_position, cam_up);
-					fmat4_t M_view_inv = inverse(M_view);
-
-					g->view_projection = transpose(M_projection * M_view_inv);
-					g->color_tint = { k, 1.0f - k, 1.0f };
-
-					gfx::buffer_unmap(&frame->uniformbuffer);
-				}
+				fvec3_t cam_position = { 0.0f, 1.0f, 1.0f };
+				fvec3_t cam_forward = { 0.0f, 0.0f, 1.0f };
+				fvec3_t cam_up = { 0.0f, 1.0f, 0.0f };
 
 				u32 num_vertices = 0;
 
@@ -362,22 +347,22 @@ void main(int argc, char** argv)
 
 					fbezierpatch3_t patch = {
 						fbezier3_t{
-							-1.5f,  0.0f, -1.5f,
+							-1.5f,  3.0f, -1.5f,
 							-0.5f,  0.0f, -1.5f,
 							 0.5f,  0.0f, -1.5f,
-							 1.5f,  0.0f, -1.5f,
+							 1.5f,  3.0f, -1.5f,
 						},
 						fbezier3_t{
 							-1.5f,  0.0f, -0.5f,
 							-0.5f,  1.0f, -0.5f,
 							 0.5f, -1.0f, -0.5f,
-							 1.5f,  0.0f, -0.5f,
+							 1.5f,  3.0f, -0.5f,
 						},
 						fbezier3_t{
 							-1.5f,  0.0f,  0.5f,
 							-0.5f,  1.0f,  0.5f,
 							 0.5f, -1.0f,  0.5f,
-							 1.5f,  0.0f,  0.5f,
+							 1.5f,  2.0f,  0.5f,
 						},
 						fbezier3_t{
 							-1.5f,  0.0f,  1.5f,
@@ -389,11 +374,11 @@ void main(int argc, char** argv)
 
 					fvec3_t ray_col = { 5.0f, 5.0f, 5.0f };
 					fray3_t ray = {
-						{ cos(s), 1.0f, sin(s) },// origin
+						{ 1.25f*cos(0.25f*s), 5.0f, 1.25f*sin(0.25f*s) },// origin
 						{ 0.0f, -1.0f, 0.0f },// direction
 					};
 
-					{
+					/*{
 						v->color = ray_col;
 						v->position = ray.origin;
 						v++;
@@ -401,12 +386,12 @@ void main(int argc, char** argv)
 						v->position = ray.origin + ray.direction * 0.3f;
 						v++;
 						num_vertices += 2;
-					}
+					}*/
 
 					//f32 isect_t;
 					fvec2_t isect_st;
 					
-					if (isect_ray_bezierpatch(ray, patch, 15, &isect_st))
+					if (isect_ray_bezierpatch(ray, patch, 50, &isect_st))
 					{
 						fvec3_t isect_x;
 						fvec3_t isect_n;
@@ -417,31 +402,38 @@ void main(int argc, char** argv)
 						isect_vs = normalize(isect_vs);
 						isect_vt = normalize(isect_vt);
 						isect_n = cross(isect_vs, isect_vt);
-						
+
+						cam_position = isect_x;
+						cam_forward = -normalize(isect_x);
+						cam_up = isect_n;
+
+						fvec3_t cam_right = cross(cam_forward, cam_up);
+						cam_forward = normalize(cross(cam_up, cam_right));
+
 						//CA_LOG("ray.origin %.3f, %.3f HIT t = %.3f", ray.origin.x, ray.origin.z, isect_t);
 
-						v->color = ray_col;
-						v->position = isect_x;
-						v++;
-						v->color = ray_col;
-						v->position = isect_x + 0.1f * isect_n;
-						v++;
-						v->color = ray_col;
-						v->position = isect_x - 0.1f * isect_vs;
-						v++;
-						v->color = ray_col;
-						v->position = isect_x + 0.1f * isect_vs;
-						v++;
-						v->color = ray_col;
-						v->position = isect_x - 0.1f * isect_vt;
-						v++;
-						v->color = ray_col;
-						v->position = isect_x + 0.1f * isect_vt;
-						v++;
-						num_vertices += 6;
+						//v->color = ray_col;
+						//v->position = isect_x;
+						//v++;
+						//v->color = ray_col;
+						//v->position = isect_x + 0.1f * isect_n;
+						//v++;
+						//v->color = ray_col;
+						//v->position = isect_x - 0.1f * isect_vs;
+						//v++;
+						//v->color = ray_col;
+						//v->position = isect_x + 0.1f * isect_vs;
+						//v++;
+						//v->color = ray_col;
+						//v->position = isect_x - 0.1f * isect_vt;
+						//v++;
+						//v->color = ray_col;
+						//v->position = isect_x + 0.1f * isect_vt;
+						//v++;
+						//num_vertices += 6;
 					}
 
-					u32 point_dim = 16;
+					u32 point_dim = 64;
 					uvec2_t point_count = { point_dim, point_dim };
 					fvec3_t * points = mem::arena_alloc<fvec3_t>(CA_APP_STACK, point_dim * point_dim);
 
@@ -528,6 +520,25 @@ void main(int argc, char** argv)
 
 					gfx::buffer_unmap(&frame->vertexbuffer);
 				}
+
+				// update uniforms
+				{
+					camera_t * g = static_cast<camera_t *>(gfx::buffer_map(&frame->uniformbuffer, 0, sizeof(camera_t)));
+
+					cam_position = cam_position + 0.1f * cam_up;
+					
+					f32 cam_aspect = f32(swapchain.width) / f32(swapchain.height);
+
+					fmat4_t M_projection = mat4_scaling(fvec3_t{ 1.0f, -1.0f, 1.0f }) * mat4_perspective(rad_deg * 90.0f, cam_aspect, 0.01f, 1000.0f);
+					fmat4_t M_view = mat4_look_at(cam_position, cam_position + cam_forward, cam_up);
+					fmat4_t M_view_inv = inverse(M_view);
+
+					g->view_projection = transpose(M_projection * M_view_inv);
+					g->color_tint = { k, 1.0f - k, 1.0f };
+
+					gfx::buffer_unmap(&frame->uniformbuffer);
+				}
+
 				gfx::cmdbuffer_draw(&frame->cmdbuffer, 0, num_vertices);
 
 				gfx::cmdbuffer_end_renderpass(&frame->cmdbuffer);
