@@ -1,6 +1,4 @@
-#include "ca/platform.h"
-
-#if CA_PLATFORM_VULKAN
+#if CA_TARGET_GFX_VULKAN
 #include "ca/types.h"
 #include "ca/core_assert.h"
 #include "ca/core_log.h"
@@ -67,10 +65,10 @@ namespace ca
 			char const * instance_extensions[num_instance_extensions] = {
 				VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
 				VK_KHR_SURFACE_EXTENSION_NAME,
-			#if CA_PLATFORM_WIN32
+			#if CA_TARGET_SYS_WIN32
 				VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 			#else
-				#error unknown platform
+				#error unknown target platform
 			#endif
 			};
 

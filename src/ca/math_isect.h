@@ -129,7 +129,7 @@ namespace ca
 			aabb.max = patch.p[0];
 			for (u32 i = 1; i != 16; i++)
 			{
-				aabb_include(&aabb, patch.p[i]);
+				aabb_join(&aabb, patch.p[i]);
 			}
 
 			T t_ray_aabb;

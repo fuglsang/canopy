@@ -1,6 +1,4 @@
-#include "ca/platform.h"
-
-#if CA_PLATFORM_VULKAN
+#if CA_TARGET_GFX_VULKAN
 #include "ca/types.h"
 #include "ca/core_assert.h"
 #include "ca/core_log.h"

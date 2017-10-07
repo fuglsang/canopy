@@ -98,9 +98,9 @@ namespace ca
 		{
 			bezier_t<T> curve_s;
 			eval({ patch.p00, patch.p10, patch.p20, patch.p30 }, st.x, &curve_s.p0);
-			eval({ patch.p01, patch.p11, patch.p21, patch.p31 }, st.y, &curve_s.p1);
-			eval({ patch.p02, patch.p12, patch.p22, patch.p32 }, st.y, &curve_s.p2);
-			eval({ patch.p03, patch.p13, patch.p23, patch.p33 }, st.y, &curve_s.p3);
+			eval({ patch.p01, patch.p11, patch.p21, patch.p31 }, st.x, &curve_s.p1);
+			eval({ patch.p02, patch.p12, patch.p22, patch.p32 }, st.x, &curve_s.p2);
+			eval({ patch.p03, patch.p13, patch.p23, patch.p33 }, st.x, &curve_s.p3);
 
 			bezier_t<T> curve_t;
 			eval(patch.g0, st.y, &curve_t.p0);

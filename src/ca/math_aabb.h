@@ -24,10 +24,17 @@ namespace ca
 		}
 
 		template <typename T>
-		inline void aabb_include(aabb_t<T> * aabb, T const & value)
+		inline void aabb_join(aabb_t<T> * aabb, T const & value)
 		{
 			aabb->min = min(aabb->min, value);
 			aabb->max = max(aabb->max, value);
+		}
+
+		template <typename T>
+		inline void aabb_join(aabb_t<T> * aabb, aabb_t<T> const & value)
+		{
+			aabb->min = min(aabb->min, value.min);
+			aabb->max = max(aabb->max, value.max);
 		}
 	}
 }

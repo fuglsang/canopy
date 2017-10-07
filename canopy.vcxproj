@@ -94,7 +94,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\glfw\include;$(SolutionDir)ext\vulkan\include;$(SolutionDir)ext\;$(SolutionDir)src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\vulkan\include;$(SolutionDir)ext\;$(SolutionDir)src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>ca_target.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <PreBuildEvent>
       <Command>
@@ -114,7 +115,8 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\glfw\include;$(SolutionDir)ext\vulkan\include;$(SolutionDir)ext\;$(SolutionDir)src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\vulkan\include;$(SolutionDir)ext\;$(SolutionDir)src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>ca_target.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <PreBuildEvent>
       <Command>
@@ -136,7 +138,8 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\glfw\include;$(SolutionDir)ext\vulkan\include;$(SolutionDir)ext\;$(SolutionDir)src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\vulkan\include;$(SolutionDir)ext\;$(SolutionDir)src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>ca_target.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -160,7 +163,8 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)ext\glfw\include;$(SolutionDir)ext\vulkan\include;$(SolutionDir)ext\;$(SolutionDir)src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ext\vulkan\include;$(SolutionDir)ext\;$(SolutionDir)src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>ca_target.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -223,7 +227,6 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\mem_lineararena.h" />
     <ClInclude Include="src\ca\mem_stackarena.h" />
     <ClInclude Include="src\ca\mem_util.h" />
-    <ClInclude Include="src\ca\platform.h" />
     <ClInclude Include="src\ca\sys.h" />
     <ClInclude Include="src\ca\math_mat.h" />
     <ClInclude Include="src\ca\math_util.h" />
@@ -242,6 +245,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\mem_arena.h" />
     <ClInclude Include="src\ca\sys_clock.h" />
     <ClInclude Include="src\ca\core_bitmask.h" />
+    <ClInclude Include="src\ca_target.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\ca\math_bezier.inl" />

@@ -1,9 +1,9 @@
 #pragma once
 
-#if CA_PLATFORM_WIN32
+#if CA_TARGET_SYS_WIN32
 #define VK_USE_PLATFORM_WIN32_KHR
 #else
-#error unknown platform
+#error unknown target platform
 #endif
 
 #include "ca/gfx.h"

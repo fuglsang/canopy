@@ -1,6 +1,4 @@
-#include "ca/platform.h"
-
-#if CA_PLATFORM_VULKAN
+#if CA_TARGET_GFX_VULKAN
 #include "ca/types.h"
 #include "ca/core_assert.h"
 #include "ca/core_log.h"
@@ -14,7 +12,7 @@ namespace ca
 	{
 		static void create_surface(VkSurfaceKHR * surface, vk_device_t * vk_device, sys::window_t * window)
 		{
-		#if CA_PLATFORM_WIN32
+		#if CA_TARGET_SYS_WIN32
 			VkWin32SurfaceCreateInfoKHR win32_surface_create_info;
 			win32_surface_create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 			win32_surface_create_info.pNext = nullptr;
@@ -25,7 +23,7 @@ namespace ca
 			VkResult ret = vkCreateWin32SurfaceKHR(vk_device->instance, &win32_surface_create_info, &vk_device->allocator, surface);
 			CA_ASSERT(ret == VK_SUCCESS);
 		#else
-			#error unknown platform
+			#error unknown target platform
 		#endif
 		}
 
