@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ca/math_vec.h"
+#include "ca/math_cubic.h"
 
 namespace ca
 {
@@ -26,51 +26,18 @@ namespace ca
 		*/
 
 		template <typename T>
-		struct bezier_t
-		{
-			union
-			{
-				T p[4];
-				struct { T p0, p1, p2, p3; };
-			};
-		};
+		using bezier_t = cubic_t<T>;
+
+		typedef fcubic2_t fbezier2_t;
+		typedef fcubic3_t fbezier3_t;
+		typedef fcubic4_t fbezier4_t;
 
 		template <typename T>
-		struct bezierpatch_t
-		{
-			//
-			//  .---t
-			//  |
-			//  s    p00--p01--p02--p03   g0
-			//        |    |    |    |
-			//       p10--p11--p12--p13   g1
-			//        |    |    |    |
-			//       p20--p21--p22--p23   g2
-			//        |    |    |    |
-			//       p30--p31--p32--p33   g3
-			//
-			union
-			{
-				bezier_t<T> g[4];
-				struct { bezier_t<T> g0, g1, g2, g3; };
-				T p[16];
-				struct
-				{
-					T p00, p01, p02, p03;
-					T p10, p11, p12, p13;
-					T p20, p21, p22, p23;
-					T p30, p31, p32, p33;
-				};
-			};
-		};
+		using bezierpatch_t = bicubic_t<T>;
 
-		typedef bezier_t<fvec2_t> fbezier2_t;
-		typedef bezier_t<fvec3_t> fbezier3_t;
-		typedef bezier_t<fvec4_t> fbezier4_t;
-
-		typedef bezierpatch_t<fvec2_t> fbezierpatch2_t;
-		typedef bezierpatch_t<fvec3_t> fbezierpatch3_t;
-		typedef bezierpatch_t<fvec4_t> fbezierpatch4_t;
+		typedef fbicubic2_t fbezierpatch2_t;
+		typedef fbicubic3_t fbezierpatch3_t;
+		typedef fbicubic4_t fbezierpatch4_t;
 
 		//-------------------
 		// library functions

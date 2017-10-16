@@ -201,10 +201,16 @@
     <ClInclude Include="src\ca\math_aabb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\math_isect.h">
+    <ClInclude Include="src\ca_target.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca_target.h">
+    <ClInclude Include="src\ca\math_ray_isect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\math_cubic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\input_keystate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -308,6 +314,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ca\gfx\vk_uniformsetlayout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="apps\demo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\input_keystate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

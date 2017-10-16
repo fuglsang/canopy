@@ -41,7 +41,7 @@ namespace ca
 		}
 
 		template <typename T>
-		inline quat_t<T> slerp(quat_t<T> const & q0, quat_t<T> const & q1, T t)
+		inline quat_t<T> slerp(quat_t<T> const & q0, quat_t<T> const & q1, T const & t)
 		{
 			T dot = dot(q0.xyzw, q1.xyzw);
 			if (dot < 0.99f && dot > -0.99f)
@@ -77,7 +77,7 @@ namespace ca
 		}
 
 		template <typename T>
-		inline void set_rotation_by_euler_angles(quat_t<T> & q, vec3_t<T> euler_xyz)
+		inline void set_rotation_by_euler_angles(quat_t<T> & q, vec3_t<T> const & euler_xyz)
 		{
 			T hz = euler_xyz.z / T(2);// roll
 			T hx = euler_xyz.x / T(2);// pitch
@@ -125,7 +125,7 @@ namespace ca
 		}
 
 		template <typename T>
-		inline quat_t<T> quat_rotation(vec3_t<T> const & axis, T theta)
+		inline quat_t<T> quat_rotation(vec3_t<T> const & axis, T const & theta)
 		{
 			quat_t<T> q;
 			set_rotation_by_axis_angle(q, axis, theta);
@@ -133,7 +133,7 @@ namespace ca
 		}
 
 		template <typename T>
-		inline quat_t<T> quat_rotation(vec3_t<T> euler_xyz)
+		inline quat_t<T> quat_rotation(vec3_t<T> const & euler_xyz)
 		{
 			quat_t<T> q;
 			set_rotation_by_euler_angles(q, euler_xyz);

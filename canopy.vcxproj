@@ -214,13 +214,15 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\gfx_uniformsetdecl.h" />
     <ClInclude Include="src\ca\gfx_uniformsetlayout.h" />
     <ClInclude Include="src\ca\gfx_vertexdecl.h" />
+    <ClInclude Include="src\ca\input_keystate.h" />
     <ClInclude Include="src\ca\math.h" />
     <ClInclude Include="src\ca\math_aabb.h" />
     <ClInclude Include="src\ca\math_bezier.h" />
     <ClInclude Include="src\ca\math_constants.h" />
-    <ClInclude Include="src\ca\math_isect.h" />
+    <ClInclude Include="src\ca\math_cubic.h" />
     <ClInclude Include="src\ca\math_quat.h" />
     <ClInclude Include="src\ca\math_ray.h" />
+    <ClInclude Include="src\ca\math_ray_isect.h" />
     <ClInclude Include="src\ca\mem.h" />
     <ClInclude Include="src\ca\mem_chunkarena.h" />
     <ClInclude Include="src\ca\mem_heaparena.h" />
@@ -255,6 +257,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <None Include="src\ca\mem_arena.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="apps\demo.cpp" />
     <ClCompile Include="apps\main.cpp" />
     <ClCompile Include="ext\tlsf\tlsf.c" />
     <ClCompile Include="src\ca\core_jobsystem.cpp" />
@@ -272,6 +275,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="src\ca\gfx\vk_uniformpool.cpp" />
     <ClCompile Include="src\ca\gfx\vk_uniformset.cpp" />
     <ClCompile Include="src\ca\gfx\vk_uniformsetlayout.cpp" />
+    <ClCompile Include="src\ca\input_keystate.cpp" />
     <ClCompile Include="src\ca\mem.cpp" />
     <ClCompile Include="src\ca\mem_heaparena.cpp" />
     <ClCompile Include="src\ca\mem_lineararena.cpp" />

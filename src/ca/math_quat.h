@@ -40,7 +40,7 @@ namespace ca
 		inline quat_t<T> & normalize_in_place(quat_t<T> & q);
 
 		template <typename T>
-		inline quat_t<T> slerp(quat_t<T> const & q0, quat_t<T> const & q1, T t);
+		inline quat_t<T> slerp(quat_t<T> const & q0, quat_t<T> const & q1, T const & t);
 
 		//-------------------
 		// utility functions
@@ -52,7 +52,7 @@ namespace ca
 		inline void set_rotation_by_axis_angle(quat_t<T> & q, vec3_t<T> const & axis, T theta);
 
 		template <typename T>
-		inline void set_rotation_by_euler_angles(quat_t<T> & q, vec3_t<T> euler_xyz);
+		inline void set_rotation_by_euler_angles(quat_t<T> & q, vec3_t<T> const & euler_xyz);
 
 		template <typename T, u32 N>
 		inline void set_rotation_by_from_to_direction(quat_t<T> & q, vec3_t<T> const & v0, vec3_t<T> const & v1);
@@ -63,10 +63,10 @@ namespace ca
 		inline quat_t<T> quat_identity();
 
 		template <typename T>
-		inline quat_t<T> quat_rotation(vec3_t<T> const & axis, T theta);
+		inline quat_t<T> quat_rotation(vec3_t<T> const & axis, T const & theta);
 
 		template <typename T>
-		inline quat_t<T> quat_rotation(vec3_t<T> euler_xyz);
+		inline quat_t<T> quat_rotation(vec3_t<T> const & euler_xyz);
 
 		template <typename T>
 		inline quat_t<T> quat_rotation(vec3_t<T> const & v0, vec3_t<T> const & v1);

@@ -8,7 +8,7 @@ namespace ca
 	namespace math
 	{
 		template <typename T, u32 N>
-		bool isect_ray_aabb(ray_t<vec_t<T, N>> const & ray, aabb_t<vec_t<T, N>> const & aabb, T * t)
+		bool ray_isect_aabb(ray_t<vec_t<T, N>> const & ray, aabb_t<vec_t<T, N>> const & aabb, T * t)
 		{
 			// based on method by williams et al.
 			// see: http://www.cs.utah.edu/~awilliam/box/box.pdf
@@ -40,7 +40,7 @@ namespace ca
 				}
 
 				if ((tmin > tymax) || (tymin > tmax))
-					return false;// missed
+					return false;// miss
 
 				if (tmin < tymin)
 					tmin = tymin;
@@ -49,7 +49,7 @@ namespace ca
 			}
 
 			if (tmax <= 0)
-				return false;// missed
+				return false;// miss
 
 			*t = tmin;
 			return true;// hit
@@ -57,7 +57,7 @@ namespace ca
 
 		/* non-generic version
 		template <typename T>
-		bool isect_ray3_aabb3(ray_t<vec3_t<T>> const & ray, aabb_t<vec3_t<T>> const & aabb, T * t)
+		bool ray3_isect_aabb3(ray_t<vec3_t<T>> const & ray, aabb_t<vec3_t<T>> const & aabb, T * t)
 		{
 			// based on method by williams et al.
 			// see: http://www.cs.utah.edu/~awilliam/box/box.pdf
@@ -106,7 +106,7 @@ namespace ca
 			}
 
 			if ((tmin > tzmax) || (tzmin > tmax))
-				return false;// missed
+				return false;// miss
 
 			if (tmin < tzmin)
 				tmin = tzmin;
@@ -114,7 +114,7 @@ namespace ca
 				tmax = tzmax;
 
 			if (tmax <= 0)
-				return false;// missed
+				return false;// miss
 
 			*t = tmin;
 			return true;// hit
@@ -122,23 +122,23 @@ namespace ca
 		*/
 
 		template <typename T, u32 N>
-		bool isect_ray_bezierpatch(ray_t<vec_t<T, N>> const & ray, bezierpatch_t<vec_t<T, N>> const & patch, u32 max_depth, vec2_t<T> * st)
+		bool ray_isect_bezierpatch(ray_t<vec_t<T, N>> const & ray, bezierpatch_t<vec_t<T, N>> const & patch, u32 max_depth, vec2_t<T> * st)
 		{
 			aabb_t<vec_t<T, N>> aabb;
 			aabb.min = patch.p[0];
 			aabb.max = patch.p[0];
 			for (u32 i = 1; i != 16; i++)
 			{
-				aabb_join(&aabb, patch.p[i]);
+				aabb_insert(&aabb, patch.p[i]);
 			}
 
-			T t_ray_aabb;
-			if (isect_ray_aabb(ray, aabb, &t_ray_aabb))
+			T t_ray_isect_aabb;
+			if (ray_isect_aabb(ray, aabb, &t_ray_isect_aabb))
 			{
 				//CA_LOG("ray_aabb (%.3f,%.3f) (%.3f,%.3f) HIT t = %.3f", aabb.min.x, aabb.min.z, aabb.max.x, aabb.max.z, t_ray_aabb);
 				if (max_depth == 0)
 				{
-					*st = { 0.5f, 0.5f };
+					*st = { 0.5f, 0.5f };//TODO inverse lerp on two most significant axis
 					return true;
 				}
 
@@ -160,25 +160,25 @@ namespace ca
 				//                         3/4-.-1  ^ t = 0.5
 				//                             ?
 
-				if (isect_ray_bezierpatch(ray, s0t0, max_depth - 1, st))
+				if (ray_isect_bezierpatch(ray, s0t0, max_depth - 1, st))
 				{
 					st->x = st->x * 0.5f;
 					st->y = st->y * 0.5f;
 					return true;
 				}
-				if (isect_ray_bezierpatch(ray, s0t1, max_depth - 1, st))
+				if (ray_isect_bezierpatch(ray, s0t1, max_depth - 1, st))
 				{
 					st->x = st->x * 0.5f;
 					st->y = st->y * 0.5f + 0.5f;
 					return true;
 				}
-				if (isect_ray_bezierpatch(ray, s1t0, max_depth - 1, st))
+				if (ray_isect_bezierpatch(ray, s1t0, max_depth - 1, st))
 				{
 					st->x = st->x * 0.5f + 0.5f;
 					st->y = st->y * 0.5f;
 					return true;
 				}
-				if (isect_ray_bezierpatch(ray, s1t1, max_depth - 1, st))
+				if (ray_isect_bezierpatch(ray, s1t1, max_depth - 1, st))
 				{
 					st->x = st->x * 0.5f + 0.5f;
 					st->y = st->y * 0.5f + 0.5f;
