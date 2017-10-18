@@ -2,7 +2,8 @@
 #include "ca/sys/win32.h"
 #include "ca/sys_window.h"
 #include "ca/core_assert.h"
-#include "ca/input_keystate.h"
+#include "ca/input_key.h"
+#include "ca/input_keycode.h"
 
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
@@ -85,7 +86,7 @@ namespace ca
 			case VK_F11:	return input::KEY_F11;
 			case VK_F12:	return input::KEY_F12;
 
-			// cursor
+			// arrow
 			case VK_LEFT:	return input::KEY_LEFT;
 			case VK_UP:		return input::KEY_UP;
 			case VK_RIGHT:	return input::KEY_RIGHT;
@@ -103,6 +104,11 @@ namespace ca
 			case VK_ESCAPE:	return input::KEY_ESCAPE;
 			case VK_SPACE:	return input::KEY_SPACE;
 			case VK_TAB:	return input::KEY_TAB;
+
+			// mouse
+			case VK_LBUTTON:return input::KEY_MOUSE_LEFT;
+			case VK_MBUTTON:return input::KEY_MOUSE_MIDDLE;
+			case VK_RBUTTON:return input::KEY_MOUSE_RIGHT;
 			}
 
 			// unknown
@@ -136,7 +142,7 @@ namespace ca
 				{
 					window = resolve_window(hWnd);
 					input::keycode key = resolve_key(wParam);
-					input::keystate_register_key_down(&window->keystate, key);
+					input::key_register_down(&window->keystate[key]);
 				}
 				goto default_proc;
 
@@ -144,7 +150,44 @@ namespace ca
 				{
 					window = resolve_window(hWnd);
 					input::keycode key = resolve_key(wParam);
-					input::keystate_register_key_up(&window->keystate, key);
+					input::key_register_up(&window->keystate[key]);
+				}
+				goto default_proc;
+
+			case WM_LBUTTONDOWN:
+			case WM_MBUTTONDOWN:
+			case WM_RBUTTONDOWN:
+			case WM_LBUTTONUP:
+			case WM_MBUTTONUP:
+			case WM_RBUTTONUP:
+				{
+					window = resolve_window(hWnd);
+					if (message == WM_LBUTTONDOWN)
+						input::key_register_down(&window->keystate[input::KEY_MOUSE_LEFT]);
+					if (message == WM_MBUTTONDOWN)
+						input::key_register_down(&window->keystate[input::KEY_MOUSE_MIDDLE]);
+					if (message == WM_RBUTTONDOWN)
+						input::key_register_down(&window->keystate[input::KEY_MOUSE_RIGHT]);
+					if (message == WM_LBUTTONUP)
+						input::key_register_up(&window->keystate[input::KEY_MOUSE_LEFT]);
+					if (message == WM_MBUTTONUP)
+						input::key_register_up(&window->keystate[input::KEY_MOUSE_MIDDLE]);
+					if (message == WM_RBUTTONUP)
+						input::key_register_up(&window->keystate[input::KEY_MOUSE_RIGHT]);
+				}
+				goto default_proc;
+
+			case WM_MOUSEHOVER:
+			case WM_MOUSELEAVE:
+			case WM_MOUSEMOVE:
+				{
+					window = resolve_window(hWnd);
+					auto p = MAKEPOINTS(lParam);
+					i32 px = p.x;
+					i32 py = p.y;
+
+					window->mouse.captured = (message != WM_MOUSELEAVE);
+					window->mouse.position = { px, py };
 				}
 				goto default_proc;
 
@@ -206,7 +249,8 @@ namespace ca
 
 			core::create_event(&window->event);
 
-			input::keystate_reset(&window->keystate);
+			input::key_clear(window->keystate, input::NUM_KEYS);
+			input::pointer_clear(&window->mouse);
 
 			HWND hWnd = CreateWindow(
 				WINDOW_NAME,				// window class
@@ -247,7 +291,7 @@ namespace ca
 				DispatchMessage(&msg);
 			}
 
-			input::keystate_rollover(&window->keystate);
+			input::key_rollover(window->keystate, input::NUM_KEYS);
 
 			if (window->system_requested_close)
 				return false;

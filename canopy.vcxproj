@@ -214,7 +214,10 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClInclude Include="src\ca\gfx_uniformsetdecl.h" />
     <ClInclude Include="src\ca\gfx_uniformsetlayout.h" />
     <ClInclude Include="src\ca\gfx_vertexdecl.h" />
-    <ClInclude Include="src\ca\input_keystate.h" />
+    <ClInclude Include="src\ca\input_axis.h" />
+    <ClInclude Include="src\ca\input_key.h" />
+    <ClInclude Include="src\ca\input_keycode.h" />
+    <ClInclude Include="src\ca\input_pointer.h" />
     <ClInclude Include="src\ca\math.h" />
     <ClInclude Include="src\ca\math_aabb.h" />
     <ClInclude Include="src\ca\math_bezier.h" />
@@ -261,6 +264,7 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="apps\main.cpp" />
     <ClCompile Include="ext\tlsf\tlsf.c" />
     <ClCompile Include="src\ca\core_jobsystem.cpp" />
+    <ClCompile Include="src\ca\core_log.cpp" />
     <ClCompile Include="src\ca\gfx\opengl_device.cpp" />
     <ClCompile Include="src\ca\gfx\vk_buffer.cpp" />
     <ClCompile Include="src\ca\gfx\vk_cmdbuffer.cpp" />
@@ -275,7 +279,8 @@ xcopy /Y /S /Q $(SolutionDir)src\ca\*.h $(SolutionDir)include\ca\</Command>
     <ClCompile Include="src\ca\gfx\vk_uniformpool.cpp" />
     <ClCompile Include="src\ca\gfx\vk_uniformset.cpp" />
     <ClCompile Include="src\ca\gfx\vk_uniformsetlayout.cpp" />
-    <ClCompile Include="src\ca\input_keystate.cpp" />
+    <ClCompile Include="src\ca\input_key.cpp" />
+    <ClCompile Include="src\ca\input_pointer.cpp" />
     <ClCompile Include="src\ca\mem.cpp" />
     <ClCompile Include="src\ca\mem_heaparena.cpp" />
     <ClCompile Include="src\ca\mem_lineararena.cpp" />

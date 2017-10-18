@@ -311,17 +311,19 @@ void main(int argc, char** argv)
 
 		while (sys::window_poll(&window))
 		{
-			if (window.keystate.key_down[input::KEY_A])
+			if (window.keystate[input::KEY_A].down)
 				CA_LOG("pressed 'a'");
+			if (window.keystate[input::KEY_MOUSE_LEFT].down)
+				CA_LOG("pressed 'mouse_left' at %d,%d", window.mouse.position.x, window.mouse.position.y);
 
-			if (window.keystate.key_down[input::KEY_UP])
+			if (window.keystate[input::KEY_UP].down)
 				point_dim <<= 1;
-			if (window.keystate.key_down[input::KEY_DOWN])
+			if (window.keystate[input::KEY_DOWN].down)
 				point_dim >>= 1;
 
 			point_dim = clamp(point_dim, 4u, 128u);
 
-			if (window.keystate.key_down[input::KEY_ESCAPE])
+			if (window.keystate[input::KEY_ESCAPE].down)
 				break;
 
 			if ((acquired_count++ % 60) == 0)

@@ -210,7 +210,16 @@
     <ClInclude Include="src\ca\math_cubic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\input_keystate.h">
+    <ClInclude Include="src\ca\input_key.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\input_keycode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\input_axis.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\input_pointer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -319,7 +328,13 @@
     <ClCompile Include="apps\demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ca\input_keystate.cpp">
+    <ClCompile Include="src\ca\core_log.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\input_key.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\input_pointer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

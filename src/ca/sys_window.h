@@ -2,8 +2,8 @@
 
 #include "ca/types.h"
 #include "ca/core_event.h"
-#include "ca/input_keystate.h"
-//#include "ca/input_mouse.h"
+#include "ca/input_keycode.h"
+#include "ca/input_pointer.h"
 
 namespace ca
 {
@@ -33,7 +33,8 @@ namespace ca
 			bool system_requested_close;
 			core::event_t<window_t *, windowevent> event;
 
-			input::keystate_t keystate;
+			input::key_t keystate[input::NUM_KEYS];
+			input::pointer_t mouse;
 		};
 
 		void create_window(window_t * window, char const * title, windowrect_t rect);

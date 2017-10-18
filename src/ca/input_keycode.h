@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ca/types.h"
+#include "ca/input_key.h"
 
 namespace ca
 {
@@ -62,7 +62,7 @@ namespace ca
 			KEY_F11,
 			KEY_F12,
 
-			// cursor
+			// arrow
 			KEY_LEFT,
 			KEY_UP,
 			KEY_RIGHT,
@@ -81,6 +81,11 @@ namespace ca
 			KEY_SPACE,
 			KEY_TAB,
 
+			// mouse
+			KEY_MOUSE_LEFT,
+			KEY_MOUSE_MIDDLE,
+			KEY_MOUSE_RIGHT,
+
 			// unknown
 			KEY_UNKNOWN,
 
@@ -88,16 +93,9 @@ namespace ca
 			NUM_KEYS,
 		};
 
-		struct keystate_t
-		{
-			u8 key_pressed[NUM_KEYS];
-			u8 key_down[NUM_KEYS];
-			u8 key_up[NUM_KEYS];
-		};
-
-		void keystate_reset(keystate_t * keystate);
-		void keystate_register_key_down(keystate_t * keystate, keycode key);
-		void keystate_register_key_up(keystate_t * keystate, keycode key);
-		void keystate_rollover(keystate_t * keystate);
+		//struct keyboard_t
+		//{
+		//	key_t keys[NUM_KEYS];
+		//};
 	}
 }
