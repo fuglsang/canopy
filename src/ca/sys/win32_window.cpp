@@ -5,6 +5,7 @@
 #include "ca/input_key.h"
 #include "ca/input_keycode.h"
 
+#include <windowsx.h>
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 
@@ -177,17 +178,29 @@ namespace ca
 				}
 				goto default_proc;
 
-			case WM_MOUSEHOVER:
 			case WM_MOUSELEAVE:
+				{
+					window = resolve_window(hWnd);
+					window->mouse.tracking = false;
+				}
+				goto default_proc;
+
 			case WM_MOUSEMOVE:
 				{
 					window = resolve_window(hWnd);
-					auto p = MAKEPOINTS(lParam);
-					i32 px = p.x;
-					i32 py = p.y;
-
-					window->mouse.captured = (message != WM_MOUSELEAVE);
-					window->mouse.position = { px, py };
+					if (window->mouse.tracking == false)
+					{
+						TRACKMOUSEEVENT tme;
+						tme.cbSize = sizeof(TRACKMOUSEEVENT);
+						tme.dwFlags = TME_LEAVE;
+						tme.hwndTrack = hWnd;
+						if (TrackMouseEvent(&tme))
+						{
+							window->mouse.tracking = true;
+						}
+					}
+					window->mouse.position.x = GET_X_LPARAM(lParam);
+					window->mouse.position.y = GET_Y_LPARAM(lParam);
 				}
 				goto default_proc;
 

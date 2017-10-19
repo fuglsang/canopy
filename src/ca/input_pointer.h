@@ -8,7 +8,7 @@ namespace ca
 	{
 		struct pointer_t
 		{
-			bool captured;
+			bool tracking;
 			math::ivec2_t position;
 		};
 

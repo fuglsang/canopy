@@ -6,7 +6,7 @@ namespace ca
 	{
 		void pointer_clear(pointer_t * pointer)
 		{
-			pointer->captured = false;
+			pointer->tracking = false;
 			pointer->position = { -1, -1 };
 		}
 	}

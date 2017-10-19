@@ -315,6 +315,8 @@ void main(int argc, char** argv)
 				CA_LOG("pressed 'a'");
 			if (window.keystate[input::KEY_MOUSE_LEFT].down)
 				CA_LOG("pressed 'mouse_left' at %d,%d", window.mouse.position.x, window.mouse.position.y);
+			if (window.mouse.tracking)
+				CA_LOG("mouse tracked at %d,%d", window.mouse.position.x, window.mouse.position.y);
 
 			if (window.keystate[input::KEY_UP].down)
 				point_dim <<= 1;
