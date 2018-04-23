@@ -125,13 +125,13 @@ namespace ca
 		// resolve_type(), resolve_handle()
 
 		#define CA_DEFINE_RESOLVE_VK_TYPE(ID)							\
-		inline vk_##ID##_t * resolve_type(ID##_t * ID)					\
+		CA_INLINE vk_##ID##_t * resolve_type(ID##_t * ID)					\
 		{																\
 			return reinterpret_cast<vk_##ID##_t *>(ID->handle);			\
 		}
 
 		#define CA_DEFINE_RESOLVE_VK_HANDLE(ID)							\
-		inline decltype(vk_##ID##_t::##ID) resolve_handle(ID##_t * ID)	\
+		CA_INLINE decltype(vk_##ID##_t::##ID) resolve_handle(ID##_t * ID)	\
 		{																\
 			if (ID != nullptr)											\
 				return resolve_type(ID)->ID;							\

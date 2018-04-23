@@ -96,9 +96,6 @@
     <ClInclude Include="src\ca\sys_thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ext\stb\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -219,7 +216,28 @@
     <ClInclude Include="src\ca\input_axis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ca\input_pointer.h">
+    <ClInclude Include="ext\ray_bilinear_patch\bilinear.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\ray_bilinear_patch\Vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\math_scalar_ops.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\input_cursor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\math_vec_ops.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\math_mat_ops.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ca\math_mat_lib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -227,16 +245,22 @@
     <None Include="src\ca\math_bezier.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="src\ca\math_mat.inl">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="src\ca\math_vec.inl">
-      <Filter>Header Files</Filter>
-    </None>
     <None Include="src\ca\math_quat.inl">
       <Filter>Header Files</Filter>
     </None>
     <None Include="src\ca\mem_arena.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\ca\math_scalar_ops.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\ca\math_vec_ops.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\ca\math_mat_ops.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\ca\math_mat_lib.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
@@ -313,9 +337,6 @@
     <ClCompile Include="src\ca\sys\win32_process.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="apps\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ca\gfx\vk_uniformpool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -325,16 +346,25 @@
     <ClCompile Include="src\ca\gfx\vk_uniformsetlayout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="apps\demo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ca\core_log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ca\input_key.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ca\input_pointer.cpp">
+    <ClCompile Include="ext\ray_bilinear_patch\bilinear.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ext\ray_bilinear_patch\Vector.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\math_scalar_ops.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ca\input_cursor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="apps\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ca/types.h"
+#include "ca_base.h"
 
 namespace ca
 {

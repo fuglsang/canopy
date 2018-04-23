@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ca/types.h"
+#include "ca_base.h"
 #include "ca/core_event.h"
+#include "ca/input_cursor.h"
 #include "ca/input_keycode.h"
-#include "ca/input_pointer.h"
 
 namespace ca
 {
@@ -33,8 +33,8 @@ namespace ca
 			bool system_requested_close;
 			core::event_t<window_t *, windowevent> event;
 
-			input::key_t keystate[input::NUM_KEYS];
-			input::pointer_t mouse;
+			input::cursor_t mouse;
+			input::key_t keys[input::NUM_KEYS];
 		};
 
 		void create_window(window_t * window, char const * title, windowrect_t rect);

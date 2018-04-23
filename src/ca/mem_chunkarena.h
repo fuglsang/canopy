@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ca/types.h"
+#include "ca_base.h"
 #include "ca/core_assert.h"
 #include "ca/mem_arena.h"
 #include "ca/mem_util.h"

@@ -18,20 +18,20 @@ namespace ca
 		typedef aabb_t<fvec4_t> faabb4_t;
 
 		template <typename T>
-		inline bool aabb_contains(aabb_t<T> * aabb, T const & value)
+		CA_INLINE bool aabb_contains(aabb_t<T> const & aabb, T const & value)
 		{
 			return all(value >= aabb->min) && all(value <= aabb->max);
 		}
 
 		template <typename T>
-		inline void aabb_insert(aabb_t<T> * aabb, T const & value)
+		CA_INLINE void aabb_insert(aabb_t<T> * aabb, T const & value)
 		{
 			aabb->min = min(aabb->min, value);
 			aabb->max = max(aabb->max, value);
 		}
 
 		template <typename T>
-		inline void aabb_insert(aabb_t<T> * aabb, aabb_t<T> const & value)
+		CA_INLINE void aabb_insert(aabb_t<T> * aabb, aabb_t<T> const & value)
 		{
 			aabb->min = min(aabb->min, value.min);
 			aabb->max = max(aabb->max, value.max);

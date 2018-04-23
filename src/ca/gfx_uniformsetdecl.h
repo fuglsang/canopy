@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ca/types.h"
+#include "ca_base.h"
 #include "ca/core_assert.h"
 
 namespace ca
@@ -33,7 +33,7 @@ namespace ca
 			u32 binding_mask = 0;
 		};
 
-		inline void uniformsetdecl_binding(uniformsetdecl_t * uniformsetdecl, u32 binding, uniformtype type, shaderstage stage)
+		CA_INLINE void uniformsetdecl_binding(uniformsetdecl_t * uniformsetdecl, u32 binding, uniformtype type, shaderstage stage)
 		{
 			CA_ASSERT(binding < uniformsetdecl_t::MAX_BINDINGS);
 

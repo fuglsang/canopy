@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ca_base.h"
+
 namespace ca
 {
 	namespace core
@@ -15,31 +17,31 @@ namespace ca
 			void * instance;
 			stub_t function;
 
-			inline R operator() (P... args) const
+			CA_INLINE R operator() (P... args) const
 			{
 				return function(instance, args...);
 			}
 
 			template <R(*f)(P...)>
-			static inline R stub_static(void * instance, P... args)
+			static CA_INLINE R stub_static(void * instance, P... args)
 			{
 				return (*f)(args...);
 			}
 
 			template <typename C, R(C::*f)(P...)>
-			static inline R stub_member(void * instance, P... args)
+			static CA_INLINE R stub_member(void * instance, P... args)
 			{
 				return (static_cast<C *>(instance)->*f)(args...);
 			}
 
 			template <typename C, R(C::*f)(P...) const>
-			static inline R stub_member(void * instance, P... args)
+			static CA_INLINE R stub_member(void * instance, P... args)
 			{
 				return (static_cast<C *>(instance)->*f)(args...);
 			}
 
 			template <typename C>
-			static inline R stub_object(void * instance, P... args)
+			static CA_INLINE R stub_object(void * instance, P... args)
 			{
 				return (*static_cast<C *>(instance))(args...);
 			}

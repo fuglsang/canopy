@@ -143,7 +143,7 @@ namespace ca
 				{
 					window = resolve_window(hWnd);
 					input::keycode key = resolve_key(wParam);
-					input::key_register_down(&window->keystate[key]);
+					input::key_register_down(&window->keys[key]);
 				}
 				goto default_proc;
 
@@ -151,7 +151,7 @@ namespace ca
 				{
 					window = resolve_window(hWnd);
 					input::keycode key = resolve_key(wParam);
-					input::key_register_up(&window->keystate[key]);
+					input::key_register_up(&window->keys[key]);
 				}
 				goto default_proc;
 
@@ -164,17 +164,17 @@ namespace ca
 				{
 					window = resolve_window(hWnd);
 					if (message == WM_LBUTTONDOWN)
-						input::key_register_down(&window->keystate[input::KEY_MOUSE_LEFT]);
+						input::key_register_down(&window->keys[input::KEY_MOUSE_LEFT]);
 					if (message == WM_MBUTTONDOWN)
-						input::key_register_down(&window->keystate[input::KEY_MOUSE_MIDDLE]);
+						input::key_register_down(&window->keys[input::KEY_MOUSE_MIDDLE]);
 					if (message == WM_RBUTTONDOWN)
-						input::key_register_down(&window->keystate[input::KEY_MOUSE_RIGHT]);
+						input::key_register_down(&window->keys[input::KEY_MOUSE_RIGHT]);
 					if (message == WM_LBUTTONUP)
-						input::key_register_up(&window->keystate[input::KEY_MOUSE_LEFT]);
+						input::key_register_up(&window->keys[input::KEY_MOUSE_LEFT]);
 					if (message == WM_MBUTTONUP)
-						input::key_register_up(&window->keystate[input::KEY_MOUSE_MIDDLE]);
+						input::key_register_up(&window->keys[input::KEY_MOUSE_MIDDLE]);
 					if (message == WM_RBUTTONUP)
-						input::key_register_up(&window->keystate[input::KEY_MOUSE_RIGHT]);
+						input::key_register_up(&window->keys[input::KEY_MOUSE_RIGHT]);
 				}
 				goto default_proc;
 
@@ -262,8 +262,8 @@ namespace ca
 
 			core::create_event(&window->event);
 
-			input::key_clear(window->keystate, input::NUM_KEYS);
-			input::pointer_clear(&window->mouse);
+			input::key_clear(window->keys, input::NUM_KEYS);
+			input::cursor_clear(&window->mouse);
 
 			HWND hWnd = CreateWindow(
 				WINDOW_NAME,				// window class
@@ -304,7 +304,7 @@ namespace ca
 				DispatchMessage(&msg);
 			}
 
-			input::key_rollover(window->keystate, input::NUM_KEYS);
+			input::key_rollover(window->keys, input::NUM_KEYS);
 
 			if (window->system_requested_close)
 				return false;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ca/types.h"
+#include "ca_base.h"
 
 namespace ca
 {
@@ -49,11 +49,15 @@ namespace ca
 		template <typename T> using vec3_t = vec_t<T, 3>;
 		template <typename T> using vec4_t = vec_t<T, 4>;
 
+		template <u32 N> using bvec_t = vec_t<bool, N>;
 		template <u32 N> using fvec_t = vec_t<f32, N>;
 		template <u32 N> using dvec_t = vec_t<f64, N>;
 		template <u32 N> using ivec_t = vec_t<i32, N>;
 		template <u32 N> using uvec_t = vec_t<u32, N>;
-		template <u32 N> using bvec_t = vec_t<bool, N>;
+
+		typedef bvec_t<2> bvec2_t;
+		typedef bvec_t<3> bvec3_t;
+		typedef bvec_t<4> bvec4_t;
 
 		typedef fvec_t<2> fvec2_t;
 		typedef fvec_t<3> fvec3_t;
@@ -70,73 +74,5 @@ namespace ca
 		typedef uvec_t<2> uvec2_t;
 		typedef uvec_t<3> uvec3_t;
 		typedef uvec_t<4> uvec4_t;
-
-		typedef bvec_t<2> bvec2_t;
-		typedef bvec_t<3> bvec3_t;
-		typedef bvec_t<4> bvec4_t;
-
-		//--------------------
-		// operator overloads
-
-		//TODO list them
-
-		//-------------------
-		// library functions
-
-		template <typename T, u32 N>
-		inline vec_t<T, N> abs(vec_t<T, N> const & v);
-
-		template <u32 N>
-		inline bool all(bvec_t<N> const & v);
-
-		template <u32 N>
-		inline bool any(bvec_t<N> const & v);
-
-		template <typename T>
-		inline T cross(vec2_t<T> const & a, vec2_t<T> const & b);
-
-		template <typename T>
-		inline vec3_t<T> cross(vec3_t<T> const & a, vec3_t<T> const & b);
-
-		template <typename T, u32 N>
-		inline T dot(vec_t<T, N> const & a, vec_t<T, N> const & b);
-
-		template <typename T, u32 N>
-		inline vec_t<T, N> homogenize(vec_t<T, N> const & v);
-
-		template <typename T, u32 N>
-		inline vec_t<T, N> & homogenize_in_place(vec_t<T, N> & v);
-
-		template <typename T, u32 N>
-		inline vec_t<T, N> max(vec_t<T, N> const & a, vec_t<T, N> const & b);
-
-		template <typename T, u32 N>
-		inline vec_t<T, N> min(vec_t<T, N> const & a, vec_t<T, N> const & b);
-
-		template <typename T, u32 N>
-		inline T norm(vec_t<T, N> const & v);
-
-		template <typename T, u32 N>
-		inline T norm_sq(vec_t<T, N> const & v);
-
-		template <typename T, u32 N>
-		inline vec_t<T, N> normalize(vec_t<T, N> const & v);
-
-		template <typename T, u32 N>
-		inline vec_t<T, N> & normalize_in_place(vec_t<T, N> & v);
-
-		template <typename T, u32 N>
-		inline vec_t<T, N> rcp(vec_t<T, N> const & v);
-
-		template <typename T, u32 N>
-		inline T rcp_norm(vec_t<T, N> const & v);
-
-		template <u32 I, u32 C, typename T, u32 N>
-		inline vec_t<T, C> & subvector(vec_t<T, N> & v);
 	}
 }
-
-#include "ca/math_vec.inl"
-//TODO split into e.g.
-//#include "ca/math_vec_oper.inl"
-//#include "ca/math_vec_util.inl"

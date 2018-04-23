@@ -1,8 +1,8 @@
 #if CA_TARGET_GFX_VULKAN
-#include "ca/types.h"
+#include "ca_base.h"
 #include "ca/core_assert.h"
 #include "ca/core_log.h"
-#include "ca/math_util.h"
+#include "ca/math_scalar_ops.h"
 #include "ca/mem.h"
 #include "ca/gfx/vk.h"
 

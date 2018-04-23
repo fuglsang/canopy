@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ca/types.h"
+#include "ca_base.h"
 #include "ca/core_assert.h"
 #include "ca/mem_util.h"
 
@@ -138,7 +138,7 @@ namespace ca
 			u32 location_mask = 0;
 		};
 
-		inline void vertexdecl_buffer(vertexdecl_t * vertexdecl, u32 binding, size_t stride)
+		CA_INLINE void vertexdecl_buffer(vertexdecl_t * vertexdecl, u32 binding, size_t stride)
 		{
 			CA_ASSERT(binding < vertexdecl_t::MAX_BUFFERS);
 			
@@ -147,7 +147,7 @@ namespace ca
 			bufferdecl->stride = stride;
 		}
 
-		inline void vertexdecl_attrib(vertexdecl_t * vertexdecl, u32 location, size_t offset, vertexattribtype component_type, u32 component_count)
+		CA_INLINE void vertexdecl_attrib(vertexdecl_t * vertexdecl, u32 location, size_t offset, vertexattribtype component_type, u32 component_count)
 		{
 			CA_ASSERT(vertexdecl->buffer_count > 0);
 			CA_ASSERT(location < vertexdecl_t::MAX_ATTRIBS);
@@ -188,7 +188,7 @@ namespace ca
 		}
 
 		template <typename T, typename C>
-		inline void vertexdecl_attrib(vertexdecl_t * vertexdecl, u32 location, T C::*member)
+		CA_INLINE void vertexdecl_attrib(vertexdecl_t * vertexdecl, u32 location, T C::*member)
 		{
 			size_t offset = mem::ptr_offsetof(member);
 			u32 component_type = resolve_vertexattribtype_t<T>::type;

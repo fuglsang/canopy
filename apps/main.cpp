@@ -6,6 +6,9 @@
 #include "ca/gfx.h"
 #include "ca/sys.h"
 #include "ca/math_ray_isect.h"
+#include "ca/math_vec_ops.h"
+#include "ca/math_mat.h"
+#include "ca/math_mat_lib.h"
 
 using namespace ca;
 using namespace ca::core;
@@ -111,7 +114,7 @@ void main(int argc, char** argv)
 	set_rotation_by_quaternion(rot, q);
 	set_rotation_by_forward_up(rot, { 0.0f,0.0f,-1.0f }, { 0.0f,1.0f,0.0f });
 	
-	r = M * r;
+	r = mul(M, r);
 
 	M += B;
 
@@ -311,21 +314,22 @@ void main(int argc, char** argv)
 
 		while (sys::window_poll(&window))
 		{
-			if (window.keystate[input::KEY_A].down)
+			if (window.keys[input::KEY_A].down)
 				CA_LOG("pressed 'a'");
-			if (window.keystate[input::KEY_MOUSE_LEFT].down)
+			if (window.keys[input::KEY_MOUSE_LEFT].down)
 				CA_LOG("pressed 'mouse_left' at %d,%d", window.mouse.position.x, window.mouse.position.y);
+
 			if (window.mouse.tracking)
 				CA_LOG("mouse tracked at %d,%d", window.mouse.position.x, window.mouse.position.y);
 
-			if (window.keystate[input::KEY_UP].down)
+			if (window.keys[input::KEY_UP].down)
 				point_dim <<= 1;
-			if (window.keystate[input::KEY_DOWN].down)
+			if (window.keys[input::KEY_DOWN].down)
 				point_dim >>= 1;
 
 			point_dim = clamp(point_dim, 4u, 128u);
 
-			if (window.keystate[input::KEY_ESCAPE].down)
+			if (window.keys[input::KEY_ESCAPE].down)
 				break;
 
 			if ((acquired_count++ % 60) == 0)
@@ -363,7 +367,7 @@ void main(int argc, char** argv)
 				gfx::cmdbuffer_bind_vertexbuffer(&frame->cmdbuffer, &frame->vertexbuffer, 0);
 				{
 					vertex_t * v = static_cast<vertex_t *>(gfx::buffer_map(&frame->vertexbuffer, 0, sizeof(vertex_t) * max_vertices));
-
+					///*
 					fbezierpatch3_t patch =
 					{
 						// p00--p01--p02--p03
@@ -387,6 +391,32 @@ void main(int argc, char** argv)
 						 0.5f,  0.0f,  1.5f,
 						 1.5f,  0.0f,  1.5f,
 					};
+					//*/
+					/*
+					fbezierpatch3_t patch =
+					{
+						// p00--p01--p02--p03
+						-1.5f,  0.0f, -1.5f,
+						-0.5f,  0.0f, -1.5f,
+						0.5f,  0.0f, -1.5f,
+						1.5f,  0.0f, -1.5f,
+						// p10--p11--p12--p13
+						-1.5f,  0.0f, -0.5f,
+						-0.5f,  0.0f, -0.5f,
+						0.5f,  0.0f, -0.5f,
+						1.5f,  0.0f, -0.5f,
+						// p20--p21--p22--p23
+						-1.5f,  0.0f,  0.5f,
+						-0.5f,  0.0f,  0.5f,
+						0.5f,  0.0f,  0.5f,
+						1.5f,  0.0f,  0.5f,
+						// p30--p31--p32--p33
+						-1.5f,  0.0f,  1.5f,
+						-0.5f,  0.0f,  1.5f,
+						0.5f,  0.0f,  1.5f,
+						1.5f,  0.0f,  1.5f,
+					};
+					//*/
 
 					fvec3_t ray_col = { 5.0f, 5.0f, 5.0f };
 					fray3_t ray = {
@@ -405,16 +435,17 @@ void main(int argc, char** argv)
 					}*/
 
 					//f32 isect_t;
-					fvec2_t isect_st;
+					f32 isect_t;
+					fvec2_t isect_uv;
 
-					if (ray_isect_bezierpatch(ray, patch, 50, &isect_st))
+					if (ray_isect_bezierpatch(ray, patch, 2, &isect_t, &isect_uv))
 					{
 						fvec3_t isect_x;
 						fvec3_t isect_n;
 						fvec3_t isect_vs;
 						fvec3_t isect_vt;
 
-						eval(patch, isect_st, &isect_x, &isect_vs, &isect_vt);
+						eval(patch, isect_uv, &isect_x, &isect_vs, &isect_vt);
 						isect_vs = normalize(isect_vs);
 						isect_vt = normalize(isect_vt);
 						isect_n = cross(isect_vs, isect_vt);
@@ -447,31 +478,6 @@ void main(int argc, char** argv)
 						//v->position = isect_x + 0.1f * isect_vt;
 						//v++;
 						//num_vertices += 6;
-					}
-
-					fray3_t car_ray = ray;
-					fvec2_t car_isect_st;
-					car_ray.origin *= 0.8f;
-					if (ray_isect_bezierpatch(car_ray, patch, 50, &car_isect_st))
-					{
-						fvec3_t isect_x;
-						fvec3_t isect_n;
-						fvec3_t isect_vs;
-						fvec3_t isect_vt;
-
-						eval(patch, car_isect_st, &isect_x, &isect_vs, &isect_vt);
-						isect_vs = normalize(isect_vs);
-						isect_vt = normalize(isect_vt);
-						isect_n = cross(isect_vs, isect_vt);
-
-						//v->color = ray_col;
-						//v->position = isect_x;
-						//v++;
-						//v->color = ray_col;
-						//v->position = isect_x + 0.1f * isect_n;
-						//v++;
-
-						//num_vertices += 2;
 					}
 
 					uvec2_t point_count = { point_dim, point_dim };

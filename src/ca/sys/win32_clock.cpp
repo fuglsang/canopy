@@ -9,7 +9,7 @@ namespace ca
 		static u64 precision_clock_start = 0;
 
 		template <u64 N>
-		static inline u64 precision_clock()
+		static CA_INLINE u64 precision_clock()
 		{
 			LARGE_INTEGER time;
 			LARGE_INTEGER freq;

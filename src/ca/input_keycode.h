@@ -92,10 +92,5 @@ namespace ca
 			// ...
 			NUM_KEYS,
 		};
-
-		//struct keyboard_t
-		//{
-		//	key_t keys[NUM_KEYS];
-		//};
 	}
 }
