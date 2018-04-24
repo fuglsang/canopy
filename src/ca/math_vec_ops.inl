@@ -152,85 +152,6 @@ namespace ca
 			return (1 - s) * a + s * b;
 		}
 
-		//----------------
-		// built-in unary
-
-		#define X(op)\
-		template <typename T, u32 N>\
-		CA_INLINE auto operator op(vec_t<T, N> const & v)\
-		{\
-			vec_t<decltype(op T()), N> v_out;\
-			for (u32 i = 0; i != N; i++)\
-			{\
-				v_out.e[i] = op v.e[i];\
-			}\
-			return v_out;\
-		}
-		CA_XDECL_MATH_VEC_OPS_BUILTIN_UNARY
-		#undef X
-
-		//-----------------
-		// built-in binary
-
-		#define X(op)\
-		template <typename T, u32 N>\
-		CA_INLINE auto operator op(vec_t<T, N> const & a, vec_t<T, N> const & b)\
-		{\
-			vec_t<decltype(T() op T()), N> v;\
-			for (u32 i = 0; i != N; i++)\
-			{\
-				v.e[i] = a.e[i] op b.e[i];\
-			}\
-			return v;\
-		}\
-		template <typename T, u32 N>\
-		CA_INLINE auto operator op(vec_t<T, N> const & a, T const & b)\
-		{\
-			vec_t<decltype(T() op T()), N> v;\
-			for (u32 i = 0; i != N; i++)\
-			{\
-				v.e[i] = a.e[i] op b;\
-			}\
-			return v;\
-		}\
-		template <typename T, u32 N>\
-		CA_INLINE auto operator op(T const & a, vec_t<T, N> const & b)\
-		{\
-			vec_t<decltype(T() op T()), N> v;\
-			for (u32 i = 0; i != N; i++)\
-			{\
-				v.e[i] = a op b.e[i];\
-			}\
-			return v;\
-		}
-		CA_XDECL_MATH_VEC_OPS_BUILTIN_BINARY
-		#undef X
-
-		//-------------------
-		// built-in compound
-
-		#define X(op)\
-		template <typename T, u32 N>\
-		CA_INLINE auto& operator op(vec_t<T, N> & a, vec_t<T, N> const & b)\
-		{\
-			for (u32 i = 0; i != N; i++)\
-			{\
-				a.e[i] op b.e[i];\
-			}\
-			return a;\
-		}\
-		template <typename T, u32 N>\
-		CA_INLINE auto& operator op(vec_t<T, N> & a, T const & b)\
-		{\
-			for (u32 i = 0; i != N; i++)\
-			{\
-				a.e[i] op b;\
-			}\
-			return a;\
-		}
-		CA_XDECL_MATH_VEC_OPS_BUILTIN_COMPOUND
-		#undef X
-
 		//----------------------
 		// component-wise unary
 
@@ -280,6 +201,85 @@ namespace ca
 			return result;\
 		}
 		CA_XDECL_MATH_SCALAR_OPS_TERNARY
+		#undef X
+
+		//-------------------------------
+		// component-wise built-in unary
+
+		#define X(op)\
+		template <typename T, u32 N>\
+		CA_INLINE auto operator op(vec_t<T, N> const & v)\
+		{\
+			vec_t<decltype(op T()), N> v_out;\
+			for (u32 i = 0; i != N; i++)\
+			{\
+				v_out.e[i] = op v.e[i];\
+			}\
+			return v_out;\
+		}
+		CA_XDECL_MATH_SCALAR_OPS_BUILTIN_UNARY
+		#undef X
+
+		//--------------------------------
+		// component-wise built-in binary
+
+		#define X(op)\
+		template <typename T, u32 N>\
+		CA_INLINE auto operator op(vec_t<T, N> const & a, vec_t<T, N> const & b)\
+		{\
+			vec_t<decltype(T() op T()), N> v;\
+			for (u32 i = 0; i != N; i++)\
+			{\
+				v.e[i] = a.e[i] op b.e[i];\
+			}\
+			return v;\
+		}\
+		template <typename T, u32 N>\
+		CA_INLINE auto operator op(vec_t<T, N> const & a, T const & b)\
+		{\
+			vec_t<decltype(T() op T()), N> v;\
+			for (u32 i = 0; i != N; i++)\
+			{\
+				v.e[i] = a.e[i] op b;\
+			}\
+			return v;\
+		}\
+		template <typename T, u32 N>\
+		CA_INLINE auto operator op(T const & a, vec_t<T, N> const & b)\
+		{\
+			vec_t<decltype(T() op T()), N> v;\
+			for (u32 i = 0; i != N; i++)\
+			{\
+				v.e[i] = a op b.e[i];\
+			}\
+			return v;\
+		}
+		CA_XDECL_MATH_SCALAR_OPS_BUILTIN_BINARY
+		#undef X
+
+		//----------------------------------
+		// component-wise built-in compound
+
+		#define X(op)\
+		template <typename T, u32 N>\
+		CA_INLINE auto& operator op(vec_t<T, N> & a, vec_t<T, N> const & b)\
+		{\
+			for (u32 i = 0; i != N; i++)\
+			{\
+				a.e[i] op b.e[i];\
+			}\
+			return a;\
+		}\
+		template <typename T, u32 N>\
+		CA_INLINE auto& operator op(vec_t<T, N> & a, T const & b)\
+		{\
+			for (u32 i = 0; i != N; i++)\
+			{\
+				a.e[i] op b;\
+			}\
+			return a;\
+		}
+		CA_XDECL_MATH_SCALAR_OPS_BUILTIN_COMPOUND
 		#undef X
 	}
 }

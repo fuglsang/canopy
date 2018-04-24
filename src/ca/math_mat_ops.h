@@ -3,6 +3,8 @@
 #include "ca/math_mat.h"
 #include "ca/math_vec_ops.h"
 
+//TODO per-row ops
+
 namespace ca
 {
 	namespace math
@@ -40,31 +42,58 @@ namespace ca
 		template <typename T, u32 N>
 		CA_INLINE vec_t<T, N> mul(mat_t<T, N> const & A, vec_t<T, N> const & b);
 
-		//----------------
-		// built-in unary
+		//----------------------
+		// component-wise unary
+
+		#define X(op)\
+		template <typename T, u32 N>\
+		CA_INLINE auto op(mat_t<T, N> const & M);
+		CA_XDECL_MATH_SCALAR_OPS_UNARY
+		#undef X
+
+		//-----------------------
+		// component-wise binary
+
+		#define X(op)\
+		template <typename T, u32 N>\
+		CA_INLINE auto op(mat_t<T, N> const & A, mat_t<T, N> const & B);
+		CA_XDECL_MATH_SCALAR_OPS_BINARY
+		#undef X
+
+		//------------------------
+		// component-wise ternary
+
+		#define X(op)\
+		template <typename T, u32 N>\
+		CA_INLINE auto op(mat_t<T, N> const & A, mat_t<T, N> const & B, mat_t<T, N> const & C);
+		CA_XDECL_MATH_SCALAR_OPS_TERNARY
+		#undef X
+
+		//-------------------------------
+		// component-wise built-in unary
 
 		#define X(op)\
 		template <typename T, u32 N>\
 		CA_INLINE auto operator op(mat_t<T, N> const & M);
-		CA_XDECL_MATH_VEC_OPS_BUILTIN_UNARY
+		CA_XDECL_MATH_SCALAR_OPS_BUILTIN_UNARY
 		#undef X
 
-		//-----------------
-		// built-in binary
+		//--------------------------------
+		// component-wise built-in binary
 
 		#define X(op)\
 		template <typename T, u32 N>\
 		CA_INLINE auto operator op(mat_t<T, N> const & A, mat_t<T, N> const & B);
-		CA_XDECL_MATH_VEC_OPS_BUILTIN_BINARY
+		CA_XDECL_MATH_SCALAR_OPS_BUILTIN_BINARY
 		#undef X
 
-		//-------------------
-		// built-in compound
+		//----------------------------------
+		// component-wise built-in compound
 
 		#define X(op)\
 		template <typename T, u32 N>\
 		CA_INLINE auto& operator op(mat_t<T, N> & A, mat_t<T, N> const & B);
-		CA_XDECL_MATH_VEC_OPS_BUILTIN_COMPOUND
+		CA_XDECL_MATH_SCALAR_OPS_BUILTIN_COMPOUND
 		#undef X
 	}
 }

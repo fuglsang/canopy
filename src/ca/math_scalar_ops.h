@@ -83,6 +83,36 @@ namespace ca
 			CA_XDECL_MATH_SCALAR_OPS_TERNARY_EXTERN\
 			CA_XDECL_MATH_SCALAR_OPS_TERNARY_INLINE\
 
+		//----------------
+		// built-in unary
+
+		#define CA_XDECL_MATH_SCALAR_OPS_BUILTIN_UNARY\
+			X(-)\
+
+		//-----------------
+		// built-in binary
+
+		#define CA_XDECL_MATH_SCALAR_OPS_BUILTIN_BINARY\
+			X(*)\
+			X(/)\
+			X(+)\
+			X(-)\
+			X(<)\
+			X(>)\
+			X(<=)\
+			X(>=)\
+			X(==)\
+			X(!=)\
+
+		//-------------------
+		// built-in compound
+
+		#define CA_XDECL_MATH_SCALAR_OPS_BUILTIN_COMPOUND\
+			X(*=)\
+			X(/=)\
+			X(+=)\
+			X(-=)\
+
 		// empty line consumes last backslash
 	}
 }

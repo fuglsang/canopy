@@ -70,36 +70,6 @@ namespace ca
 		template <typename T, typename S>
 		CA_INLINE T lerp(T const & a, T const & b, S const & s);
 
-		//----------------
-		// built-in unary
-
-		#define CA_XDECL_MATH_VEC_OPS_BUILTIN_UNARY\
-			X(-)\
-
-		//-----------------
-		// built-in binary
-
-		#define CA_XDECL_MATH_VEC_OPS_BUILTIN_BINARY\
-			X(*)\
-			X(/)\
-			X(+)\
-			X(-)\
-			X(<)\
-			X(>)\
-			X(<=)\
-			X(>=)\
-			X(==)\
-			X(!=)\
-
-		//-------------------
-		// built-in compound
-
-		#define CA_XDECL_MATH_VEC_OPS_BUILTIN_COMPOUND\
-			X(*=)\
-			X(/=)\
-			X(+=)\
-			X(-=)\
-
 		//----------------------
 		// component-wise unary
 
@@ -125,6 +95,39 @@ namespace ca
 		template <typename T, u32 N>\
 		CA_INLINE auto op(vec_t<T, N> const & a, vec_t<T, N> const & b, vec_t<T, N> const & c);
 		CA_XDECL_MATH_SCALAR_OPS_TERNARY
+		#undef X
+
+		//-------------------------------
+		// component-wise built-in unary
+
+		#define X(op)\
+		template <typename T, u32 N>\
+		CA_INLINE auto operator op(vec_t<T, N> const & v);
+		CA_XDECL_MATH_SCALAR_OPS_BUILTIN_UNARY
+		#undef X
+
+		//--------------------------------
+		// component-wise built-in binary
+
+		#define X(op)\
+		template <typename T, u32 N>\
+		CA_INLINE auto operator op(vec_t<T, N> const & a, vec_t<T, N> const & b);\
+		template <typename T, u32 N>\
+		CA_INLINE auto operator op(vec_t<T, N> const & a, T const & b);\
+		template <typename T, u32 N>\
+		CA_INLINE auto operator op(T const & a, vec_t<T, N> const & b);
+		CA_XDECL_MATH_SCALAR_OPS_BUILTIN_BINARY
+		#undef X
+
+		//----------------------------------
+		// component-wise built-in compound
+
+		#define X(op)\
+		template <typename T, u32 N>\
+		CA_INLINE auto& operator op(vec_t<T, N> & a, vec_t<T, N> const & b);\
+		template <typename T, u32 N>\
+		CA_INLINE auto& operator op(vec_t<T, N> & a, T const & b);
+		CA_XDECL_MATH_SCALAR_OPS_BUILTIN_COMPOUND
 		#undef X
 	}
 }

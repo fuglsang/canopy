@@ -164,34 +164,85 @@ namespace ca
 			return v;
 		}
 
-		//----------------
-		// built-in unary
+		//----------------------
+		// component-wise unary
+
+		#define X(op)\
+		template <typename T, u32 N>\
+		CA_INLINE auto op(mat_t<T, N> const & M)\
+		{\
+			mat_t<decltype(op(T())), N> M_out;\
+			for (u32 i = 0; i != N; i++)\
+			{\
+				M_out.row[i] = op(M.row[i]);\
+			}\
+			return M_out;\
+		}
+		CA_XDECL_MATH_SCALAR_OPS_UNARY
+		#undef X
+
+		//-----------------------
+		// component-wise binary
+
+		#define X(op)\
+		template <typename T, u32 N>\
+		CA_INLINE auto op(mat_t<T, N> const & A, mat_t<T, N> const & B)\
+		{\
+			mat_t<decltype(op(T(), T())), N> M;\
+			for (u32 i = 0; i != N; i++)\
+			{\
+				M.row[i] = op(A.row[i], B.row[i]);\
+			}\
+			return M;\
+		}
+		CA_XDECL_MATH_SCALAR_OPS_BINARY
+		#undef X
+
+		//------------------------
+		// component-wise ternary
+
+		#define X(op)\
+		template <typename T, u32 N>\
+		CA_INLINE auto op(mat_t<T, N> const & A, mat_t<T, N> const & B, mat_t<T, N> const & C)\
+		{\
+			mat_t<decltype(op(T(), T(), T())), N> M;\
+			for (u32 i = 0; i != N; i++)\
+			{\
+				M.row[i] = op(A.row[i], B.row[i], C.row[i]);\
+			}\
+			return M;\
+		}
+		CA_XDECL_MATH_SCALAR_OPS_TERNARY
+		#undef X
+
+		//-------------------------------
+		// component-wise built-in unary
 
 		#define X(op)\
 		template <typename T, u32 N>\
 		CA_INLINE auto operator op(mat_t<T, N> const & M)\
 		{\
 			mat_t<decltype(op T()), N> M_out;\
-			for (u32 i = 0; i != N * N; i++)\
+			for (u32 i = 0; i != N; i++)\
 			{\
-				M_out.e[i] = op M.e[i];\
+				M_out.row[i] = op M.row[i];\
 			}\
 			return M_out;\
 		}
-		CA_XDECL_MATH_VEC_OPS_BUILTIN_UNARY
+		CA_XDECL_MATH_SCALAR_OPS_BUILTIN_UNARY
 		#undef X
 
-		//-----------------
-		// built-in binary
+		//--------------------------------
+		// component-wise built-in binary
 
 		#define X(op)\
 		template <typename T, u32 N>\
 		CA_INLINE auto operator op(mat_t<T, N> const & A, mat_t<T, N> const & B)\
 		{\
 			mat_t<decltype(T() op T()), N> M;\
-			for (u32 i = 0; i != N * N; i++)\
+			for (u32 i = 0; i != N; i++)\
 			{\
-				M.e[i] = A.e[i] op B.e[i];\
+				M.row[i] = A.row[i] op B.row[i];\
 			}\
 			return M;\
 		}\
@@ -199,9 +250,9 @@ namespace ca
 		CA_INLINE auto operator op(mat_t<T, N> const & A, T const & b)\
 		{\
 			mat_t<decltype(T() op T()), N> M;\
-			for (u32 i = 0; i != N * N; i++)\
+			for (u32 i = 0; i != N; i++)\
 			{\
-				M.e[i] = A.e[i] op b;\
+				M.row[i] = A.row[i] op b;\
 			}\
 			return M;\
 		}\
@@ -209,39 +260,38 @@ namespace ca
 		CA_INLINE auto operator op(T const & a, mat_t<T, N> const & B)\
 		{\
 			mat_t<decltype(T() op T()), N> M;\
-			for (u32 i = 0; i != N * N; i++)\
+			for (u32 i = 0; i != N; i++)\
 			{\
-				M.e[i] = a op B.e[i];\
+				M.row[i] = a op B.row[i];\
 			}\
 			return M;\
 		}
-		CA_XDECL_MATH_VEC_OPS_BUILTIN_BINARY
+		CA_XDECL_MATH_SCALAR_OPS_BUILTIN_BINARY
 		#undef X
 
-		//-------------------
-		// built-in compound
+		//----------------------------------
+		// component-wise built-in compound
 
 		#define X(op)\
 		template <typename T, u32 N>\
 		CA_INLINE auto& operator op(mat_t<T, N> & A, mat_t<T, N> const & B)\
 		{\
-			for (u32 i = 0; i != N * N; i++)\
+			for (u32 i = 0; i != N; i++)\
 			{\
-				A.e[i] op B.e[i];\
+				A.row[i] op B.row[i];\
 			}\
 			return A;\
 		}\
 		template <typename T, u32 N>\
 		CA_INLINE auto& operator op(mat_t<T, N> & A, T const & b)\
 		{\
-			for (u32 i = 0; i != N * N; i++)\
+			for (u32 i = 0; i != N; i++)\
 			{\
-				A.e[i] op b;\
+				A.row[i] op b;\
 			}\
 			return A;\
 		}
-		CA_XDECL_MATH_VEC_OPS_BUILTIN_COMPOUND
+		CA_XDECL_MATH_SCALAR_OPS_BUILTIN_COMPOUND
 		#undef X
-
 	}
 }
